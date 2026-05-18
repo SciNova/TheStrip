@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav>
+	<a href="/games/Dino">Dino</a>
+	<a href="/games/DicesClock">DicesClock</a>
+	<a href="/games/Test">Test</a>
+	<a href="/games/Dices">Dices</a>
+	<a href="/games/FlappyBird">FlappyBird</a>
+	<a href="/games/Slots">Slots</a>
+	<a href="/games/Race">Race</a>
+	<a href="/games/Stack">Stack</a>
+	<a href="/games/SimonSays">SimonSays</a>
+	<a href="/games/Pacman">Pacman</a>
+	<a href="/games/Moodlight">Moodlight</a>
+	<a href="/games/Playground">Playground</a>
+</nav>
+
+
+
+
+
+---
+
+
+
+
+
+<script src="node_modules/pfxr/dist/index.global.js"></script>
+<button id="test-sound">Test pfxr</button>
+<script>
+    document.getElementById('test-sound').addEventListener('click', function() {
+        var audioContext = new AudioContext();
+        pfxr.playSound(
+            {
+                waveForm: 2,          // SQUARE
+                frequency: 440,
+                attackTime: 0.01,
+                sustainTime: 0.1,
+                decayTime: 0.2,
+                volume: 0.5
+            },
+            audioContext,
+            audioContext.destination
+        );
+    });
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}
