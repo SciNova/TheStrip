@@ -1,6 +1,228 @@
 package;
 
 
+
+enum Alignment {
+	CENTER;
+	FORWARD;
+	BACKWARD;
+}
+
+
+
+function correctLuminance(pixel:Array<Int>):Array<Int> {
+	return [
+		//Std.int(pixel[0] * 0.3812709),
+		//Std.int(pixel[1] * 0.1942078),
+		Std.int(pixel[0] * 0.38),
+		Std.int(pixel[1] * 0.28),
+//		Std.int(pixel[0] * 1),
+//		Std.int(pixel[1] * 1),
+		pixel[2]   // blue unchanged
+	];
+}
+
+
+
+
+enum EdgeMode {
+	CLIP;
+	MIRROR;
+	WRAP;
+}
+
+
+
+
+
+
+class NewDisplayObject {
+	public var app:App;
+	public var pixels:Array<Array<Int>>;
+	public var alignment:Alignment;
+
+	public function new(app:App, size:Int, ?alignment:Alignment = CENTER) {
+		this.app = app;
+		this.alignment = alignment;
+		pixels = [for (i in 0...size) [0, 0, 0]];
+	}
+
+	public function update():Void {
+	}
+
+	public function render(position:Float, ?edge:EdgeMode = CLIP):Void {
+		var len = pixels.length;
+		var start:Int;
+		var step:Int;
+		switch (alignment) {
+			case CENTER:
+				start = Math.round(position) - Std.int((len - 1) / 2);
+				step = 1;
+			case FORWARD:
+				start = Math.round(position);
+				step = 1;
+			case BACKWARD:
+				start = Math.round(position);
+				step = -1;
+		}
+		for (i in 0...len) {
+			var pos = start + i * step;
+			switch (edge) {
+				case CLIP:
+					if (pos >= 0 && pos < app.resolution) {
+						var src = pixels[i];
+						if (src[0] != 0 || src[1] != 0 || src[2] != 0) {
+							app.pixels[pos] = correctLuminance(src);
+						}
+					}
+				case MIRROR:
+					while (pos < 0) pos = -pos;
+					while (pos >= app.resolution) pos = 2 * (app.resolution - 1) - pos;
+					var src = pixels[i];
+					if (src[0] != 0 || src[1] != 0 || src[2] != 0) {
+						app.pixels[pos] = correctLuminance(src);
+					}
+				case WRAP:
+					pos = ((pos % app.resolution) + app.resolution) % app.resolution;
+					var src = pixels[i];
+					if (src[0] != 0 || src[1] != 0 || src[2] != 0) {
+						app.pixels[pos] = correctLuminance(src);
+					}
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class DisplayObject {
+	public var app:Dynamic;
+	public var pixels:Array<Array<Int>>;
+	public var position:Float;
+	public var alignment:Alignment;
+
+	public function new(app:App, size:Int, alignment:Alignment) {
+		this.app = app;
+		this.alignment = alignment;
+		pixels = [for (i in 0...size) [0, 0, 0]];
+		position = 0.0;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public function update():Void {
+	}
+
+
+
+public function render():Void {
+	var len = pixels.length;
+	var pos = Math.round(position);
+	var start:Int;
+	var step:Int;
+	switch (alignment) {
+		case CENTER:
+			start = pos - Std.int((len - 1) / 2);
+			step = 1;
+		case FORWARD:
+			start = pos;
+			step = 1;
+		case BACKWARD:
+			start = pos;
+			step = -1;
+	}
+	for (i in 0...len) {
+		var worldIdx = start + i * step;
+		if (worldIdx >= 0 && worldIdx < app.resolution) {
+			var src = pixels[i];
+			// Skip fully transparent black (all channels zero)
+			if (src[0] != 0 || src[1] != 0 || src[2] != 0) {
+				app.pixels[worldIdx] = correctLuminance(src);
+			}
+		}
+	}
+}
+
+
+
+
+
+	public function Xrender():Void {
+		var len = pixels.length;
+		var pos = Math.round(position);
+		var start:Int;
+		var step:Int;
+		switch (alignment) {
+			case CENTER:
+				start = pos - Std.int((len - 1) / 2);
+				step = 1;
+			case FORWARD:
+				start = pos;
+				step = 1;
+			case BACKWARD:
+				start = pos;
+				step = -1;
+		}
+		for (i in 0...len) {
+			var worldIdx = start + i * step;
+			if (worldIdx >= 0 && worldIdx < app.resolution) {
+				if (pixels[i][0] != 0 || pixels[i][1] != 0 || pixels[i][2] != 0)
+					app.pixels[worldIdx] = pixels[i];
+				//app.pixels[worldIdx] = pixels[i];
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Colors {
 	public static inline var None:Int = 0x000000;
 	public static inline var Black:Int = 0x000000;
@@ -25,6 +247,14 @@ class Colors {
 	public static inline var DarkOrange:Int = 0x7F4400;
 	public static inline var DarkPurple:Int = 0x44007F;
 	public static inline var DarkPink:Int = 0x7F334C;
+
+
+	public static inline var Banana:Int = 0xFFCC00;       // warm golden yellow
+	public static inline var Lemon:Int = 0xCCFF00;        // greenish lime-yellow
+	public static inline var Watermelon:Int = 0x007F00;   // dark green
+	public static inline var Blackberry:Int = 0x44007F;   // dark purple
+	public static inline var Strawberry:Int = 0xFF3366;   // pinkish red
+
 }
 
 function rgb(color:Int):Array<Int> {
@@ -34,20 +264,76 @@ function rgb(color:Int):Array<Int> {
 
 
 
+
+enum SoundEvent {
+	LEVEL_COMPLETE;
+	LEVEL_FAIL;
+	GAME_COMPLETE;
+	SHOOT;
+	HIT;
+	MISS;
+	GENERATE_ITEM;
+	TICK;
+	CHECKPOINT;
+	SIMONSAYS1;
+	SIMONSAYS2;
+	SIMONSAYS3;
+	SIMONSAYS4;
+	SIMONSAYS1_ORIGINAL;
+	SIMONSAYS2_ORIGINAL;
+	SIMONSAYS3_ORIGINAL;
+	SIMONSAYS4_ORIGINAL;
+//	GAME_INTRO;
+//	LEVEL_START;
+//	GAME_OVER;
+//	ENEMY_HIT;
+//	ENEMY_DEFEATED;
+//	ITEM_PICKUP;
+//	ITEM_ACTIVATE;
+//	ITEM_DEACTIVATE;
+//	WARNING;
+//	WRONG;
+//	CONFIRM;
+//	BOUNCE;
+//	DASH;
+//	EXPLOSION;
+//	NAVIGATE;
+//	CONFIRM_SELECT;
+//	BACK;
+//	PAUSE;
+//	UNPAUSE;
+//	COUNTDOWN;
+//	TIMEOUT;
+//	ERROR;
+}
+
+extern class Audio {
+	public var app:App;
+	public function new(app:App):Void;
+	public function play(event:SoundEvent):Void;
+}
+
+
+
+
 class App {
 	public var pixels:Array<Array<Int>>;
-	public var sound:Dynamic;
+	public var name:String;
+	public var audio:Audio;
 	public var resolution:Int;
 	public var uptime:Float;
 	public var time:Float;
 	public var isPaused:Bool;
+
 	private var timestamp:Float;
 	private var pendingHandler:Void->Void;
 	private var handlerTime:Float;
-	
-	public function new(sound:Dynamic, resolution:Int) {
+
+	public function new(name:String, resolution:Int, audio:Audio) {
+		this.name = name;
 		this.resolution = resolution;
-		this.sound = sound;
+		this.audio = audio;
+		this.audio.app = this;
 		pixels = [for (i in 0...resolution) [0, 0, 0]];
 		timestamp = haxe.Timer.stamp();
 		isPaused = false;
@@ -104,32 +390,25 @@ class App {
 
 
 
-
 class Game extends App {
 	public var levelTime:Float;
 	public var level:Int;
-	
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+
+	public function new(name:String, resolution:Int, audio:Audio) {
+		super(name, resolution, audio);
 		levelTime = 0;
 		level = 0;
 	}
-	
-	public function setLevel(level:Int):Void {
-		this.level = level;
-		buildStage();
-		levelTime = 0;
-		play();
+
+	public function setLevel(n:Int):Void {
+		this.level = n;
 	}
-	
-	public function startLevel():Void {
-		buildStage();
-		levelTime = 0;
-		play();
+
+	public function nextLevel():Void {
+		this.level++;
 	}
-	
-	public function startNextLevel():Void {
-		level++;
+
+	public function playLevel():Void {
 		buildStage();
 		levelTime = 0;
 		play();
@@ -144,8 +423,8 @@ class Game extends App {
 		if (time > previousTime)
 			levelTime += (time - previousTime);
 	}
-
 }
+
 
 
 

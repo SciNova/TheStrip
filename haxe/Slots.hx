@@ -8,52 +8,103 @@ enum Fruit {
 	Cherry;
 	Lemon;
 	Watermelon;
+	Blackberry;
+	Strawberry;
 }
 
-final FruitSize: Array<Float> = [0.3, 0.7, 0.6, 0.6, 0.4, 0.5, 0.8];
+final FruitSize: Array<Float> = [0.3, 0.7, 0.6, 0.6, 0.4, 0.5, 0.8, 0.2, 0.45];
 
-enum GameState {
-	Idle;
-	Spinning;
-	Stopping;
-	Result;
+enum State {
+	IDLE;
+	SPINNING;
+	RESULT;
 }
 
-class Wheel {
-	public var position: Float = 0.0;
-	public var lastPosition: Float = 0.0;
+class Wheel extends DisplayObject {
+	public var rotation: Float = 0.0;
 	public var speed: Float = 0.0;
-	public var isStopping: Bool = false;
-	public var stopTime: Float = 0.0;
+	public var spinEndTime: Float = 0.0;
 	public var symbols: Array<Fruit>;
-	var app: App;
-	var timestamp: Float = 0.0;
 
-	public function new(app: App, symbols: Array<Fruit>) {
-		this.app = app;
+	var timestamp: Float = 0.0;
+	var prevRotation: Float = 0.0;
+
+	public function new(app: App, size: Int, symbols: Array<Fruit>) {
+		super(app, size, Alignment.CENTER);
 		this.symbols = symbols;
 		this.timestamp = app.time;
-		this.lastPosition = 0.0;
 	}
 
-	public function update() {
+	override public function update() {
 		var now = app.time;
 		var dt = now - timestamp;
 		timestamp = now;
-		lastPosition = position;
-		if (isStopping) {
-			speed *= 0.95;
-			if (speed < 0.1) speed = 0.0;
-		}
-		position += speed * dt;
-		
+		prevRotation = rotation;
+
 		if (speed > 0) {
-			if (Math.floor(position) != Math.floor(lastPosition))
-				app.sound.play('slotsClick');
+			if (now >= spinEndTime) {
+				speed -= Slots.DECELERATION * dt;
+				if (speed <= 0) {
+					speed = 0;
+					rotation = Math.round(rotation);
+				}
+			}
+			rotation += speed * dt;
+			while (rotation >= Slots.NUM_SYMBOLS)
+				rotation -= Slots.NUM_SYMBOLS;
+			while (rotation < 0)
+				rotation += Slots.NUM_SYMBOLS;
 		}
-	
-		while (position >= Slots.NUM_SYMBOLS)
-			position -= Slots.NUM_SYMBOLS;
+
+		if (speed > 0) {
+			if (Math.floor(rotation) != Math.floor(prevRotation))
+				app.audio.play(SoundEvent.TICK);
+		}
+
+		// --- render into local buffer ---
+		var S = pixels.length;
+		var slotAngle = 2 * Math.PI / Slots.NUM_SYMBOLS;
+		var wheelAngle = rotation * slotAngle + slotAngle / 2; // center of current symbol at top
+
+		for (j in 0...S) {
+			var t = j / (S - 1);
+			var theta = (t - 0.5) * Math.PI;
+			var absoluteAngle = theta + wheelAngle;
+			absoluteAngle = absoluteAngle % (2 * Math.PI);
+			if (absoluteAngle < 0)
+				absoluteAngle += 2 * Math.PI;
+
+			var slotIndex = Std.int(Math.floor(absoluteAngle / slotAngle)) % Slots.NUM_SYMBOLS;
+			var localAngle = absoluteAngle - slotIndex * slotAngle;
+			var fruit = symbols[slotIndex];
+
+			var fruitLength = FruitSize[fruit.getIndex()];
+			var fruitAngularSpan = fruitLength * slotAngle;
+			var fruitStartAngle = (slotAngle - fruitAngularSpan) / 2;
+			var fruitEndAngle = (slotAngle + fruitAngularSpan) / 2;
+
+			var color: Array<Int> = switch (fruit) {
+				case Apple:       rgb(Colors.Green);
+				case Banana:      rgb(Colors.Banana);
+				case Grape:       rgb(Colors.Purple);
+				case Orange:      rgb(Colors.Orange);
+				case Cherry:      rgb(Colors.Red);
+				case Lemon:       rgb(Colors.Lemon);
+				case Watermelon:  rgb(Colors.Watermelon);
+				case Blackberry:  rgb(Colors.Blackberry);
+				case Strawberry:  rgb(Colors.Strawberry);
+			};
+
+			if (!(localAngle >= fruitStartAngle && localAngle <= fruitEndAngle))
+				color = rgb(Colors.Silver);
+
+			var brightness = 1 - Math.pow((t - 0.5) * 2, 2);
+			pixels[j] = [
+				Math.round(color[0] * brightness),
+				Math.round(color[1] * brightness),
+				Math.round(color[2] * brightness)
+			];
+		}
 	}
 }
 
@@ -61,46 +112,50 @@ class Wheel {
 class Slots extends App {
 	static public final NUM_WHEELS = 3;
 	static public final NUM_SYMBOLS = 8;
+	static public final DECELERATION = 15.0;
 	static final MIN_SPEED = 10;
 	static final MAX_SPEED = 40;
 	static final MIN_SPIN_DURATION = 2.0;
 	static final MAX_SPIN_DURATION = 5.0;
-	static final MIN_STOP_DURATION = 1.0;
-	static final MAX_STOP_DURATION = 3.0;
+
 	static final WHEELS: Array<Array<Fruit>> = [
-		[Apple, Banana, Grape, Orange, Cherry, Lemon, Watermelon, Apple],
-		[Banana, Grape, Orange, Cherry, Lemon, Watermelon, Apple, Banana],
-		[Grape, Orange, Cherry, Lemon, Watermelon, Apple, Banana, Grape]
+		[Cherry, Lemon, Orange, Banana, Cherry, Lemon, Watermelon, Orange],
+		[Banana, Cherry, Lemon, Orange, Cherry, Watermelon, Lemon, Orange],
+		[Lemon, Orange, Cherry, Watermelon, Lemon, Orange, Banana, Cherry]
 	];
 
-	var state: GameState;
+	var state: State;
 	var wheels: Array<Wheel>;
-	var spinStartTime: Float;
-	var spinDuration: Float;
-	var offset:Int;
+	var segmentPixels: Int;
+	var offset: Int;
 
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+	public function new(audio: Audio, resolution: Int) {
+		super("Slots", resolution, audio);
 
-		var segmentPixels = Std.int(resolution / NUM_WHEELS);
+		segmentPixels = Std.int(resolution / NUM_WHEELS);
 		if (segmentPixels % 2 == 0)
 			segmentPixels--;
 		offset = Std.int((resolution - segmentPixels * NUM_WHEELS) / 2);
+
 		wheels = [];
-		for (i in 0...NUM_WHEELS)
-			wheels.push(new Wheel(this, WHEELS[i]));
-		state = Idle;
+		for (i in 0...NUM_WHEELS) {
+			var w = new Wheel(this, segmentPixels, WHEELS[i]);
+			// position the wheel's center pixel on the strip
+			var segmentStart = offset + i * segmentPixels;
+			w.position = segmentStart + (segmentPixels - 1) / 2;
+			// initial random symbol
+			w.rotation = Math.floor(Math.random() * NUM_SYMBOLS);
+			wheels.push(w);
+		}
+		state = IDLE;
 	}
 
 	function spin() {
-		spinStartTime = time;
-		spinDuration = MIN_SPIN_DURATION + Math.random() * (MAX_SPIN_DURATION - MIN_SPIN_DURATION);
-		for (i in 0...NUM_WHEELS) {
-			wheels[i].stopTime = MIN_STOP_DURATION + Math.random() * (MAX_STOP_DURATION - MIN_STOP_DURATION);
-			wheels[i].isStopping = false;
-			wheels[i].speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+		for (wheel in wheels) {
+			wheel.speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+			wheel.spinEndTime = time + MIN_SPIN_DURATION + Math.random() * (MAX_SPIN_DURATION - MIN_SPIN_DURATION);
 		}
-		state = Spinning;
+		state = SPINNING;
 	}
 
 	override public function loop() {
@@ -108,98 +163,58 @@ class Slots extends App {
 		if (pendingHandler != null)
 			return;
 
-		var elapsed = time - spinStartTime;
-
-		switch (state) {
-			case Spinning:
-				for (i in 0...NUM_WHEELS) {
-					if (!wheels[i].isStopping && elapsed >= wheels[i].stopTime) {
-						wheels[i].isStopping = true;
-					}
-				}
-				if (elapsed >= spinDuration) {
-					state = Stopping;
-				}
-			case Stopping:
-				var allStopped = true;
-				for (wheel in wheels) {
-					if (wheel.speed > 0.1) {
-						allStopped = false;
-						break;
-					}
-				}
-				if (allStopped) {
-					state = Result;
-					state = Idle;
-				}
-			case Idle, Result:
-		}
 		for (wheel in wheels)
 			wheel.update();
+
+		if (state == SPINNING) {
+			var allStopped = true;
+			for (wheel in wheels) {
+				if (wheel.speed > 0) {
+					allStopped = false;
+					break;
+				}
+			}
+			if (allStopped) {
+				state = RESULT;
+				evaluate();
+			}
+		}
+
 		render();
 	}
 
-	override public function buttonPress(buttonIndex:Int) {
-		if (state == Idle && buttonIndex == 0)
+	function evaluate() {
+		var centreFruits: Array<Fruit> = [];
+		for (wheel in wheels) {
+			var idx = Math.round(wheel.rotation) % NUM_SYMBOLS;
+			centreFruits.push(wheel.symbols[idx]);
+		}
+		if (centreFruits[0] == centreFruits[1] && centreFruits[1] == centreFruits[2]) {
+			audio.play(SoundEvent.LEVEL_COMPLETE);
+		} else {
+			audio.play(SoundEvent.LEVEL_FAIL);
+		}
+		defer(function() {
+			state = IDLE;
+		}, 4);
+	}
+
+	override public function buttonPress(buttonIndex: Int) {
+		if (state == IDLE && buttonIndex == 0)
 			spin();
 	}
 
 	function render() {
-		var segmentPixels:Int = Std.int(resolution / NUM_WHEELS);
-		var slotsPerWheel = NUM_SYMBOLS;
-		var slotAngle = 2 * Math.PI / slotsPerWheel;
-		
-		for (wheelIndex in 0...NUM_WHEELS) {
-			var wheel = wheels[wheelIndex];
-			var wheelRotation = wheel.position * slotAngle;
-			var segmentStart = wheelIndex * segmentPixels;
-			
-			for (j in 0...segmentPixels) {
-				var normalized = j / (segmentPixels - 1);
-				var theta = (normalized - 0.5) * Math.PI;
-				var absoluteAngle = theta + wheelRotation;
-				absoluteAngle = absoluteAngle % (2 * Math.PI);
-				if (absoluteAngle < 0)
-					absoluteAngle += 2 * Math.PI;
-				var slotIndex = Std.int(Math.floor(absoluteAngle / slotAngle)) % slotsPerWheel;
-				var localAngle = absoluteAngle - slotIndex * slotAngle;
-				var fruit = wheel.symbols[slotIndex];
-				
-				var fruitLength = FruitSize[fruit.getIndex()];
-				var fruitAngularSpan = fruitLength * slotAngle;
-				var fruitStartAngle = (slotAngle - fruitAngularSpan) / 2;
-				var fruitEndAngle = (slotAngle + fruitAngularSpan) / 2;
-				
-				var color:Array<Int> = switch(fruit) {
-					case Apple: rgb(Colors.Green);
-					case Banana: rgb(Colors.Red);
-					case Grape: rgb(Colors.Purple);
-					case Orange: rgb(Colors.Orange);
-					case Cherry: rgb(Colors.Red);
-					case Lemon: rgb(Colors.Yellow);
-					case Watermelon: rgb(Colors.DarkGreen);
-				};
-				
-				if (!(localAngle >= fruitStartAngle && localAngle <= fruitEndAngle))
-					color = rgb(Colors.Silver);
-					
-				var brightness = 1 - Math.pow((normalized - 0.5) * 2, 2);
-				var r = Math.round(color[0] * brightness);
-				var g = Math.round(color[1] * brightness);
-				var b = Math.round(color[2] * brightness);
-				pixels[offset + segmentStart + j] = [r, g, b];
-			}
-		}
-		
-		var segmentPixels:Int = Std.int(resolution / NUM_WHEELS);
-		for (wheelIndex in 0...NUM_WHEELS) {
-			var segmentStart = wheelIndex * segmentPixels;
-			var half = Std.int(segmentPixels / 2);
-			var centerIdx = segmentStart + half;
-			pixels[offset + centerIdx] = rgb(Colors.White);
-		}
+		clear();
+		// blit all wheels
+		for (wheel in wheels)
+			wheel.render();
+
+		// payline marker (white dot at each wheel's center)
+		for (wheel in wheels)
+			//pixels[Math.round(wheel.position)] = rgb(Colors.White);
+			pixels[Math.round(wheel.position)] = correctLuminance(rgb(Colors.White));
 	}
 
-	static function main() {
-	}
+	static function main() {}
 }

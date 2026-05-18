@@ -171,8 +171,8 @@ class Test extends App {
 	var square:Square;
 	var centerPosition:Int;
 
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+	public function new(audio:Audio, resolution:Int) {
+		super("Test", resolution, audio);
 		square = new Square(this, Colors.White, [], 60);
 		centerPosition = Math.floor(resolution / 2);
 	}

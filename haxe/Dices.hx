@@ -202,7 +202,7 @@ class Dices extends Game {
 
 	public function new(sound:Dynamic, resolution:Int) {
 		log("Dices");
-		super(sound, resolution);
+		super("Dices", resolution, sound);
 		dice = new Dice(this);
 		centerPosition = Math.floor(resolution / 2);
 	}

@@ -103,8 +103,8 @@ class Moodlight extends App {
 	var MAX_SPEED:Float = 2.0;
 	var SPEED_STEP:Float = 0.1;
 
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+	public function new(audio:Audio, resolution:Int) {
+		super("Moodlight", resolution, audio);
 		themes = [
 			new RainbowTheme(this),
 			new OceanTheme(this),

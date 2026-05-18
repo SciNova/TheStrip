@@ -164,8 +164,8 @@ class Playground extends App {
 	private var maze:Maze;
 	private var player:Player;
 	
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+	public function new(audio:Audio, resolution:Int) {
+		super("Playground", resolution, audio);
 		log("Playground - Maze with Textures");
 		
 		maze = new Maze();

@@ -97,24 +97,31 @@ class Obstacle {
 }
 
 @:expose
-class Dino extends App {
+class Dino extends Game {
 	var player:Player;
-	var obstacles:Array<Null<Obstacle>>;
-	var gap:Int;
-	var ttimestamp:Float;
+	var obstacles:Array<Obstacle>;
+	public var ttimestamp:Float;
 
-	private static final MIN_GAP:Int = 50;
-	private static final MAX_GAP:Int = 70;
-	private static final MIN_HEIGHT:Float = 0.1;
-	private static final MAX_HEIGHT:Float = 0.5;
-	private static final SPEED:Float = 30.0;
+	private static final LEVELS                      = 10;
+	private static final LEVEL_LENGTH                = 1500;
+	private static final START_SPEED                 = 30;
+	private static final END_SPEED                   = 60;
+	private static final START_BUILDINGS             = 7;
+	private static final END_BUILDINGS               = 15;
+	private static final START_MIN_BUILDING_HEIGHT   = 0.2;
+	private static final START_MAX_BUILDING_HEIGHT   = 0.3;
+	private static final END_MIN_BUILDING_HEIGHT     = 0.5;
+	private static final END_MAX_BUILDING_HEIGHT     = 0.8;
+	private static final MIN_BUILDING_WIDTH          = 4;
+	private static final MAX_BUILDING_WIDTH          = 12;
+	private static final START_OBJECTS               = 1;
+	private static final END_OBJECTS                 = 12;
+	private static final MIN_OBJECT_WIDTH            = 4;
+	private static final MAX_OBJECT_WIDTH            = 24;
 
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+	public function new(audio:Audio, resolution:Int) {
+		super("Dino", resolution, audio);
 		player = new Player(this);
-		obstacles = [for (i in 0...resolution) null];
-		gap = MIN_GAP;
-		ttimestamp = time;
 	}
 
 

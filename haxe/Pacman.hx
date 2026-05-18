@@ -74,8 +74,8 @@ class Pacman extends Game {
 	var moveUpPressed:Bool = false;
 	var moveDownPressed:Bool = false;
 
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+	public function new(audio:Audio, resolution:Int) {
+		super("Pacman", resolution, audio);
 		TOTAL_PELLETS = Std.int(resolution / (GAP + 1));
 		log("Pacman");
 		player = new Player(this);
@@ -83,15 +83,21 @@ class Pacman extends Game {
 		moveUpPressed = false;
 		moveDownPressed = false;
 		maze = [for (i in 0...resolution) null];
-		startLevel();
+		playLevel();
 	}
 
 	override function buildStage():Void {
-		var levelIndex = level;
-		
-		var magic = START_MAGIC + Math.round((END_MAGIC - START_MAGIC) * (levelIndex / (LEVELS - 1)));
+		// Reset player and ghosts
+		player = new Player(this);
+		ghosts = [];
+
+		// Clear maze
 		for (i in 0...resolution)
 			maze[i] = null;
+
+		// Build pellet layout
+		var levelIndex = level;
+		var magic = START_MAGIC + Math.round((END_MAGIC - START_MAGIC) * (levelIndex / (LEVELS - 1)));
 		var allPelletPositions:Array<Int> = [];
 		var pos = 0;
 		while (pos < resolution) {
@@ -106,22 +112,13 @@ class Pacman extends Game {
 		}
 		
 		for (i in 0...TOTAL_PELLETS) {
-			var pos = allPelletPositions[i];
+			var p = allPelletPositions[i];
 			if (i < magic) {
-				maze[pos] = new Pellet(true);
+				maze[p] = new Pellet(true);
 			} else {
-				maze[pos] = new Pellet(false);
+				maze[p] = new Pellet(false);
 			}
 		}
-	}
-
-	override public function startLevel():Void {
-		maze = [for (i in 0...resolution) null];
-		player = new Player(this);
-		ghosts = [];
-		//build();
-		super.startLevel();
-		log("Starting Pacman level " + this.level);
 	}
 
 	override public function loop():Void {
@@ -157,16 +154,14 @@ class Pacman extends Game {
 			if (level >= LEVELS - 1) {
 				log("Game Complete!");
 			} else {
-				defer(startNextLevel, 1);
+				nextLevel();
+				defer(playLevel, 1);
 				log("Level " + (level + 1) + " complete!");
 			}
 			return;
 		}
 		render();
-
 	}
-
-
 
 	public function render() {
 		for (i in 0...resolution)
@@ -188,7 +183,6 @@ class Pacman extends Game {
 			pixels[player.position] = rgb(Colors.Yellow);
 		}
 	}
-
 
 	override public function buttonPress(buttonIndex:Int):Void {
 		switch (buttonIndex) {

@@ -386,9 +386,9 @@ class DicesClock extends Game {
     var smallGap:Int = 7;
     var colonGap:Int = 14;
 
-    public function new(sound:Dynamic, resolution:Int) {
+    public function new(resolution:Int, sound:Dynamic) {
         log("DicesClock");
-        super(sound, resolution);
+        super("DiceClock", resolution, sound);
         
         dice = [];
         for (i in 0...4) {

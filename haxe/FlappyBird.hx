@@ -85,8 +85,8 @@ class FlappyBird extends App {
 	var gapPosition:Float;
 	var fluctuation:Float;
 
-	public function new(sound:Dynamic, resolution:Int) {
-		super(sound, resolution);
+	public function new(audio:Audio, resolution:Int) {
+		super("FlappyBird", resolution, audio);
 
 		gap = 0.5;
 		gapPosition = 0.5;
