@@ -8,91 +8,106 @@ enum RaceState {
 class Player extends NewDisplayObject {
 	public var location:Float;
 	public var speed:Float;
+	public var trailSpeed:Float;
 	public var reverse:Bool;
 	public var travel:Float;
 	public var color:Int;
-	
-	public static inline var BOOST:Float = 60;
-	public static inline var FRICTION:Float = 3.75;
-	public static inline var MAX_SPEED:Float = 180;
-	public static inline var TRAIL_LENGTH:Int = 20;
+
+	public var BOOST:Float;
+	public var FRICTION:Float = 3.75;
+	public var TRAIL_FRICTION:Float = 2.5;
+	public var MAX_SPEED:Float;
+
+	static var TRAIL = 1/8;
+	static var TRAIL_LENGTH:Int;
+
+	static inline var TICK = 1/12;
+	static inline var CHECKPOINT = 2;
 
 	private var time:Float;
 
 	public function new(app:App, color:Int) {
-		super(app, TRAIL_LENGTH, BACKWARD);
+		var len = Math.round(app.resolution * TRAIL);
+		super(app, len, BACKWARD);
 		this.app = app;
 		this.color = color;
 		time = app.time;
 		location = app.resolution / 2;
 		speed = 0;
+		trailSpeed = 0;
 		reverse = false;
 		travel = 0;
+		BOOST = 0.5 * app.resolution;
+		MAX_SPEED = 1.5 * app.resolution;
+		TRAIL_LENGTH = len;
 	}
 
+	override public function update():Void {
+		var delta = app.time - time;
+		time = app.time;
 
-override public function update():Void {
-	var delta:Float = app.time - time;
-	time = app.time;
+		var oldLocation = location;
+		speed = speed * (1 - FRICTION * delta);
+		location += speed * (reverse ? -1 : 1) * delta;
 
-	var oldLocation = location;
-	speed = speed * (1 - FRICTION * delta);
-	location += speed * (reverse ? -1 : 1) * delta;
+		if (location < 0) {
+			location = -location;
+			reverse = !reverse;
+		} else if (location >= app.resolution) {
+			location = 2 * (app.resolution - 1) - location;
+			reverse = !reverse;
+		}
 
-	if (location < 0) {
-		location = -location;
-		reverse = !reverse;
-	} else if (location >= app.resolution) {
-		location = 2 * (app.resolution - 1) - location;
-		reverse = !reverse;
-	}
+		var prevTravel = travel;
+		travel += (location > oldLocation) ? (location - oldLocation) : (oldLocation - location);
 
-	var prevTravel = travel;
-	travel += (location > oldLocation) ? (location - oldLocation) : (oldLocation - location);
+		if (Math.floor(prevTravel / (app.resolution * TICK)) != Math.floor(travel / (app.resolution * TICK))) {
+			app.audio.play(SoundEvent.TICK);
+		}
+		if (Math.floor(prevTravel / (app.resolution * CHECKPOINT)) != Math.floor(travel / (app.resolution * CHECKPOINT))) {
+			app.audio.play(SoundEvent.CHECKPOINT);
+		}
 
-	if (Math.floor(prevTravel / 10) != Math.floor(travel / 10)) {
-		app.audio.play(SoundEvent.TICK);
-	}
+		this.alignment = reverse ? FORWARD : BACKWARD;
 
-if (Math.floor(prevTravel / 240) != Math.floor(travel / 240)) {
-    app.audio.play(SoundEvent.CHECKPOINT);
-}
+		trailSpeed *= Math.max(0, 1 - TRAIL_FRICTION * delta);
 
-	this.alignment = reverse ? FORWARD : BACKWARD;
+		var frac = trailSpeed / BOOST;
+		if (frac > 1) frac = 1;
+		var trailPixels = 1 + Math.floor(frac * (TRAIL_LENGTH - 1));
 
-	var trailPixels:Int = 1 + Math.floor((speed / MAX_SPEED) * (TRAIL_LENGTH - 1));
-	for (j in 0...TRAIL_LENGTH) {
-		if (j < trailPixels) {
-			var intensity:Int;
-			if (trailPixels == 1) {
-				intensity = 255;
+		var baseR = (color >> 16) & 0xFF;
+		var baseG = (color >> 8) & 0xFF;
+		var baseB = color & 0xFF;
+
+		for (j in 0...TRAIL_LENGTH) {
+			if (j < trailPixels) {
+				var intensity:Float;
+				if (trailPixels == 1) {
+					intensity = 1.0;
+				} else {
+					intensity = 1.0 - (128.0 / 255.0) * (j / (trailPixels - 1));
+				}
+				var r = Std.int(baseR * intensity);
+				var g = Std.int(baseG * intensity);
+				var b = Std.int(baseB * intensity);
+				pixels[j] = (r << 16) | (g << 8) | b;
 			} else {
-				intensity = 255 - Math.floor(128 * j / (trailPixels - 1));
+				pixels[j] = null;
 			}
-			var baseRgb = rgb(color);
-			pixels[j] = [
-				Math.floor(baseRgb[0] * intensity / 255),
-				Math.floor(baseRgb[1] * intensity / 255),
-				Math.floor(baseRgb[2] * intensity / 255)
-			];
-		} else {
-			pixels[j] = [0, 0, 0];
 		}
 	}
-}
-
-
-
-
 
 	public function boost():Void {
 		speed += BOOST;
 		if (speed > MAX_SPEED) speed = MAX_SPEED;
+		trailSpeed = speed;
 	}
 }
 
 @:expose
 class Race extends Game {
+	static inline var MIN_RESOLUTION = 40;
 	static inline var TOTAL_LAPS:Float = 10.0;
 
 	var playerA:Player;
@@ -139,11 +154,9 @@ class Race extends Game {
 		}
 	}
 
-
-
 	function drawProgressBar(scoreA:Float, scoreB:Float):Void {
 		var half = Std.int(resolution / 2);
-		var barColor = [60, 60, 0];
+		var barColor = 0x3C3C00;
 
 		var lengthA = Math.round(scoreA * half);
 		if (lengthA > half) lengthA = half;
@@ -163,40 +176,25 @@ class Race extends Game {
 		pixels[centerRight] = barColor;
 	}
 
+	function drawResultBars():Void {
+		var half = Std.int(resolution / 2);
+		var targetTravel = TOTAL_LAPS * 2 * resolution;
+		var aWon = playerA.travel >= targetTravel;
+		var bWon = playerB.travel >= targetTravel;
 
-
-
-
-function drawResultBars():Void {
-	var half = Std.int(resolution / 2);
-	var targetTravel = TOTAL_LAPS * 2 * resolution;
-	var aWon = playerA.travel >= targetTravel;
-	var bWon = playerB.travel >= targetTravel;
-
-	if (aWon && !bWon) {
-		var corrected = correctLuminance(rgb(playerA.color));
-		for (i in 0...half) {
-			pixels[i] = corrected;
-		}
-	} else if (bWon && !aWon) {
-		var corrected = correctLuminance(rgb(playerB.color));
-		for (i in half...resolution) {
-			pixels[i] = corrected;
-		}
-	} else {
-		var correctedA = correctLuminance(rgb(playerA.color));
-		var correctedB = correctLuminance(rgb(playerB.color));
-		for (i in 0...half) {
-			pixels[i] = correctedA;
-		}
-		for (i in half...resolution) {
-			pixels[i] = correctedB;
+		if (aWon && !bWon) {
+			var col = correctLuminance(playerA.color);
+			for (i in 0...half) pixels[i] = col;
+		} else if (bWon && !aWon) {
+			var col = correctLuminance(playerB.color);
+			for (i in half...resolution) pixels[i] = col;
+		} else {
+			var colA = correctLuminance(playerA.color);
+			var colB = correctLuminance(playerB.color);
+			for (i in 0...half) pixels[i] = colA;
+			for (i in half...resolution) pixels[i] = colB;
 		}
 	}
-}
-
-
-
 
 	override public function buttonPress(buttonIndex:Int):Void {
 		if (state != PLAYING) return;

@@ -7,7 +7,7 @@ class Dot extends DisplayObject {
 	public var explosionTime:Float;
 
 	static inline var EXPLOSION_DIAMETER = 21;
-	static inline var EXPLOSION_DURATION = 0.5; // seconds
+	static inline var EXPLOSION_DURATION = 0.5;
 	var cosAngles:Array<Float>;
 
 	public function new(app:App, color:Int, gap:Int) {
@@ -16,7 +16,6 @@ class Dot extends DisplayObject {
 		this.gap = gap;
 		alpha = 1.0;
 		explosionTime = 0.0;
-		// Precompute cosines for upper half‑circle (10 angles, 0° to 162° step 18°)
 		cosAngles = [];
 		for (deg in 0...10) {
 			var rad = deg * 18.0 * Math.PI / 180.0;
@@ -25,29 +24,25 @@ class Dot extends DisplayObject {
 	}
 
 	public function explode():Void {
-		explosionTime = app.levelTime;   // start of explosion, alpha remains 1.0
+		explosionTime = app.levelTime;
 	}
 
 	override public function update():Void {
-		// Clear local pixel buffer each frame
-		for (i in 0...pixels.length)
-			pixels[i] = [0, 0, 0];
+		for (i in 0...pixels.length) pixels[i] = null;
 
 		if (explosionTime == 0.0) {
-			// Alive dot – single pixel at center
 			var center = Std.int((pixels.length - 1) / 2);
-			pixels[center] = rgb(color);
+			pixels[center] = color;
 		} else {
-			// Exploding (or dead if alpha == 0)
 			var elapsed = app.levelTime - explosionTime;
 			var t = elapsed / EXPLOSION_DURATION;
 			if (t >= 1.0) {
-				alpha = 0.0;          // animation finished, mark for removal
-				return;               // nothing to draw
+				alpha = 0.0;
+				return;
 			}
-			alpha = 1.0 - t;          // fade out
+			alpha = 1.0 - t;
 			var maxRadius = (EXPLOSION_DIAMETER - 1) / 2;
-			var radius = maxRadius * (1.0 - (1.0 - t) * (1.0 - t)); // fast expansion then deceleration
+			var radius = maxRadius * (1.0 - (1.0 - t) * (1.0 - t));
 			var center = Std.int((pixels.length - 1) / 2);
 			var r = (color >> 16) & 0xFF;
 			var g = (color >> 8) & 0xFF;
@@ -56,11 +51,7 @@ class Dot extends DisplayObject {
 				var offset = Std.int(radius * cosVal + 0.5);
 				var idx = center + offset;
 				if (idx >= 0 && idx < pixels.length) {
-					pixels[idx] = [
-						Std.int(r * alpha),
-						Std.int(g * alpha),
-						Std.int(b * alpha)
-					];
+					pixels[idx] = (Std.int(r * alpha) << 16) | (Std.int(g * alpha) << 8) | Std.int(b * alpha);
 				}
 			}
 		}
@@ -80,22 +71,16 @@ class Bullet extends DisplayObject {
 	}
 
 	override public function update():Void {
-		// Compute head position from time and constant speed
-		position = (game.levelTime - timestamp) * Stack.BULLET_SPEED;
+		for (i in 0...pixels.length) pixels[i] = null;
 
-		// Extract RGB components from packed integer color
+		position = (game.levelTime - timestamp) * Stack.BULLET_SPEED;
 		var r = (color >> 16) & 0xFF;
 		var g = (color >> 8) & 0xFF;
 		var b = color & 0xFF;
 
-		// Fill trail: 20 pixels with a smooth gradient to just above black
 		for (i in 0...20) {
 			var t = (i + 1) / 21.0;
-			pixels[i] = [
-				Std.int(r * (1 - t)),
-				Std.int(g * (1 - t)),
-				Std.int(b * (1 - t))
-			];
+			pixels[i] = (Std.int(r * (1 - t)) << 16) | (Std.int(g * (1 - t)) << 8) | Std.int(b * (1 - t));
 		}
 	}
 }
@@ -128,10 +113,10 @@ class Snake {
 		var gapFloat = START_GAP + (END_GAP - START_GAP) * (level / LEVELS);
 		var lowGap = Math.floor(gapFloat);
 		var highGap = Math.ceil(gapFloat);
-		var prevColor = Colors.None;
-	
+		var prevColor:Null<Int> = null;
+
 		dots = [];
-	
+
 		for (i in 0...numDots) {
 			var color:Int;
 			do {
@@ -140,7 +125,7 @@ class Snake {
 					case 0: Colors.Red;
 					case 1: Colors.Green;
 					case 2: Colors.Blue;
-					default: Colors.None;
+					default: null;
 				}
 			} while (color == prevColor);
 
@@ -148,15 +133,13 @@ class Snake {
 			dots.push(new Dot(this.game, color, gap));
 			prevColor = color;
 		}
-		
+
 		position = game.resolution;
 	}
 
 	public function length():Int {
 		var total = 0;
-		for (dot in dots) {
-			total += 1 + dot.gap;
-		}
+		for (dot in dots) total += 1 + dot.gap;
 		return total;
 	}
 
@@ -181,7 +164,6 @@ class Stack extends Game {
 	private var lastGameTime:Float;
 
 	public function new(audio:Audio, resolution:Int) {
-		log("Stack");
 		super("Stack", resolution, audio);
 		snake = new Snake(this);
 		bullets = [];
@@ -200,35 +182,26 @@ class Stack extends Game {
 	}
 
 	function render():Void {
-		// Clear the main canvas
-		for (i in 0...resolution)
-			pixels[i] = [0, 0, 0];
+		for (i in 0...resolution) pixels[i] = Colors.Black;
 
-		// Draw dots: alive ones form a chain starting from snake.position,
-		// exploding dots stay frozen at their last alive position.
 		var currentPixel = snake.position;
 		for (dot in snake.dots) {
 			if (dot.explosionTime == 0.0) {
-				// Alive dot – place it at the current chain position
 				dot.position = currentPixel;
 				dot.render();
 				currentPixel += 1 + dot.gap;
 			} else {
-				// Exploding or dead – frozen position, just draw (nothing if alpha==0)
 				dot.render();
 			}
 		}
 
-		// Draw bullets
-		for (bullet in bullets)
-			bullet.render();
+		for (bullet in bullets) bullet.render();
 	}
 
 	override public function loop() {
 		super.loop();
 
-		if (pendingHandler != null)
-			return;
+		if (pendingHandler != null) return;
 
 		var deltaTime = (time - lastGameTime) * 1000;
 		lastGameTime = time;
@@ -259,25 +232,17 @@ class Stack extends Game {
 			return;
 		}
 
-		// Update all bullets (positions and trail pixels)
-		for (bullet in bullets)
-			bullet.update();
+		for (bullet in bullets) bullet.update();
+		for (dot in snake.dots) dot.update();
 
-		// Update all dots (normal or explosion animation)
-		for (dot in snake.dots)
-			dot.update();
-
-		// Remove dots whose explosion animation is fully finished (alpha == 0)
 		snake.dots = snake.dots.filter(function(dot) {
 			return dot.alpha != 0.0;
 		});
 
-		// Remove off‑screen bullets
 		bullets = bullets.filter(function(bullet) {
 			return bullet.position < resolution;
 		});
 
-		// Find the effective head: first dot with explosionTime == 0 (i.e. not yet triggered)
 		var headDot:Null<Dot> = null;
 		for (dot in snake.dots) {
 			if (dot.explosionTime == 0.0) {
@@ -288,16 +253,13 @@ class Stack extends Game {
 
 		if (bullets.length > 0 && headDot != null) {
 			var bullet = bullets[0];
-			// headDot’s world position is snake.position
 			if (bullet.position >= snake.position) {
 				if (bullet.color == headDot.color) {
-					// Correct hit – explode the head, advance snake past it
 					headDot.explode();
 					snake.position += 1 + headDot.gap;
 					bullets.shift();
 					audio.play(SoundEvent.HIT);
 				} else {
-					// Wrong color – add a new dot in front
 					bullets.shift();
 					var newDot = new Dot(this, bullet.color, 0);
 					snake.dots.unshift(newDot);
@@ -307,7 +269,6 @@ class Stack extends Game {
 			}
 		}
 
-		// Win / level complete
 		if (snake.dots.length == 0) {
 			if (level >= Snake.LEVELS) {
 				audio.play(SoundEvent.GAME_COMPLETE);

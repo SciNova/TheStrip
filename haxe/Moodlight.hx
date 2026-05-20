@@ -1,3 +1,4 @@
+// Moodlight.hx
 import App;
 
 class BaseTheme {
@@ -35,14 +36,10 @@ class RainbowTheme extends BaseTheme {
 		tm += delta * speed;
 		for (i in 0...app.resolution) {
 			var pos = (i / app.resolution + tm) * Math.PI * 2;
-			var r = Math.sin(pos) * 127.5 + 127.5;
-			var g = Math.sin(pos + Math.PI * 2 / 3) * 127.5 + 127.5;
-			var b = Math.sin(pos + Math.PI * 4 / 3) * 127.5 + 127.5;
-			app.pixels[i] = [
-				Math.round(r),
-				Math.round(g), 
-				Math.round(b)
-			];
+			var r = Math.round(Math.sin(pos) * 127.5 + 127.5);
+			var g = Math.round(Math.sin(pos + Math.PI * 2 / 3) * 127.5 + 127.5);
+			var b = Math.round(Math.sin(pos + Math.PI * 4 / 3) * 127.5 + 127.5);
+			app.pixels[i] = (r << 16) | (g << 8) | b;
 		}
 	}
 }
@@ -59,14 +56,10 @@ class OceanTheme extends BaseTheme {
 		tm += delta * speed;
 		for (i in 0...app.resolution) {
 			var pos = (i / app.resolution + tm) * Math.PI * 2;
-			var r = Math.sin(pos) * 10 + 10;
-			var g = Math.sin(pos + Math.PI * 2 / 3) * 50 + 50;
-			var b = Math.sin(pos + Math.PI * 4 / 3) * 100 + 100;
-			app.pixels[i] = [
-				Math.round(r),
-				Math.round(g), 
-				Math.round(b)
-			];
+			var r = Math.round(Math.sin(pos) * 10 + 10);
+			var g = Math.round(Math.sin(pos + Math.PI * 2 / 3) * 50 + 50);
+			var b = Math.round(Math.sin(pos + Math.PI * 4 / 3) * 100 + 100);
+			app.pixels[i] = (r << 16) | (g << 8) | b;
 		}
 	}
 }
@@ -83,14 +76,10 @@ class FireTheme extends BaseTheme {
 		tm += delta * speed;
 		for (i in 0...app.resolution) {
 			var pos = (i / app.resolution + tm) * Math.PI * 2;
-			var r = Math.sin(pos) * 100 + 155;
-			var g = Math.sin(pos + Math.PI * 2 / 3) * 30 + 30;
-			var b = Math.sin(pos + Math.PI * 4 / 3) * 10 + 5;
-			app.pixels[i] = [
-				Math.round(r),
-				Math.round(g), 
-				Math.round(b)
-			];
+			var r = Math.round(Math.sin(pos) * 100 + 155);
+			var g = Math.round(Math.sin(pos + Math.PI * 2 / 3) * 30 + 30);
+			var b = Math.round(Math.sin(pos + Math.PI * 4 / 3) * 10 + 5);
+			app.pixels[i] = (r << 16) | (g << 8) | b;
 		}
 	}
 }
@@ -134,15 +123,9 @@ class Moodlight extends App {
 		}
 	}
 
-	override public function buttonRelease(buttonIndex:Int):Void {
-	}
+	override public function buttonRelease(buttonIndex:Int):Void {}
+	override public function buttonReleaseHold(buttonIndex:Int):Void {}
+	override public function buttonHold(buttonIndex:Int):Void {}
 
-	override public function buttonReleaseHold(buttonIndex:Int):Void {
-	}
-
-	override public function buttonHold(buttonIndex:Int):Void {
-	}
-
-	static public function main() {
-	}
+	static public function main() {}
 }

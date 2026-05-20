@@ -12,14 +12,12 @@ class SimonSays extends Game {
 	static var BEEP_DURATION:Float = 0.5;
 	static var ENTRY_DURATION:Float = 0.8;
 	static var INPUT_TIMEOUT:Float = 10.0;
-	static var MODERN_FREQUENCIES:Array<Float> = [415.00, 310.00, 252.00, 209.00];
-	static var ORIGINAL_FREQUENCIES:Array<Float> = [329.63, 277.18, 220.00, 164.81];
 	static var TOTAL_LEVELS:Int = 120;
 
-	var sequence:Array<Int>;
+	var sequence:Array<Null<Int>>;
 	var state:State;
 	var step:Int;
-	var input:Int;
+	var input:Null<Int>;
 	var lastInputTime:Float;
 
 	function buildSequence():Void {
@@ -31,13 +29,12 @@ class SimonSays extends Game {
 				case 1: Colors.Green;
 				case 2: Colors.Blue;
 				case 3: Colors.Yellow;
-				default: 0;
+				default: null;
 			});
 		}
 	}
 
 	public function new(audio:Audio, resolution:Int) {
-		log("SimonSays");
 		super("SimonSays", resolution, audio);
 		buildSequence();
 		state = PLAYBACK;
@@ -46,9 +43,7 @@ class SimonSays extends Game {
 		playLevel();
 	}
 
-	override function buildStage():Void {
-		// intentionally empty – master sequence already built
-	}
+	override function buildStage():Void {}
 
 	override function playLevel():Void {
 		state = PLAYBACK;
@@ -58,45 +53,47 @@ class SimonSays extends Game {
 		display(sequence[0]);
 	}
 
-	function display(color:Int):Void {
+	function display(color:Null<Int>):Void {
 		var sectionSize = Math.floor(resolution / 4);
 
 		for (i in 0...sectionSize) {
-			pixels[i] = rgb(Colors.DarkRed);
-			pixels[i + sectionSize] = rgb(Colors.DarkGreen);
-			pixels[i + 2 * sectionSize] = rgb(Colors.DarkBlue);
-			pixels[i + 3 * sectionSize] = rgb(Colors.DarkYellow);
+			pixels[i] = Colors.DarkRed;
+			pixels[i + sectionSize] = Colors.DarkGreen;
+			pixels[i + 2 * sectionSize] = Colors.DarkBlue;
+			pixels[i + 3 * sectionSize] = Colors.DarkYellow;
 		}
 
-		if (color == 0) return;
+		if (color == null || color == 0)
+			return;
 
 		var start = switch (color) {
-			case Colors.Red:	0;
+			case Colors.Red:    0;
 			case Colors.Green:  sectionSize;
 			case Colors.Blue:   2 * sectionSize;
 			case Colors.Yellow: 3 * sectionSize;
 			default: -1;
 		};
-		if (start == -1) return;
+		if (start == -1)
+			return;
 
 		for (i in start...start + sectionSize)
-			pixels[i] = rgb(color);
+			pixels[i] = color;
 
 		var sound:Null<SoundEvent> = switch (color) {
-			case Colors.Red:	SoundEvent.SIMONSAYS2;
+			case Colors.Red:    SoundEvent.SIMONSAYS2;
 			case Colors.Green:  SoundEvent.SIMONSAYS1;
 			case Colors.Blue:   SoundEvent.SIMONSAYS4;
 			case Colors.Yellow: SoundEvent.SIMONSAYS3;
 			default: null;
 		};
-		if (sound != null) audio.play(sound);
+		if (sound != null)
+			audio.play(sound);
 	}
 
 	override function loop() {
 		super.loop();
 
 		switch (state) {
-
 			case PLAYBACK:
 				var totalDuration = (level + 1) * ENTRY_DURATION;
 				if (levelTime >= totalDuration) {
@@ -118,7 +115,6 @@ class SimonSays extends Game {
 				} else {
 					display(0);
 				}
-
 			case INPUT:
 				if (levelTime - lastInputTime > INPUT_TIMEOUT) {
 					audio.play(SoundEvent.LEVEL_FAIL);
@@ -126,12 +122,8 @@ class SimonSays extends Game {
 						playLevel();
 					}, 4);
 				}
-
 			case RESULT:
-				// nothing – feedback and process handle everything
-
 			case COMPLETE:
-				// nothing – game over, stays until reset
 		}
 	}
 
@@ -141,14 +133,14 @@ class SimonSays extends Game {
 			case 1: Colors.Green;
 			case 2: Colors.Blue;
 			case 3: Colors.Yellow;
-			default: 0;
+			default: null;
 		};
 		feedback();
 	}
 
 	function feedback():Void {
 		var sound = switch (input) {
-			case Colors.Red:	SoundEvent.SIMONSAYS2;
+			case Colors.Red:    SoundEvent.SIMONSAYS2;
 			case Colors.Green:  SoundEvent.SIMONSAYS1;
 			case Colors.Blue:   SoundEvent.SIMONSAYS4;
 			case Colors.Yellow: SoundEvent.SIMONSAYS3;

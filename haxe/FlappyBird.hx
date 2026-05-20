@@ -23,10 +23,8 @@ class Bird {
 		var dt = app.time - this.timestamp;
 		speed -= GRAVITY * dt;
 		position += speed * dt;
-		if (position < 0)
-			position = 0;
-		if (position > app.resolution - 1)
-			position = app.resolution - 1;
+		if (position < 0) position = 0;
+		if (position > app.resolution - 1) position = app.resolution - 1;
 		timestamp = app.time;
 	}
 }
@@ -99,8 +97,7 @@ class FlappyBird extends App {
 
 	override function loop() {
 		super.loop();
-		if (pendingHandler != null)
-			return;
+		if (pendingHandler != null) return;
 		
 		var t = Math.min(time / 60.0, 1.0);
 	
@@ -130,26 +127,23 @@ class FlappyBird extends App {
 	}
 
 	override function buttonPress(idx:Int) {
-		if (idx == 0)
-			bird.boost();
+		if (idx == 0) bird.boost();
 	}
 
 	function render() {
 		for (i in 0...resolution)
-			pixels[i] = [0, 0, 0x7F];
+			pixels[i] = 0x00007F;
 
 		var topHeight = Math.round(topTerrain.height);
-		for (i in 0...topHeight) {
-			pixels[resolution - 1 - i] = [255, 0, 0];
-		}
+		for (i in 0...topHeight)
+			pixels[resolution - 1 - i] = Colors.Red;
 
 		var bottomHeight = Math.round(bottomTerrain.height);
-		for (i in 0...bottomHeight) {
-			pixels[i] = [255, 0, 0];
-		}
+		for (i in 0...bottomHeight)
+			pixels[i] = Colors.Red;
 
 		var birdIndex = Math.floor(bird.position);
-		pixels[birdIndex] = rgb(Colors.Yellow);//b[0, 255, 0];
+		pixels[birdIndex] = Colors.Yellow;
 	}
 
 	static public function main() {}

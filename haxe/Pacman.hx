@@ -1,3 +1,4 @@
+// Pacman.hx
 import App;
 
 class Actor {
@@ -77,7 +78,6 @@ class Pacman extends Game {
 	public function new(audio:Audio, resolution:Int) {
 		super("Pacman", resolution, audio);
 		TOTAL_PELLETS = Std.int(resolution / (GAP + 1));
-		log("Pacman");
 		player = new Player(this);
 		ghosts = [];
 		moveUpPressed = false;
@@ -87,15 +87,12 @@ class Pacman extends Game {
 	}
 
 	override function buildStage():Void {
-		// Reset player and ghosts
 		player = new Player(this);
 		ghosts = [];
 
-		// Clear maze
 		for (i in 0...resolution)
 			maze[i] = null;
 
-		// Build pellet layout
 		var levelIndex = level;
 		var magic = START_MAGIC + Math.round((END_MAGIC - START_MAGIC) * (levelIndex / (LEVELS - 1)));
 		var allPelletPositions:Array<Int> = [];
@@ -152,11 +149,9 @@ class Pacman extends Game {
 		}
 		if (!pelletsLeft) {
 			if (level >= LEVELS - 1) {
-				log("Game Complete!");
 			} else {
 				nextLevel();
 				defer(playLevel, 1);
-				log("Level " + (level + 1) + " complete!");
 			}
 			return;
 		}
@@ -165,22 +160,23 @@ class Pacman extends Game {
 
 	public function render() {
 		for (i in 0...resolution)
-			pixels[i] = rgb(Colors.None);
+			pixels[i] = Colors.None;
+
 		for (i in 0...resolution) {
 			var pellet = maze[i];
 			if (pellet != null) {
 				if (pellet.isMagic) {
-					pixels[i] = rgb(Colors.Green);
+					pixels[i] = Colors.Green;
 				} else {
-					pixels[i] = rgb(Colors.DarkGreen);
+					pixels[i] = Colors.DarkGreen;
 				}
 			}
 		}
 	
 		if (player.isPoweredUp) {
-			pixels[player.position] = rgb(Colors.Magenta);
+			pixels[player.position] = Colors.Magenta;
 		} else {
-			pixels[player.position] = rgb(Colors.Yellow);
+			pixels[player.position] = Colors.Yellow;
 		}
 	}
 

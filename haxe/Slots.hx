@@ -61,10 +61,10 @@ class Wheel extends DisplayObject {
 				app.audio.play(SoundEvent.TICK);
 		}
 
-		// --- render into local buffer ---
+		// Render wheel into packed pixel buffer
 		var S = pixels.length;
 		var slotAngle = 2 * Math.PI / Slots.NUM_SYMBOLS;
-		var wheelAngle = rotation * slotAngle + slotAngle / 2; // center of current symbol at top
+		var wheelAngle = rotation * slotAngle + slotAngle / 2;
 
 		for (j in 0...S) {
 			var t = j / (S - 1);
@@ -83,27 +83,28 @@ class Wheel extends DisplayObject {
 			var fruitStartAngle = (slotAngle - fruitAngularSpan) / 2;
 			var fruitEndAngle = (slotAngle + fruitAngularSpan) / 2;
 
-			var color: Array<Int> = switch (fruit) {
-				case Apple:       rgb(Colors.Green);
-				case Banana:      rgb(Colors.Banana);
-				case Grape:       rgb(Colors.Purple);
-				case Orange:      rgb(Colors.Orange);
-				case Cherry:      rgb(Colors.Red);
-				case Lemon:       rgb(Colors.Lemon);
-				case Watermelon:  rgb(Colors.Watermelon);
-				case Blackberry:  rgb(Colors.Blackberry);
-				case Strawberry:  rgb(Colors.Strawberry);
+			var fruitColor: Null<Int> = switch (fruit) {
+				case Apple:       Colors.Green;
+				case Banana:      Colors.Banana;
+				case Grape:       Colors.Purple;
+				case Orange:      Colors.Orange;
+				case Cherry:      Colors.Red;
+				case Lemon:       Colors.Lemon;
+				case Watermelon:  Colors.Watermelon;
+				case Blackberry:  Colors.Blackberry;
+				case Strawberry:  Colors.Strawberry;
 			};
 
 			if (!(localAngle >= fruitStartAngle && localAngle <= fruitEndAngle))
-				color = rgb(Colors.Silver);
+				fruitColor = Colors.Silver;
 
 			var brightness = 1 - Math.pow((t - 0.5) * 2, 2);
-			pixels[j] = [
-				Math.round(color[0] * brightness),
-				Math.round(color[1] * brightness),
-				Math.round(color[2] * brightness)
-			];
+			var r = (fruitColor >> 16) & 0xFF;
+			var g = (fruitColor >> 8) & 0xFF;
+			var b = fruitColor & 0xFF;
+			pixels[j] = (Std.int(r * brightness) << 16) |
+			            (Std.int(g * brightness) << 8) |
+			            Std.int(b * brightness);
 		}
 	}
 }
@@ -140,10 +141,8 @@ class Slots extends App {
 		wheels = [];
 		for (i in 0...NUM_WHEELS) {
 			var w = new Wheel(this, segmentPixels, WHEELS[i]);
-			// position the wheel's center pixel on the strip
 			var segmentStart = offset + i * segmentPixels;
 			w.position = segmentStart + (segmentPixels - 1) / 2;
-			// initial random symbol
 			w.rotation = Math.floor(Math.random() * NUM_SYMBOLS);
 			wheels.push(w);
 		}
@@ -206,14 +205,11 @@ class Slots extends App {
 
 	function render() {
 		clear();
-		// blit all wheels
 		for (wheel in wheels)
 			wheel.render();
 
-		// payline marker (white dot at each wheel's center)
 		for (wheel in wheels)
-			//pixels[Math.round(wheel.position)] = rgb(Colors.White);
-			pixels[Math.round(wheel.position)] = correctLuminance(rgb(Colors.White));
+			pixels[Math.round(wheel.position)] = correctLuminance(Colors.White);
 	}
 
 	static function main() {}

@@ -1,23 +1,3 @@
-
-const SoundEvent = {
-    LEVEL_COMPLETE: "LEVEL_COMPLETE",
-    LEVEL_FAIL: "LEVEL_FAIL",
-    GAME_COMPLETE: "GAME_COMPLETE",
-    SHOOT: "SHOOT",
-    HIT: "HIT",
-    MISS: "MISS",
-    GENERATE_ITEM: "GENERATE_ITEM",
-	TICK: "TICK",
-	CHECKPOINT: "CHECKPOINT",
-    SIMONSAYS1: "SIMONSAYS1",
-    SIMONSAYS2: "SIMONSAYS2",
-    SIMONSAYS3: "SIMONSAYS3",
-    SIMONSAYS4: "SIMONSAYS4",
-    SIMONSAYS1_ORIGINAL: "SIMONSAYS1_ORIGINAL",
-    SIMONSAYS2_ORIGINAL: "SIMONSAYS2_ORIGINAL",
-    SIMONSAYS3_ORIGINAL: "SIMONSAYS3_ORIGINAL",
-    SIMONSAYS4_ORIGINAL: "SIMONSAYS4_ORIGINAL"
-
 //	GAME_INTRO: "GAME_INTRO",
 //	LEVEL_START: "LEVEL_START",
 //	GAME_OVER: "GAME_OVER",
@@ -40,9 +20,27 @@ const SoundEvent = {
 //	COUNTDOWN: "COUNTDOWN",
 //	TIMEOUT: "TIMEOUT",
 //	ERROR: "ERROR"
+// game.js
+
+const SoundEvent = {
+    LEVEL_COMPLETE: "LEVEL_COMPLETE",
+    LEVEL_FAIL: "LEVEL_FAIL",
+    GAME_COMPLETE: "GAME_COMPLETE",
+    SHOOT: "SHOOT",
+    HIT: "HIT",
+    MISS: "MISS",
+    GENERATE_ITEM: "GENERATE_ITEM",
+	TICK: "TICK",
+	CHECKPOINT: "CHECKPOINT",
+    SIMONSAYS1: "SIMONSAYS1",
+    SIMONSAYS2: "SIMONSAYS2",
+    SIMONSAYS3: "SIMONSAYS3",
+    SIMONSAYS4: "SIMONSAYS4",
+    SIMONSAYS1_ORIGINAL: "SIMONSAYS1_ORIGINAL",
+    SIMONSAYS2_ORIGINAL: "SIMONSAYS2_ORIGINAL",
+    SIMONSAYS3_ORIGINAL: "SIMONSAYS3_ORIGINAL",
+    SIMONSAYS4_ORIGINAL: "SIMONSAYS4_ORIGINAL"
 };
-
-
 
 class Audio {
     constructor(app) {
@@ -77,12 +75,6 @@ class Audio {
     }
 }
 
-
-
-
-
-
-
 const ButtonType = {
 	A: { id: 0, label: 'A'},
 	B: { id: 1, label: 'B'},
@@ -102,7 +94,6 @@ const ButtonType = {
 	Down: { id: 2, label: 'Down'},
 	Shoot: { id: 1, label: 'Shoot'}
 };
-
 
 const EventType = {
 	Press: "Press",
@@ -249,7 +240,6 @@ class Controller extends VisualObject {
 	}
 }
 
-
 class Strip {
 	constructor(container, app) {
 		this.container = container;
@@ -266,19 +256,20 @@ class Strip {
 
 	update() {
 		for (let i = 0; i < this.app.resolution; i++) {
-			let [r, g, b] = this.app.pixels[i];
+			const packed = this.app.pixels[i];          // packed int (or null, but never here)
+			const r = (packed >> 16) & 0xFF;
+			const g = (packed >> 8) & 0xFF;
+			const b = packed & 0xFF;
 			const toHex = (n) => n.toString(16).padStart(2, '0');
-			let color = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-			//let color = `rgb(${r},${g},${b})`;
+			const color = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 			this.pixelElements[i].style.backgroundColor = color;
 		}
 	}
 
 	cleanup() {
+		this.container.innerHTML = '';
 	}
 }
-
-
 
 class Strip3D {
 	constructor(container, app) {
@@ -302,20 +293,23 @@ class Strip3D {
 
 		for (let i = 0; i < this.app.resolution; i++) {
 			const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1, 16);
-			const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
-//			const material = new THREE.MeshStandardMaterial({
-//				color: 0x000000,
-//				metalness: 0.3,
-//				roughness: 0.7,
-//				emissive: 0x000000
-//			});
-			const led = new THREE.Mesh(geometry, material);
+			const sideMaterial = new THREE.MeshStandardMaterial({
+				color: 0x808080,
+				metalness: 0.3,
+				roughness: 0.7,
+				emissive: 0x000000
+			});
+			const topMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+			const bottomMaterial = sideMaterial.clone();
+
+			const materials = [sideMaterial, topMaterial, bottomMaterial];
+			const led = new THREE.Mesh(geometry, materials);
 			led.position.z = -i * 1;
 			this.stripGroup.add(led);
 			this.pixelElements.push({
 				mesh: led,
-				material: material
+				topMaterial: topMaterial
 			});
 		}
 
@@ -513,19 +507,11 @@ class Strip3D {
 
 	update() {
 		for (let i = 0; i < this.app.resolution; i++) {
-			let [r, g, b] = this.app.pixels[i];
-
-			const hexColor = (r === 0 && g === 0 && b === 0) ? 0x111111 : (r << 16) | (g << 8) | b;
-			//const hexColor = (r << 16) | (g << 8) | b;
-			this.pixelElements[i].material.color.setHex(hexColor);
-
-
-			//this.pixelElements[i].material.color.setHex(hexColor);
-			//this.pixelElements[i].material.emissive.setHex(hexColor);
+			const packed = this.app.pixels[i];            // packed int
+			this.pixelElements[i].topMaterial.color.setHex(packed);
 		}
 
 		this.handleControls();
-
 		this.renderer.render(this.scene, this.camera);
 	}
 
@@ -542,21 +528,6 @@ class Strip3D {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class GameController {
 	constructor(stripContainer, controllerContainer, debugContainer, appClass, options = {}) {
@@ -593,9 +564,9 @@ class GameController {
 			this.strip.cleanup()
 
 		if (this.is3D)
-				this.strip = new Strip3D(this.stripContainer, this.app);
-			else
-				this.strip = new Strip(this.stripContainer, this.app);
+			this.strip = new Strip3D(this.stripContainer, this.app);
+		else
+			this.strip = new Strip(this.stripContainer, this.app);
 	}
 
 	handleGlobalKeyDown(e) {
@@ -648,7 +619,6 @@ class GameController {
 		}
 	}
 
-
 	loop(timestamp) {
 		if (timestamp - this.lastFrameTime >= 1000 / this.fps) {
 			this.app.loop();
@@ -662,11 +632,10 @@ class GameController {
 					debugHTML += `level: ${this.app.level}<br />`;
 				if (this.app.levelTime !== undefined)
 					debugHTML += `levelTime: ${this.app.levelTime.toFixed(2)}s<br />`;
-				//this.debugContainer.innerHTML = debugHTML;
+				this.debugContainer.innerHTML = debugHTML;
 			}
 			this.lastFrameTime = timestamp;
 		}
 		this.animationId = requestAnimationFrame(this.loop);
 	}
-
 }

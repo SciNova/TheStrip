@@ -1,5 +1,5 @@
-APPS = DicesClock Stack Pacman Moodlight Playground SimonSays Race Slots FlappyBird Dices Test
-
+APPS = Stack Pacman Moodlight SimonSays Race Slots FlappyBird Dices DicesClock
+## Playground Test
 all: $(addprefix js/, $(addsuffix .js, $(APPS)))
 
 js/%.js: haxe/%.hx haxe/App.hx
