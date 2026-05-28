@@ -1,6 +1,11 @@
-import App;
+import _Game.Game;
+import _Game.Colors;
+import _System.System;
+import _Input.Input;
+import _Input.InputEvent;
+import _Audio.Sound;
 
-enum State {
+enum Stage {
 	PLAYBACK;
 	INPUT;
 	RESULT;
@@ -15,7 +20,7 @@ class SimonSays extends Game {
 	static var TOTAL_LEVELS:Int = 120;
 
 	var sequence:Array<Null<Int>>;
-	var state:State;
+	var stage:Stage;
 	var step:Int;
 	var input:Null<Int>;
 	var lastInputTime:Float;
@@ -34,10 +39,10 @@ class SimonSays extends Game {
 		}
 	}
 
-	public function new(audio:Audio, resolution:Int) {
-		super("SimonSays", resolution, audio);
+	public function new(system:System) {
+		super("SimonSays", system);
 		buildSequence();
-		state = PLAYBACK;
+		stage = PLAYBACK;
 		step = 1;
 		lastInputTime = 0.0;
 		playLevel();
@@ -46,7 +51,7 @@ class SimonSays extends Game {
 	override function buildStage():Void {}
 
 	override function playLevel():Void {
-		state = PLAYBACK;
+		stage = PLAYBACK;
 		step = 1;
 		lastInputTime = 0.0;
 		super.playLevel();
@@ -67,7 +72,7 @@ class SimonSays extends Game {
 			return;
 
 		var start = switch (color) {
-			case Colors.Red:    0;
+			case Colors.Red:	0;
 			case Colors.Green:  sectionSize;
 			case Colors.Blue:   2 * sectionSize;
 			case Colors.Yellow: 3 * sectionSize;
@@ -79,11 +84,11 @@ class SimonSays extends Game {
 		for (i in start...start + sectionSize)
 			pixels[i] = color;
 
-		var sound:Null<SoundEvent> = switch (color) {
-			case Colors.Red:    SoundEvent.SIMONSAYS2;
-			case Colors.Green:  SoundEvent.SIMONSAYS1;
-			case Colors.Blue:   SoundEvent.SIMONSAYS4;
-			case Colors.Yellow: SoundEvent.SIMONSAYS3;
+		var sound:Null<Sound> = switch (color) {
+			case Colors.Red:	Sound.SIMONSAYS2;
+			case Colors.Green:  Sound.SIMONSAYS1;
+			case Colors.Blue:   Sound.SIMONSAYS4;
+			case Colors.Yellow: Sound.SIMONSAYS3;
 			default: null;
 		};
 		if (sound != null)
@@ -93,12 +98,12 @@ class SimonSays extends Game {
 	override function loop() {
 		super.loop();
 
-		switch (state) {
+		switch (stage) {
 			case PLAYBACK:
 				var totalDuration = (level + 1) * ENTRY_DURATION;
 				if (levelTime >= totalDuration) {
 					display(0);
-					state = INPUT;
+					stage = INPUT;
 					step = 1;
 					lastInputTime = levelTime;
 					return;
@@ -117,7 +122,7 @@ class SimonSays extends Game {
 				}
 			case INPUT:
 				if (levelTime - lastInputTime > INPUT_TIMEOUT) {
-					audio.play(SoundEvent.LEVEL_FAIL);
+					audio.play(Sound.LEVEL_FAIL);
 					defer(function() {
 						playLevel();
 					}, 4);
@@ -127,12 +132,15 @@ class SimonSays extends Game {
 		}
 	}
 
-	override function buttonPress(buttonIndex:Int) {
-		input = switch (buttonIndex) {
-			case 0: Colors.Red;
-			case 1: Colors.Green;
-			case 2: Colors.Blue;
-			case 3: Colors.Yellow;
+	override function handleInput(controllerId:Int, input:Input, ?type:InputEvent = null, ?value:Float = 0):Void {
+		if (type != InputEvent.ButtonPress)
+			return;
+
+		this.input = switch (input) {
+			case Input.ButtonA: Colors.Red;
+			case Input.ButtonB: Colors.Green;
+			case Input.ButtonC: Colors.Blue;
+			case Input.ButtonD: Colors.Yellow;
 			default: null;
 		};
 		feedback();
@@ -140,15 +148,16 @@ class SimonSays extends Game {
 
 	function feedback():Void {
 		var sound = switch (input) {
-			case Colors.Red:    SoundEvent.SIMONSAYS2;
-			case Colors.Green:  SoundEvent.SIMONSAYS1;
-			case Colors.Blue:   SoundEvent.SIMONSAYS4;
-			case Colors.Yellow: SoundEvent.SIMONSAYS3;
+			case Colors.Red:	Sound.SIMONSAYS2;
+			case Colors.Green:  Sound.SIMONSAYS1;
+			case Colors.Blue:   Sound.SIMONSAYS4;
+			case Colors.Yellow: Sound.SIMONSAYS3;
 			default: null;
 		};
-		if (sound != null) audio.play(sound);
+		if (sound != null)
+			audio.play(sound);
 		display(input);
-		state = RESULT;
+		stage = RESULT;
 		defer(process, ENTRY_DURATION);
 	}
 
@@ -157,7 +166,7 @@ class SimonSays extends Game {
 		var correct = (input == sequence[step - 1]);
 
 		if (!correct) {
-			audio.play(SoundEvent.LEVEL_FAIL);
+			audio.play(Sound.LEVEL_FAIL);
 			defer(function() {
 				playLevel();
 			}, 4);
@@ -168,26 +177,22 @@ class SimonSays extends Game {
 
 		if (!isLastStep) {
 			step++;
-			state = INPUT;
+			stage = INPUT;
 			lastInputTime = levelTime;
 			return;
 		}
 
-		audio.play(SoundEvent.LEVEL_COMPLETE);
+		audio.play(Sound.LEVEL_COMPLETE);
 		defer(function() {
 			if (level + 1 == TOTAL_LEVELS) {
-				state = COMPLETE;
-				audio.play(SoundEvent.GAME_COMPLETE);
+				stage = COMPLETE;
+				audio.play(Sound.GAME_COMPLETE);
 			} else {
 				nextLevel();
 				playLevel();
 			}
 		}, 4);
 	}
-
-	override function buttonHold(buttonIndex:Int) {}
-	override function buttonRelease(buttonIndex:Int) {}
-	override function buttonReleaseHold(buttonIndex:Int) {}
 
 	static public function main() {}
 }

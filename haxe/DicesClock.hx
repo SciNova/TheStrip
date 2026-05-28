@@ -1,8 +1,15 @@
-import App;
+import _Game.Game;
+import _Game.Colors;
+import _System.System;
+import _Input.Input;
+import _Input.InputEvent;
+import _Audio.Sound;
+import _Graphics.Square;
+import _Graphics.EdgeMode;
 
 @:expose
 class DicesClock extends Game {
-	var cubes:Array<RotatingCube>;
+	var cubes:Array<Square>;
 	var lastSecond:Float = -1;
 	var showColon:Bool = true;
 
@@ -20,90 +27,90 @@ class DicesClock extends Game {
 			Colors.Green,
 			Colors.Green, Colors.Green, Colors.Green, Colors.Green, Colors.Green, Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Black,
+			0,
 			Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green, Colors.Green, Colors.Green, Colors.Green, Colors.Green, Colors.Green,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Green, Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, Colors.Green, 0, Colors.Green, Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green,
 			Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Green, Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, Colors.Green, 0, Colors.Green, Colors.Green, Colors.Green,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Green, Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, Colors.Green, 0, Colors.Green, Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Black,
+			0,
 			Colors.Green, Colors.Green,
-			Colors.Green, Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, Colors.Green, 0, Colors.Green, Colors.Green, Colors.Green,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, 0, Colors.Green, 0, Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green,
 			Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, 0, Colors.Green, 0, Colors.Green, Colors.Green,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, 0, Colors.Green, 0, Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Black,
+			0,
 			Colors.Green, Colors.Green,
-			Colors.Green, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Green,
+			Colors.Green, Colors.Green, 0, Colors.Green, 0, Colors.Green, Colors.Green,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green,
+			0, Colors.Green, 0, Colors.Green, 0, Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green,
 			Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green,
+			Colors.Green, 0, Colors.Green, 0, Colors.Green, 0, Colors.Green,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green,
+			0, Colors.Green, 0, Colors.Green, 0, Colors.Green, Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Black,
+			0,
 			Colors.Green, Colors.Green,
-			Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green,
+			Colors.Green, 0, Colors.Green, 0, Colors.Green, 0, Colors.Green,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black,
+			0, Colors.Green, 0, Colors.Green, 0, Colors.Green, 0,
 			Colors.Green, Colors.Green,
 			Colors.Green,
 			Colors.Green, Colors.Green,
-			Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black,
+			0, Colors.Green, 0, Colors.Green, 0, Colors.Green, 0,
 			Colors.Green
 		],
 		[
 			Colors.Green,
-			Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black,
+			0, Colors.Green, 0, Colors.Green, 0, Colors.Green, 0,
 			Colors.Green, Colors.Green,
-			Colors.Black,
+			0,
 			Colors.Green, Colors.Green,
-			Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black, Colors.Green, Colors.Black,
+			0, Colors.Green, 0, Colors.Green, 0, Colors.Green, 0,
 			Colors.Green
 		]
 	];
 
-	public function new(audio:Audio, resolution:Int) {
-		super("DiceClock", resolution, audio);
+	public function new(system:System) {
+		super("DicesClock", system);
 		cubes = [];
 		for (i in 0...3) {
-			var cube = new RotatingCube(this, DIGIT_PATTERNS);
+			var cube = new Square(this, DIGIT_PATTERNS);
 			cube.rotation = 0.0;
 			cubes.push(cube);
 		}
@@ -131,30 +138,37 @@ class DicesClock extends Game {
 			lastSecond = currentSecond;
 			showColon = !showColon;
 			updateDisplay();
-			audio.play(SoundEvent.TICK);
+			audio.play(Sound.TICK);
 		}
-		for (i in 0...resolution) pixels[i] = Colors.Black;
+		for (i in 0...resolution)
+			pixels[i] = 0;
+			
 		var cubeW = 31;
 		var spacing = 1;
 		var colonGap = 3;
-		var groupW = 3 * cubeW + 2 * spacing + colonGap;
+		
+		var groupW = (3 * cubeW) + spacing + colonGap;
 		var leftEdge = Math.floor((resolution - groupW) / 2);
+		
 		var pos = leftEdge + Math.floor(cubeW / 2);
-		cubes[0].render(pos);
+		cubes[0].render(pos, EdgeMode.CLIP);
+		
 		pos += cubeW + colonGap;
-		cubes[1].render(pos);
+		cubes[1].render(pos, EdgeMode.CLIP);
+		
 		pos += cubeW + spacing;
-		cubes[2].render(pos);
+		cubes[2].render(pos, EdgeMode.CLIP);
+		
 		if (showColon) {
 			var colonX = leftEdge + cubeW + Math.floor(colonGap / 2);
-			if (colonX >= 0 && colonX < resolution) pixels[colonX] = Colors.White;
-			if (colonX + 1 < resolution) pixels[colonX + 1] = Colors.White;
+			if (colonX >= 0 && colonX < resolution)
+				pixels[colonX] = Colors.White;
+			if (colonX + 1 < resolution)
+				pixels[colonX + 1] = Colors.White;
 		}
 	}
 
-	override public function buttonPress(buttonIndex:Int):Void {
-		if (buttonIndex == 0) showColon = !showColon;
-	}
+	override public function handleInput(controllerId:Int, input:Input, ?type:InputEvent = null, ?value:Float = 0):Void {}
 
 	static public function main() {}
 }

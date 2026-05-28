@@ -1,55 +1,48 @@
-// Pacman.hx
-import App;
+import _Game.Game;
+import _Game.Colors;
+import _System.System;
+import _Input.Input;
+import _Input.InputEvent;
 
 class Actor {
 	public var position:Int = 0;
 	public var reverse:Bool = false;
 	public var speed:Float = 0.0;
 	private var positionAccumulator:Float = 0.0;
-	private var lastUpdateTime:Float = 0.0;
-	private var app:App;
 
-	public function new(app:App) {
-		this.app = app;
-	}
+	public function new() {}
 
-	public function update(appTime:Float):Void {
-		if (lastUpdateTime == 0) {
-			lastUpdateTime = appTime;
+	public function update(dt:Float):Void {
+		if (speed == 0 || dt <= 0)
 			return;
-		}
-		
-		var deltaTime = appTime - lastUpdateTime;
-		
-		if (speed == 0 || deltaTime <= 0) {
-			lastUpdateTime = appTime;
-			return;
-		}
-		
-		var pixelsToMove = speed * deltaTime;
-		positionAccumulator += pixelsToMove;
+
+		positionAccumulator += speed * dt;
 		var wholePixels = Math.floor(positionAccumulator);
-		
+
 		if (wholePixels > 0) {
 			positionAccumulator -= wholePixels;
-			if (reverse) {
+			if (reverse)
 				position -= wholePixels;
-			} else {
+			else
 				position += wholePixels;
-			}
-			position = ((position % app.resolution) + app.resolution) % app.resolution;
 		}
-		
-		lastUpdateTime = appTime;
 	}
 }
 
 class Player extends Actor {
 	public var isPoweredUp:Bool = false;
 	public var powerUpEndTime:Float = 0.0;
+
+	public function new() {
+		super();
+	}
 }
 
-class Ghost extends Actor {}
+class Ghost extends Actor {
+	public function new() {
+		super();
+	}
+}
 
 class Pellet {
 	public var isMagic:Bool;
@@ -71,30 +64,27 @@ class Pacman extends Game {
 	public var player:Player;
 	public var ghosts:Array<Ghost>;
 	public var maze:Array<Null<Pellet>>;
-	
+
 	var moveUpPressed:Bool = false;
 	var moveDownPressed:Bool = false;
 
-	public function new(audio:Audio, resolution:Int) {
-		super("Pacman", resolution, audio);
+	public function new(system:System) {
+		super("Pacman", system);
 		TOTAL_PELLETS = Std.int(resolution / (GAP + 1));
-		player = new Player(this);
+		player = new Player();
 		ghosts = [];
-		moveUpPressed = false;
-		moveDownPressed = false;
 		maze = [for (i in 0...resolution) null];
 		playLevel();
 	}
 
 	override function buildStage():Void {
-		player = new Player(this);
+		player = new Player();
 		ghosts = [];
 
 		for (i in 0...resolution)
 			maze[i] = null;
 
-		var levelIndex = level;
-		var magic = START_MAGIC + Math.round((END_MAGIC - START_MAGIC) * (levelIndex / (LEVELS - 1)));
+		var magic = START_MAGIC + Math.round((END_MAGIC - START_MAGIC) * (level / (LEVELS - 1)));
 		var allPelletPositions:Array<Int> = [];
 		var pos = 0;
 		while (pos < resolution) {
@@ -107,38 +97,34 @@ class Pacman extends Game {
 			allPelletPositions[i] = allPelletPositions[j];
 			allPelletPositions[j] = temp;
 		}
-		
+
 		for (i in 0...TOTAL_PELLETS) {
 			var p = allPelletPositions[i];
-			if (i < magic) {
+			if (i < magic)
 				maze[p] = new Pellet(true);
-			} else {
+			else
 				maze[p] = new Pellet(false);
-			}
 		}
 	}
 
 	override public function loop():Void {
 		super.loop();
 
-		if (pendingHandler != null)
-			return;
-
-		player.update(time);
+		var dt = system.delta;
+		player.update(dt);
 
 		var pellet = maze[player.position];
 		if (pellet != null) {
 			maze[player.position] = null;
-			
+
 			if (pellet.isMagic) {
 				player.isPoweredUp = true;
 				player.powerUpEndTime = time + POWER_UP_DURATION;
 			}
 		}
 
-		if (player.isPoweredUp && time > player.powerUpEndTime) {
+		if (player.isPoweredUp && time > player.powerUpEndTime)
 			player.isPoweredUp = false;
-		}
 
 		var pelletsLeft = false;
 		for (i in 0...resolution) {
@@ -148,65 +134,34 @@ class Pacman extends Game {
 			}
 		}
 		if (!pelletsLeft) {
-			if (level >= LEVELS - 1) {
-			} else {
+			if (level < LEVELS - 1) {
 				nextLevel();
 				defer(playLevel, 1);
 			}
 			return;
 		}
+
 		render();
 	}
 
 	public function render() {
 		for (i in 0...resolution)
-			pixels[i] = Colors.None;
+			pixels[i] = 0;
 
 		for (i in 0...resolution) {
 			var pellet = maze[i];
 			if (pellet != null) {
-				if (pellet.isMagic) {
+				if (pellet.isMagic)
 					pixels[i] = Colors.Green;
-				} else {
+				else
 					pixels[i] = Colors.DarkGreen;
-				}
 			}
 		}
-	
-		if (player.isPoweredUp) {
+
+		if (player.isPoweredUp)
 			pixels[player.position] = Colors.Magenta;
-		} else {
+		else
 			pixels[player.position] = Colors.Yellow;
-		}
-	}
-
-	override public function buttonPress(buttonIndex:Int):Void {
-		switch (buttonIndex) {
-			case 0:
-				moveUpPressed = true;
-				updatePlayerMovement();
-			case 2:
-				moveDownPressed = true;
-				updatePlayerMovement();
-		}
-	}
-
-	override public function buttonRelease(buttonIndex:Int):Void {
-		switch (buttonIndex) {
-			case 0:
-				moveUpPressed = false;
-				updatePlayerMovement();
-			case 2:
-				moveDownPressed = false;
-				updatePlayerMovement();
-		}
-	}
-
-	override public function buttonReleaseHold(buttonIndex:Int):Void {
-		buttonRelease(buttonIndex);
-	}
-
-	override public function buttonHold(buttonIndex:Int):Void {
 	}
 
 	function updatePlayerMovement():Void {
@@ -221,6 +176,31 @@ class Pacman extends Game {
 		}
 	}
 
-	static public function main() {
+	override public function handleInput(controllerId:Int, input:Input, ?type:InputEvent = null, ?value:Float = 0):Void {
+		switch (type) {
+			case InputEvent.ButtonPress:
+				switch (input) {
+					case Input.ButtonA:
+						moveUpPressed = true;
+						updatePlayerMovement();
+					case Input.ButtonC:
+						moveDownPressed = true;
+						updatePlayerMovement();
+					default:
+				}
+			case InputEvent.ButtonRelease | InputEvent.ButtonHoldRelease:
+				switch (input) {
+					case Input.ButtonA:
+						moveUpPressed = false;
+						updatePlayerMovement();
+					case Input.ButtonC:
+						moveDownPressed = false;
+						updatePlayerMovement();
+					default:
+				}
+			default:
+		}
 	}
+
+	static public function main() {}
 }

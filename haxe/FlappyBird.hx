@@ -1,31 +1,29 @@
-import App;
+import _System;
+import _Input;
+import _Game;
 
 class Bird {
 	public var position:Float;
 	public var speed:Float;
-	public var timestamp:Float;
-	public var app:App;
+	public var game:Game;
 	public static inline var GRAVITY:Float = 20;
 	public static inline var BOOST:Float = 20;
 
-	public function new(app:App) {
-		this.app = app;
-		position = Std.int(app.resolution / 2);
+	public function new(game:Game) {
+		this.game = game;
+		position = Std.int(game.resolution / 2);
 		speed = 0;
-		timestamp = app.time;
 	}
 
 	public function boost():Void {
 		speed = BOOST;
 	}
 
-	public function update():Void {
-		var dt = app.time - this.timestamp;
+	public function update(dt:Float):Void {
 		speed -= GRAVITY * dt;
 		position += speed * dt;
 		if (position < 0) position = 0;
-		if (position > app.resolution - 1) position = app.resolution - 1;
-		timestamp = app.time;
+		if (position > game.resolution - 1) position = game.resolution - 1;
 	}
 }
 
@@ -40,36 +38,30 @@ class Terrain {
 	public var fluctuation:Float;
 	public var speed:Float;
 
-	var app:App;
-	var timestamp:Float;
+	var game:Game;
 
-	public function new(app:App) {
-		this.app = app;
-		this.timestamp = app.time;
+	public function new(game:Game) {
+		this.game = game;
 		this.height = 0;
 		this.baseHeight = 0;
 		this.fluctuation = 0;
 		this.speed = 0;
 	}
 
-	public function update():Void {
-		var now = app.time;
-		var dt = now - timestamp;
-		timestamp = now;
-
-		var maxChange = speed * app.resolution * dt;
+	public function update(dt:Float):Void {
+		var maxChange = speed * game.resolution * dt;
 		var step = (Math.random() * 2 - 1) * maxChange;
 
 		height += step;
-		var minHeight = baseHeight - fluctuation * app.resolution;
-		var maxHeight = baseHeight + fluctuation * app.resolution;
+		var minHeight = baseHeight - fluctuation * game.resolution;
+		var maxHeight = baseHeight + fluctuation * game.resolution;
 		if (height < minHeight) height = minHeight;
 		if (height > maxHeight) height = maxHeight;
 	}
 }
 
 @:expose
-class FlappyBird extends App {
+class FlappyBird extends Game {
 	public static inline var MAX_GAP:Float = 0.5;
 	public static inline var MIN_GAP:Float = 0.2;
 	public static inline var MIN_FLUCTUATION:Float = 0.0;
@@ -83,8 +75,8 @@ class FlappyBird extends App {
 	var gapPosition:Float;
 	var fluctuation:Float;
 
-	public function new(audio:Audio, resolution:Int) {
-		super("FlappyBird", resolution, audio);
+	public function new(system:System) {
+		super("FlappyBird", system);
 
 		gap = 0.5;
 		gapPosition = 0.5;
@@ -97,8 +89,10 @@ class FlappyBird extends App {
 
 	override function loop() {
 		super.loop();
-		if (pendingHandler != null) return;
+		if (pendingHandler != null)
+			return;
 		
+		var dt = system.delta;
 		var t = Math.min(time / 60.0, 1.0);
 	
 		gap = MAX_GAP - (MAX_GAP - MIN_GAP) * t;
@@ -120,14 +114,15 @@ class FlappyBird extends App {
 		topTerrain.baseHeight = resolution - topBase;
 		bottomTerrain.baseHeight = bottomBase;
 
-		topTerrain.update();
-		bottomTerrain.update();
-		bird.update();
+		topTerrain.update(dt);
+		bottomTerrain.update(dt);
+		bird.update(dt);
 		render();
 	}
 
-	override function buttonPress(idx:Int) {
-		if (idx == 0) bird.boost();
+	override function handleInput(controllerId:Int, input:Input, ?type:InputEvent = null, ?value:Float = 0) {
+		if (input == Input.ButtonA)
+			bird.boost();
 	}
 
 	function render() {

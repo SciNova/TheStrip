@@ -1,6 +1,13 @@
-import App;
+import _Game.Game;
+import _Game.Colors;
+import _System.System;
+import _Input.Input;
+import _Input.InputEvent;
+import _Audio.Sound;
+import _Graphics.Shape;
+import _Graphics.Alignment;
 
-class Dot extends DisplayObject {
+class Dot extends Shape {
 	public var color:Int;
 	public var gap:Int;
 	public var alpha:Float;
@@ -10,8 +17,8 @@ class Dot extends DisplayObject {
 	static inline var EXPLOSION_DURATION = 0.5;
 	var cosAngles:Array<Float>;
 
-	public function new(app:App, color:Int, gap:Int) {
-		super(app, EXPLOSION_DIAMETER, Alignment.CENTER);
+	public function new(game:Game, color:Int, gap:Int) {
+		super(game, EXPLOSION_DIAMETER, Alignment.CENTER);
 		this.color = color;
 		this.gap = gap;
 		alpha = 1.0;
@@ -24,17 +31,18 @@ class Dot extends DisplayObject {
 	}
 
 	public function explode():Void {
-		explosionTime = app.levelTime;
+		explosionTime = game.levelTime;
 	}
 
 	override public function update():Void {
-		for (i in 0...pixels.length) pixels[i] = null;
+		for (i in 0...pixels.length)
+			pixels[i] = null;
 
 		if (explosionTime == 0.0) {
 			var center = Std.int((pixels.length - 1) / 2);
 			pixels[center] = color;
 		} else {
-			var elapsed = app.levelTime - explosionTime;
+			var elapsed = game.levelTime - explosionTime;
 			var t = elapsed / EXPLOSION_DURATION;
 			if (t >= 1.0) {
 				alpha = 0.0;
@@ -58,20 +66,21 @@ class Dot extends DisplayObject {
 	}
 }
 
-class Bullet extends DisplayObject {
-	public var game:Stack;
+class Bullet extends Shape {
 	public var color:Int;
 	public var timestamp:Float;
+	public var position:Float;
 
 	public function new(game:Stack, color:Int) {
 		super(game, 20, Alignment.BACKWARD);
-		this.game = game;
 		this.color = color;
 		this.timestamp = game.levelTime;
+		this.position = 0.0;
 	}
 
 	override public function update():Void {
-		for (i in 0...pixels.length) pixels[i] = null;
+		for (i in 0...pixels.length)
+			pixels[i] = null;
 
 		position = (game.levelTime - timestamp) * Stack.BULLET_SPEED;
 		var r = (color >> 16) & 0xFF;
@@ -80,7 +89,8 @@ class Bullet extends DisplayObject {
 
 		for (i in 0...20) {
 			var t = (i + 1) / 21.0;
-			pixels[i] = (Std.int(r * (1 - t)) << 16) | (Std.int(g * (1 - t)) << 8) | Std.int(b * (1 - t));
+			pixels[i] = (Std.int(r * t) << 16) | (Std.int(g * t) << 8) | Std.int(b * t);
+
 		}
 	}
 }
@@ -139,7 +149,8 @@ class Snake {
 
 	public function length():Int {
 		var total = 0;
-		for (dot in dots) total += 1 + dot.gap;
+		for (dot in dots)
+			total += 1 + dot.gap;
 		return total;
 	}
 
@@ -161,53 +172,48 @@ class Stack extends Game {
 	var snake:Snake;
 	var bullets:Array<Bullet>;
 	var snakePositionRemainder:Float;
-	private var lastGameTime:Float;
 
-	public function new(audio:Audio, resolution:Int) {
-		super("Stack", resolution, audio);
+	public function new(system:System) {
+		super("Stack", system);
 		snake = new Snake(this);
 		bullets = [];
 		snakePositionRemainder = 0;
-		lastGameTime = time;
 		playLevel();
 	}
 
 	static public function main() {}
 
 	override public function buildStage():Void {
-		snake.build(this.level);
+		snake.build(level);
 		snakePositionRemainder = 0;
 		bullets = [];
-		lastGameTime = time;
 	}
 
 	function render():Void {
-		for (i in 0...resolution) pixels[i] = Colors.Black;
+		for (i in 0...resolution)
+			pixels[i] = 0;
 
 		var currentPixel = snake.position;
 		for (dot in snake.dots) {
-			if (dot.explosionTime == 0.0) {
-				dot.position = currentPixel;
-				dot.render();
+			dot.render(currentPixel);
+			if (dot.explosionTime == 0.0)
 				currentPixel += 1 + dot.gap;
-			} else {
-				dot.render();
-			}
 		}
 
-		for (bullet in bullets) bullet.render();
+		for (bullet in bullets)
+			bullet.render(bullet.position);
 	}
 
 	override public function loop() {
 		super.loop();
 
-		if (pendingHandler != null) return;
+		if (pendingHandler != null)
+			return;
 
-		var deltaTime = (time - lastGameTime) * 1000;
-		lastGameTime = time;
+		var dt = system.delta;
 
 		var currentSpeed = START_SPEED + (END_SPEED - START_SPEED) * (level / Snake.LEVELS);
-		var pixelsToMove = (currentSpeed * deltaTime) / 1000;
+		var pixelsToMove = currentSpeed * dt;
 		snakePositionRemainder += pixelsToMove;
 		var wholePixels = Math.floor(snakePositionRemainder);
 
@@ -218,22 +224,24 @@ class Stack extends Game {
 			for (i in 0...snake.dots.length) {
 				currentPos += 1 + snake.dots[i].gap;
 				if (currentPos == resolution - 1) {
-					audio.play(SoundEvent.GENERATE_ITEM);
+					audio.play(Sound.GENERATE_ITEM);
 					break;
 				}
 			}
 		}
 
 		if (snake.isAtEnd()) {
-			audio.play(SoundEvent.LEVEL_FAIL);
+			audio.play(Sound.LEVEL_FAIL);
 			pause();
 			bullets = [];
 			defer(playLevel, 4);
 			return;
 		}
 
-		for (bullet in bullets) bullet.update();
-		for (dot in snake.dots) dot.update();
+		for (bullet in bullets)
+			bullet.update();
+		for (dot in snake.dots)
+			dot.update();
 
 		snake.dots = snake.dots.filter(function(dot) {
 			return dot.alpha != 0.0;
@@ -258,24 +266,24 @@ class Stack extends Game {
 					headDot.explode();
 					snake.position += 1 + headDot.gap;
 					bullets.shift();
-					audio.play(SoundEvent.HIT);
+					audio.play(Sound.HIT);
 				} else {
 					bullets.shift();
 					var newDot = new Dot(this, bullet.color, 0);
 					snake.dots.unshift(newDot);
 					snake.position -= 1;
-					audio.play(SoundEvent.MISS);
+					audio.play(Sound.MISS);
 				}
 			}
 		}
 
 		if (snake.dots.length == 0) {
 			if (level >= Snake.LEVELS) {
-				audio.play(SoundEvent.GAME_COMPLETE);
+				audio.play(Sound.GAME_COMPLETE);
 				setLevel(0);
 				defer(playLevel, 30);
 			} else {
-				audio.play(SoundEvent.LEVEL_COMPLETE);
+				audio.play(Sound.LEVEL_COMPLETE);
 				nextLevel();
 				defer(playLevel, 4);
 			}
@@ -285,17 +293,21 @@ class Stack extends Game {
 		render();
 	}
 
-	override public function buttonPress(buttonIndex:Int):Void {
-		switch (buttonIndex) {
-			case 0:
+	override public function handleInput(controllerId:Int, input:Input, ?type:InputEvent = null, ?value:Float = 0):Void {
+		if (type != InputEvent.ButtonPress)
+			return;
+
+		switch (input) {
+			case Input.ButtonA:
 				bullets.push(new Bullet(this, Colors.Red));
-				audio.play(SoundEvent.SHOOT);
-			case 1:
+				audio.play(Sound.SHOOT);
+			case Input.ButtonB:
 				bullets.push(new Bullet(this, Colors.Green));
-				audio.play(SoundEvent.SHOOT);
-			case 2:
+				audio.play(Sound.SHOOT);
+			case Input.ButtonC:
 				bullets.push(new Bullet(this, Colors.Blue));
-				audio.play(SoundEvent.SHOOT);
+				audio.play(Sound.SHOOT);
+			default:
 		}
 	}
 }

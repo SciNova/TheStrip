@@ -1,4 +1,12 @@
-import App;
+import _Game.Game;
+import _Game.Colors;
+import _System.System;
+import _Input.Input;
+import _Input.InputEvent;
+import _Audio.Sound;
+import _Graphics.Shape;
+import _Graphics.Alignment;
+import _Graphics.EdgeMode;
 
 enum Fruit {
 	Apple;
@@ -14,35 +22,29 @@ enum Fruit {
 
 final FruitSize: Array<Float> = [0.3, 0.7, 0.6, 0.6, 0.4, 0.5, 0.8, 0.2, 0.45];
 
-enum State {
+enum Stage {
 	IDLE;
 	SPINNING;
 	RESULT;
 }
 
-class Wheel extends DisplayObject {
-	public var rotation: Float = 0.0;
+class Wheel extends Shape {
 	public var speed: Float = 0.0;
 	public var spinEndTime: Float = 0.0;
 	public var symbols: Array<Fruit>;
 
-	var timestamp: Float = 0.0;
 	var prevRotation: Float = 0.0;
 
-	public function new(app: App, size: Int, symbols: Array<Fruit>) {
-		super(app, size, Alignment.CENTER);
+	public function new(game: Game, size: Int, symbols: Array<Fruit>) {
+		super(game, size, Alignment.CENTER);
 		this.symbols = symbols;
-		this.timestamp = app.time;
 	}
 
-	override public function update() {
-		var now = app.time;
-		var dt = now - timestamp;
-		timestamp = now;
+	public function tick(dt: Float):Void {
 		prevRotation = rotation;
 
 		if (speed > 0) {
-			if (now >= spinEndTime) {
+			if (game.time >= spinEndTime) {
 				speed -= Slots.DECELERATION * dt;
 				if (speed <= 0) {
 					speed = 0;
@@ -58,10 +60,9 @@ class Wheel extends DisplayObject {
 
 		if (speed > 0) {
 			if (Math.floor(rotation) != Math.floor(prevRotation))
-				app.audio.play(SoundEvent.TICK);
+				game.audio.play(Sound.TICK);
 		}
 
-		// Render wheel into packed pixel buffer
 		var S = pixels.length;
 		var slotAngle = 2 * Math.PI / Slots.NUM_SYMBOLS;
 		var wheelAngle = rotation * slotAngle + slotAngle / 2;
@@ -110,7 +111,7 @@ class Wheel extends DisplayObject {
 }
 
 @:expose
-class Slots extends App {
+class Slots extends Game {
 	static public final NUM_WHEELS = 3;
 	static public final NUM_SYMBOLS = 8;
 	static public final DECELERATION = 15.0;
@@ -125,13 +126,13 @@ class Slots extends App {
 		[Lemon, Orange, Cherry, Watermelon, Lemon, Orange, Banana, Cherry]
 	];
 
-	var state: State;
+	var stage: Stage;
 	var wheels: Array<Wheel>;
 	var segmentPixels: Int;
 	var offset: Int;
 
-	public function new(audio: Audio, resolution: Int) {
-		super("Slots", resolution, audio);
+	public function new(system: System) {
+		super("Slots", system);
 
 		segmentPixels = Std.int(resolution / NUM_WHEELS);
 		if (segmentPixels % 2 == 0)
@@ -141,12 +142,10 @@ class Slots extends App {
 		wheels = [];
 		for (i in 0...NUM_WHEELS) {
 			var w = new Wheel(this, segmentPixels, WHEELS[i]);
-			var segmentStart = offset + i * segmentPixels;
-			w.position = segmentStart + (segmentPixels - 1) / 2;
 			w.rotation = Math.floor(Math.random() * NUM_SYMBOLS);
 			wheels.push(w);
 		}
-		state = IDLE;
+		stage = IDLE;
 	}
 
 	function spin() {
@@ -154,18 +153,18 @@ class Slots extends App {
 			wheel.speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
 			wheel.spinEndTime = time + MIN_SPIN_DURATION + Math.random() * (MAX_SPIN_DURATION - MIN_SPIN_DURATION);
 		}
-		state = SPINNING;
+		stage = SPINNING;
 	}
 
 	override public function loop() {
 		super.loop();
-		if (pendingHandler != null)
-			return;
+
+		var dt = system.delta;
 
 		for (wheel in wheels)
-			wheel.update();
+			wheel.tick(dt);
 
-		if (state == SPINNING) {
+		if (stage == SPINNING) {
 			var allStopped = true;
 			for (wheel in wheels) {
 				if (wheel.speed > 0) {
@@ -174,7 +173,7 @@ class Slots extends App {
 				}
 			}
 			if (allStopped) {
-				state = RESULT;
+				stage = RESULT;
 				evaluate();
 			}
 		}
@@ -188,28 +187,29 @@ class Slots extends App {
 			var idx = Math.round(wheel.rotation) % NUM_SYMBOLS;
 			centreFruits.push(wheel.symbols[idx]);
 		}
-		if (centreFruits[0] == centreFruits[1] && centreFruits[1] == centreFruits[2]) {
-			audio.play(SoundEvent.LEVEL_COMPLETE);
-		} else {
-			audio.play(SoundEvent.LEVEL_FAIL);
-		}
+		if (centreFruits[0] == centreFruits[1] && centreFruits[1] == centreFruits[2])
+			audio.play(Sound.LEVEL_COMPLETE);
+		else
+			audio.play(Sound.LEVEL_FAIL);
+
 		defer(function() {
-			state = IDLE;
+			stage = IDLE;
 		}, 4);
 	}
 
-	override public function buttonPress(buttonIndex: Int) {
-		if (state == IDLE && buttonIndex == 0)
+	override public function handleInput(controllerId:Int, input:Input, ?type:InputEvent = null, ?value:Float = 0):Void {
+		if (type == InputEvent.ButtonPress && stage == IDLE && input == Input.ButtonA)
 			spin();
 	}
 
 	function render() {
 		clear();
-		for (wheel in wheels)
-			wheel.render();
-
-		for (wheel in wheels)
-			pixels[Math.round(wheel.position)] = correctLuminance(Colors.White);
+		for (i in 0...wheels.length) {
+			var segmentStart = offset + i * segmentPixels;
+			var centre = segmentStart + (segmentPixels - 1) / 2;
+			wheels[i].render(centre, EdgeMode.CLIP);
+			pixels[Math.round(centre)] = Colors.correctLuminance(Colors.White);
+		}
 	}
 
 	static function main() {}
