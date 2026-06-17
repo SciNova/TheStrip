@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "author": "",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "mcu",
+      "top": 346.2,
+      "left": 479.4,
+      "attrs": {  }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip1",
+      "top": -203.3,
+      "left": 258.8,
+      "rotate": 270,
+      "attrs": { "pixels": "120", "pixelSize": "2020", "pixelShape": "square" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnPause",
+      "top": 170,
+      "left": 400,
+      "rotate": 90,
+      "attrs": { "color": "grey", "key": "P" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnMenu",
+      "top": 170,
+      "left": 450,
+      "rotate": 90,
+      "attrs": { "color": "grey", "key": "M", "xray": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnA",
+      "top": 170,
+      "left": 500,
+      "rotate": 90,
+      "attrs": { "color": "red", "key": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnB",
+      "top": 170,
+      "left": 550,
+      "rotate": 90,
+      "attrs": { "color": "green", "key": "2" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnC",
+      "top": 170,
+      "left": 600,
+      "rotate": 90,
+      "attrs": { "color": "blue", "key": "3" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnD",
+      "top": 170,
+      "left": 650,
+      "rotate": 90,
+      "attrs": { "color": "yellow", "key": "4" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnPause2",
+      "top": 220,
+      "left": 400,
+      "rotate": 90,
+      "attrs": { "color": "grey", "key": "Shift-P" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnMenu2",
+      "top": 220,
+      "left": 450,
+      "rotate": 90,
+      "attrs": { "color": "grey", "key": "Shift-M" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnA2",
+      "top": 220,
+      "left": 500,
+      "rotate": 90,
+      "attrs": { "color": "red", "key": "Shift-A" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnB2",
+      "top": 220,
+      "left": 550,
+      "rotate": 90,
+      "attrs": { "color": "green", "key": "Shift-B" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnC2",
+      "top": 220,
+      "left": 600,
+      "rotate": 90,
+      "attrs": { "color": "blue", "key": "Shift-C" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnD2",
+      "top": 220,
+      "left": 650,
+      "rotate": 90,
+      "attrs": { "color": "yellow", "key": "Shift-D" }
+    },
+    { "type": "wokwi-ky-040", "id": "encoder", "top": 59.3, "left": 652, "attrs": {} },
+    { "type": "wokwi-ky-040", "id": "encoder2", "top": 59.3, "left": 450, "attrs": {} }
+  ],
+  "connections": [
+    [ "mcu:2", "strip1:DIN", "green", [] ],
+    [ "mcu:GND", "strip1:VSS", "black", [] ],
+    [ "mcu:5V", "strip1:VDD", "red", [] ],
+    [ "mcu:3", "btnA:1.r", "green", [] ],
+    [ "mcu:GND", "btnA:2.r", "black", [] ],
+    [ "mcu:4", "btnB:1.r", "yellow", [] ],
+    [ "mcu:GND", "btnB:2.r", "black", [] ],
+    [ "mcu:5", "btnC:1.r", "orange", [] ],
+    [ "mcu:GND", "btnC:2.r", "black", [] ],
+    [ "mcu:6", "btnD:1.r", "purple", [] ],
+    [ "mcu:GND", "btnD:2.r", "black", [] ],
+    [ "mcu:7", "btnA2:1.r", "green", [] ],
+    [ "mcu:GND", "btnA2:2.r", "black", [] ],
+    [ "mcu:8", "btnB2:1.r", "yellow", [] ],
+    [ "mcu:GND", "btnB2:2.r", "black", [] ],
+    [ "mcu:9", "btnC2:1.r", "orange", [] ],
+    [ "mcu:GND", "btnC2:2.r", "black", [] ],
+    [ "mcu:10", "btnD2:1.r", "purple", [] ],
+    [ "mcu:GND", "btnD2:2.r", "black", [] ],
+    [ "mcu:A2", "encoder:CLK", "green", [] ],
+    [ "mcu:A3", "encoder:DT", "yellow", [] ],
+    [ "mcu:11", "encoder:SW", "red", [] ],
+    [ "mcu:GND", "encoder:GND", "black", [] ],
+    [ "mcu:5V", "encoder:VCC", "red", [] ],
+    [ "mcu:A4", "encoder2:CLK", "green", [] ],
+    [ "mcu:A5", "encoder2:DT", "yellow", [] ],
+    [ "mcu:12", "encoder2:SW", "red", [] ],
+    [ "mcu:GND", "encoder2:GND", "black", [] ],
+    [ "mcu:5V", "encoder2:VCC", "red", [] ]
+  ],
+  "dependencies": {}
+}
