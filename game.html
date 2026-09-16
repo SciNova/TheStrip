@@ -2,37 +2,60 @@
 
 {% block content %}
 	<div id="strip"></div>
-	<div id="controller"></div>
+	<div id="pads">
+		<div id="pad"></div>
+		<div id="pad2"></div>
+	</div>
 	<div id="debug"></div>
-	<script src="/game.js"></script>
-	<script src="/js/{{ game_js }}.js"></script>
-	<script>
-		function toggleFullscreen() {
-			if (!document.fullscreenElement && !document.webkitFullscreenElement && 
-				!document.mozFullScreenElement && !document.msFullscreenElement) {
-				const element = document.documentElement;
-				if (element.requestFullscreen) element.requestFullscreen();
-			} else {
-				if (document.exitFullscreen) document.exitFullscreen();
-			}
-		}
-		document.addEventListener('DOMContentLoaded', function() {
-			document.addEventListener('keydown', function(e) {
-				if (e.key === 'F11') {
-					e.preventDefault();
-					toggleFullscreen();
-				}
-			});
-			const stripContainer = document.getElementById('strip');
-			const controllerContainer = document.getElementById('controller');
-			const debugContainer = document.getElementById('debug');
-			const gameClass = window['{{ game_class }}'];
-			new GameController(stripContainer, controllerContainer, debugContainer, gameClass, {fps: 30});
 
-			function handleFullscreenChange() {
-				window.dispatchEvent(new Event('resize'));
-			}
-			document.addEventListener('fullscreenchange', handleFullscreenChange);
+	<script type="module">
+		import { Console } from '/Console.js';
+		import { Strip } from '/js/system.js';
+		import { ControlPad } from '/js/hardware.js';
+
+		let cnsl;
+
+		async function setup() {
+			cnsl.system.strip = new Strip(120);
+
+			const ctrl = new ControlPad(cnsl.system);
+			ctrl.id = 0;
+			ctrl.panel = null;
+			ctrl.update();
+			cnsl.pads[0] = ctrl;
+			await cnsl.renderPad(0);
+
+			const guestCtrl = new ControlPad(cnsl.system);
+			guestCtrl.id = 1;
+			guestCtrl.panel = null;
+			guestCtrl.update();
+			cnsl.pads[1] = guestCtrl;
+			await cnsl.renderPad(1);
+
+			const module = await import('/js/{{ game_js }}.js');
+			const GameClass = module['{{ game_class }}'];
+			cnsl.system.game = new GameClass(cnsl.system);
+			cnsl.system.game.playLevel();
+
+			cnsl.setStripContainer(document.getElementById('strip'));
+		}
+
+		function loop() {
+			cnsl.updateView();
+		}
+
+		function frame() {
+			const now = cnsl.system.clock.time;
+			cnsl.poll(now);
+			cnsl.system.loop();
+			loop();
+			requestAnimationFrame(frame);
+		}
+
+		document.addEventListener('DOMContentLoaded', async () => {
+			cnsl = new Console();
+			await setup();
+			requestAnimationFrame(frame);
 		});
 	</script>
 {% endblock %}

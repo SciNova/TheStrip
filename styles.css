@@ -2,6 +2,8 @@ body {
 	font-family: sans-serif;
 	background-color: #666;
 	color: white;
+	display: flex;
+	flex-direction: column;
 }
 
 html, body {
@@ -15,11 +17,9 @@ html, body {
 }
 
 #strip {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
+	flex: 1 1 auto;
+	min-height: 0;
+	width: 100%;
 	outline: none;
 	display: flex;
 	flex-direction: column-reverse;
@@ -32,11 +32,21 @@ html, body {
 	margin: 0 auto 1px;
 	}
 
-#controller {
+#pads {
 	display: flex;
 	flex-direction: row;
-	margin-top: 5px;
 	justify-content: center;
+	flex-shrink: 0;
+}
+
+#pad, #pad2 {
+	display: none;
+	margin: 5px 4px;
+}
+
+#pad svg, #pad2 svg {
+	cursor: pointer;
+	user-select: none;
 }
 
 .button {
