@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title></title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<div id="pad"></div>
+
+	<button onclick="webControlPad.connect()">Connect</button>
+
+	<script>
+		var svgs = {{ svgs | tojson }};
+		var webControlPad = null;
+	</script>
+
+	<script src="strip.js"></script>
+
+	<script>
+		function init() {
+			const padDiv = document.getElementById("pad");
+			webControlPad = new WebControlPad(padDiv, svgs);
+		}
+
+		document.addEventListener("DOMContentLoaded", init);
+	</script>
+</body>
+</html>
