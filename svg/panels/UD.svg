@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 70" width="120" height="70">
+	<rect x="0" y="0" width="120" height="70" rx="5" ry="5" fill="#1a1a1a" />
+	<rect x="46.25" y="5" width="27.5" height="27.5" rx="3" ry="3"
+			fill="#ffffff" data-label="U" data-code="DpadAUp" />
+	<rect x="46.25" y="37.5" width="27.5" height="27.5" rx="3" ry="3"
+			fill="#ffffff" data-label="D" data-code="DpadADown" />
+</svg>

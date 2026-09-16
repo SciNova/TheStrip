@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 70" width="120" height="70">
+	<rect x="0" y="0" width="120" height="70" rx="5" ry="5" fill="#1a1a1a" />
+	<rect x="5" y="8.75" width="52.5" height="52.5" rx="3" ry="3"
+			fill="#ffffff" data-label="L" data-code="DpadALeft" />
+	<rect x="62.5" y="8.75" width="52.5" height="52.5" rx="3" ry="3"
+			fill="#ffffff" data-label="R" data-code="DpadARight" />
+</svg>
