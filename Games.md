@@ -4,6 +4,7 @@
 | Game | Missing |
 |---|---|
 | AsteroidsZ | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
+| Blackjack | JS only (not yet ported to python/c/cpp/haxe). No Ace flexibility (1 or 11), no betting/chips. |
 | Bomberman | JS only (not yet ported to python/c/cpp/haxe). Single enemy, single bomb at a time; score display beyond lit-pixel count. |
 | Breakout | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | CentipedeZ | JS only (not yet ported to python/c/cpp/haxe). No player dodge (pure shooting gallery); score display beyond lit-pixel count. |
