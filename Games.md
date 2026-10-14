@@ -37,6 +37,7 @@
 | Submarine | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | TowerDefense | JS only (not yet ported to python/c/cpp/haxe). Single turret/lane, no real "waves"; score display beyond lit-pixel count. |
 | TreasureHunt | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
+| TugOfWar | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | WhackAMole | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 
 ---
