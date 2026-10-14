@@ -36,6 +36,7 @@
 | Stack | Level restart on failure (snake not reset); level progression (`nextLevel()` doesn't call `playLevel()`); game-complete restart; gaps don't decrease (`END_GAP = START_GAP`); level count is 24 on a 120-strip, not 30 as in Games.md. |
 | Submarine | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | TowerDefense | JS only (not yet ported to python/c/cpp/haxe). Single turret/lane, no real "waves"; score display beyond lit-pixel count. |
+| TreasureHunt | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | WhackAMole | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 
 ---
