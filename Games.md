@@ -22,6 +22,7 @@
 | Maze2D | JS only (not yet ported to python/c/cpp/haxe). No lives/fail state — pure exploration; step counter/scoring. |
 | MissileCommand | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Moodlight | Only three themes, two of which look poor; needs real theme design rather than scrolling gradients. |
+| Pachinko | JS only (not yet ported to python/c/cpp/haxe). Pegs are procedural jitter, not real physical pegs; score display beyond lit-pixel count. |
 | Pacman | Final level never completes; no score display. (Ghosts, AI, collision, wrap now done.) |
 | Pinball | JS only (not yet ported to python/c/cpp/haxe). No multiball/tilt; score display beyond lit-pixel count. |
 | Pong | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
