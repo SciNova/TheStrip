@@ -20,6 +20,7 @@
 | Pacman | Final level never completes; no score display. (Ghosts, AI, collision, wrap now done.) |
 | Pong | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Race | Single-player AI opponent; difficulty settings; lap/score display beyond the progress bar. |
+| RhythmTap | JS only (not yet ported to python/c/cpp/haxe). Random-lane beats rather than a real song/chart; score display beyond lit-pixel count. |
 | Shooter2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | SimonSays | Nothing — appears complete. |
 | Slots | Payout/credits/betting; score display; lever animation. |
