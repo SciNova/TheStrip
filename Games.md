@@ -8,6 +8,7 @@
 | Breakout | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | CentipedeZ | JS only (not yet ported to python/c/cpp/haxe). No player dodge (pure shooting gallery); score display beyond lit-pixel count. |
 | ColorLight | Nothing — complete. |
+| Darts | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | DemoScene | Only the first demo view looks finished; the other views are proof-of-concept quality and need real visual design. |
 | Dices | Result evaluation and display (roll → win/lose); level progression; scoring. |
 | DicesClock | Only one digit for minutes (wraps every 10); missing tens-of-minutes and hours; no user input. |
