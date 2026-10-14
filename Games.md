@@ -15,6 +15,7 @@
 | Fishing | JS only (not yet ported to python/c/cpp/haxe). No score display, no game-over — deliberately low-stakes/endless. |
 | FlappyBird | Collision detection; score, game over, restart; `gapPosition` is fixed and never varies. |
 | Frogger | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
+| Golf | JS only (not yet ported to python/c/cpp/haxe). No obstacles/terrain on the fairway; score display beyond lit-pixel count. |
 | Highway2D | JS only (not yet ported to python/c/cpp/haxe). Lane markers/road texture; score display beyond lit-pixel count. |
 | LunarLander | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Maze2D | JS only (not yet ported to python/c/cpp/haxe). No lives/fail state — pure exploration; step counter/scoring. |
