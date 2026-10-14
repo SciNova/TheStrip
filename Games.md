@@ -19,6 +19,7 @@
 | Shooter2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | SimonSays | Nothing — appears complete. |
 | Slots | Payout/credits/betting; score display; lever animation. |
+| Snake2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count; no difficulty/level tiers. |
 | SpaceInvaders2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Stack | Level restart on failure (snake not reset); level progression (`nextLevel()` doesn't call `playLevel()`); game-complete restart; gaps don't decrease (`END_GAP = START_GAP`); level count is 24 on a 120-strip, not 30 as in Games.md. |
 
