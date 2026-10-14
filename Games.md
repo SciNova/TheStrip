@@ -31,6 +31,7 @@
 | Race | Single-player AI opponent; difficulty settings; lap/score display beyond the progress bar. |
 | RhythmTap | JS only (not yet ported to python/c/cpp/haxe). Random-lane beats rather than a real song/chart; score display beyond lit-pixel count. |
 | Shooter2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
+| Shuffleboard | JS only (not yet ported to python/c/cpp/haxe). No score display beyond flash/pixel feedback; CPU aim is simplistic. |
 | SimonSays | Nothing — appears complete. |
 | Slots | Payout/credits/betting; score display; lever animation. |
 | Snake2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count; no difficulty/level tiers. |
