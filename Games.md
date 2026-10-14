@@ -10,6 +10,7 @@
 | Dino | Collision detection; game over, score, restart, level progression. |
 | FlappyBird | Collision detection; score, game over, restart; `gapPosition` is fixed and never varies. |
 | Highway2D | JS only (not yet ported to python/c/cpp/haxe). Lane markers/road texture; score display beyond lit-pixel count. |
+| Maze2D | JS only (not yet ported to python/c/cpp/haxe). No lives/fail state — pure exploration; step counter/scoring. |
 | Moodlight | Only three themes, two of which look poor; needs real theme design rather than scrolling gradients. |
 | Pacman | Final level never completes; no score display. (Ghosts, AI, collision, wrap now done.) |
 | Pong | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
