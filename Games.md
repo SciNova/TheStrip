@@ -3,6 +3,7 @@
 
 | Game | Missing |
 |---|---|
+| Breakout | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | ColorLight | Nothing — complete. |
 | DemoScene | Only the first demo view looks finished; the other views are proof-of-concept quality and need real visual design. |
 | Dices | Result evaluation and display (roll → win/lose); level progression; scoring. |
