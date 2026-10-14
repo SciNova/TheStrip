@@ -21,6 +21,7 @@
 | Highway2D | JS only (not yet ported to python/c/cpp/haxe). Lane markers/road texture; score display beyond lit-pixel count. |
 | LunarLander | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Maze2D | JS only (not yet ported to python/c/cpp/haxe). No lives/fail state — pure exploration; step counter/scoring. |
+| MemoryMatch | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | MissileCommand | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Moodlight | Only three themes, two of which look poor; needs real theme design rather than scrolling gradients. |
 | Pachinko | JS only (not yet ported to python/c/cpp/haxe). Pegs are procedural jitter, not real physical pegs; score display beyond lit-pixel count. |
