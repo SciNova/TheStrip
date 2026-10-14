@@ -15,6 +15,7 @@
 | Pacman | Final level never completes; no score display. (Ghosts, AI, collision, wrap now done.) |
 | Pong | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Race | Single-player AI opponent; difficulty settings; lap/score display beyond the progress bar. |
+| Shooter2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | SimonSays | Nothing — appears complete. |
 | Slots | Payout/credits/betting; score display; lever animation. |
 | Stack | Level restart on failure (snake not reset); level progression (`nextLevel()` doesn't call `playLevel()`); game-complete restart; gaps don't decrease (`END_GAP = START_GAP`); level count is 24 on a 120-strip, not 30 as in Games.md. |
