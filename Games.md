@@ -12,6 +12,7 @@
 | Dices | Result evaluation and display (roll → win/lose); level progression; scoring. |
 | DicesClock | Only one digit for minutes (wraps every 10); missing tens-of-minutes and hours; no user input. |
 | Dino | Collision detection; game over, score, restart, level progression. |
+| Fishing | JS only (not yet ported to python/c/cpp/haxe). No score display, no game-over — deliberately low-stakes/endless. |
 | FlappyBird | Collision detection; score, game over, restart; `gapPosition` is fixed and never varies. |
 | Frogger | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
 | Highway2D | JS only (not yet ported to python/c/cpp/haxe). Lane markers/road texture; score display beyond lit-pixel count. |
