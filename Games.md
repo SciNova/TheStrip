@@ -1,72 +1,52 @@
 ## Game Library
 
+All games are JS only (not yet ported to python/c/cpp/haxe) unless their Status says otherwise. Version `1.0` marks a game considered working and playable.
 
-| Game | Missing |
-|---|---|
-| AsteroidsZ | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| Blackjack | JS only (not yet ported to python/c/cpp/haxe). No Ace flexibility (1 or 11), no betting/chips. |
-| Bomberman | JS only (not yet ported to python/c/cpp/haxe). Single enemy, single bomb at a time; score display beyond lit-pixel count. |
-| Breakout | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| CentipedeZ | JS only (not yet ported to python/c/cpp/haxe). No player dodge (pure shooting gallery); score display beyond lit-pixel count. |
-| ColorLight | Nothing — complete. |
-| Darts | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| DemoScene | Only the first demo view looks finished; the other views are proof-of-concept quality and need real visual design. |
-| Dices | Result evaluation and display (roll → win/lose); level progression; scoring. |
-| DicesClock | Only one digit for minutes (wraps every 10); missing tens-of-minutes and hours; no user input. |
-| Dino | Collision detection; game over, score, restart, level progression. |
-| Fishing | JS only (not yet ported to python/c/cpp/haxe). No score display, no game-over — deliberately low-stakes/endless. |
-| FlappyBird | Collision detection; score, game over, restart; `gapPosition` is fixed and never varies. |
-| Frogger | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| Golf | JS only (not yet ported to python/c/cpp/haxe). No obstacles/terrain on the fairway; score display beyond lit-pixel count. |
-| Highway2D | JS only (not yet ported to python/c/cpp/haxe). Lane markers/road texture; score display beyond lit-pixel count. |
-| LunarLander | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| Maze2D | JS only (not yet ported to python/c/cpp/haxe). No lives/fail state — pure exploration; step counter/scoring. |
-| MemoryMatch | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| MissileCommand | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| Moodlight | Only three themes, two of which look poor; needs real theme design rather than scrolling gradients. |
-| Pachinko | JS only (not yet ported to python/c/cpp/haxe). Pegs are procedural jitter, not real physical pegs; score display beyond lit-pixel count. |
-| Pacman | Final level never completes; no score display. (Ghosts, AI, collision, wrap now done.) |
-| Pinball | JS only (not yet ported to python/c/cpp/haxe). No multiball/tilt; score display beyond lit-pixel count. |
-| Pong | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| QuickDraw | JS only (not yet ported to python/c/cpp/haxe). Score display beyond flash feedback. |
-| Race | Single-player AI opponent; difficulty settings; lap/score display beyond the progress bar. |
-| RhythmTap | JS only (not yet ported to python/c/cpp/haxe). Random-lane beats rather than a real song/chart; score display beyond lit-pixel count. |
-| Shooter2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| Shuffleboard | JS only (not yet ported to python/c/cpp/haxe). No score display beyond flash/pixel feedback; CPU aim is simplistic. |
-| SimonSays | Nothing — appears complete. |
-| Slots | Payout/credits/betting; score display; lever animation. |
-| Snake2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count; no difficulty/level tiers. |
-| SpaceInvaders2D | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| Sprint | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| Stack | Level restart on failure (snake not reset); level progression (`nextLevel()` doesn't call `playLevel()`); game-complete restart; gaps don't decrease (`END_GAP = START_GAP`); level count is 24 on a 120-strip, not 30 as in Games.md. |
-| Submarine | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| TowerDefense | JS only (not yet ported to python/c/cpp/haxe). Single turret/lane, no real "waves"; score display beyond lit-pixel count. |
-| TreasureHunt | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| TugOfWar | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-| WhackAMole | JS only (not yet ported to python/c/cpp/haxe). Score display beyond lit-pixel count. |
-
----
-
-
-| Game | Ring | Version |
-|------|------|---------|
-| Dices | | |
-| DicesClock | | |
-| Dino | ?|  |
-| FlappyBird | ? | |
-| Hanukkah | ✔ | |
-| Moodlight | ✔ |  |
-| Pacman | ✔ | |
-| Pong | ? | |
-| Race | ✔ | 1.0 |
-| SimonSays | ✔ | 1.0 |
-| Slots | | 1.0 |
-| Stack | | 1.0 |
-| Cars 2D  | | |
-| Highway 2D | | |
-| Maze 2D | | |
-| Shooter 2D | | |
-| Space Invaders 2D| | |
+| Game | Ring | Version | Status |
+|---|---|---|---|
+| AsteroidsZ | | | Score display beyond lit-pixel count. |
+| Blackjack | | | No Ace flexibility (1 or 11), no betting/chips. |
+| Bomberman | | | Single enemy, single bomb at a time; score display beyond lit-pixel count. |
+| Breakout | | | Score display beyond lit-pixel count. |
+| Cars | | | |
+| CentipedeZ | | | No player dodge (pure shooting gallery); score display beyond lit-pixel count. |
+| ColorLight | | | Nothing — complete. |
+| Darts | | 1.0 | Nothing — complete. |
+| DemoScene | | | Only the first demo view looks finished; the other views are proof-of-concept quality and need real visual design. |
+| Dices | | | Result evaluation and display (roll → win/lose); level progression; scoring. |
+| DicesClock | | | Only one digit for minutes (wraps every 10); missing tens-of-minutes and hours; no user input. |
+| Dino | ? | | Collision detection; game over, score, restart, level progression. |
+| Fishing | | | No score display, no game-over — deliberately low-stakes/endless. |
+| FlappyBird | ? | | Collision detection; score, game over, restart; `gapPosition` is fixed and never varies. |
+| Frogger | | | Score display beyond lit-pixel count. |
+| Golf | | | No obstacles/terrain on the fairway; score display beyond lit-pixel count. |
+| Hanukkah | ✔ | | Not yet implemented (concept only, no JS file). |
+| Highway2D | | | Lane markers/road texture; score display beyond lit-pixel count. |
+| LunarLander | | | Score display beyond lit-pixel count. |
+| Maze2D | | | No lives/fail state — pure exploration; step counter/scoring. |
+| MemoryMatch | | | Score display beyond lit-pixel count. |
+| MissileCommand | | | Score display beyond lit-pixel count. |
+| Moodlight | ✔ | | Only three themes, two of which look poor; needs real theme design rather than scrolling gradients. |
+| Pachinko | | | Pegs are procedural jitter, not real physical pegs; score display beyond lit-pixel count. |
+| Pacman | ✔ | | Final level never completes; no score display. (Ghosts, AI, collision, wrap now done.) |
+| Pinball | | | No multiball/tilt; score display beyond lit-pixel count. |
+| Pong | ? | | Score display beyond lit-pixel count. |
+| QuickDraw | | | Score display beyond flash feedback. |
+| Race | ✔ | 1.0 | Single-player AI opponent; difficulty settings; lap/score display beyond the progress bar. |
+| RhythmTap | | | Random-lane beats rather than a real song/chart; score display beyond lit-pixel count. |
+| Shooter2D | | | Score display beyond lit-pixel count. |
+| Shuffleboard | | | No score display beyond flash/pixel feedback; CPU aim is simplistic. |
+| SimonSays | ✔ | 1.0 | Nothing — appears complete. |
+| Slots | | 1.0 | Payout/credits/betting; score display; lever animation. |
+| Snake2D | | | Score display beyond lit-pixel count; no difficulty/level tiers. |
+| SpaceInvaders2D | | | Score display beyond lit-pixel count. |
+| Sprint | | | Score display beyond lit-pixel count. |
+| Stack | | 1.0 | Level restart on failure (snake not reset); level progression (`nextLevel()` doesn't call `playLevel()`); game-complete restart; gaps don't decrease (`END_GAP = START_GAP`); level count is 24 on a 120-strip, not 30 as in Games.md. |
+| Submarine | | | Score display beyond lit-pixel count. |
+| TowerDefense | | | Single turret/lane, no real "waves"; score display beyond lit-pixel count. |
+| TreasureHunt | | | Score display beyond lit-pixel count. |
+| TugOfWar | | | Score display beyond lit-pixel count. |
+| WhackAMole | | | Score display beyond lit-pixel count. |
 
 ### STACK
 
@@ -81,6 +61,10 @@ The game is played over 30 progressively difficult levels. Each level is complet
 Wheels are displayed as rotating cylinders along the LED strip. Each wheel contains colored fruit symbols with distinct sizes and colors. The wheels are rendered in 3D using a brightness gradient that simulates a side view of cylindrical reels, making them appear to bulge outward from the strip.
 
 The player presses a button to set all three wheels spinning simultaneously. Each wheel spins for a randomized duration and then begins to stop in a staggered sequence, with each wheel coming to rest at a random fruit symbol. The final alignment of the three center symbols determines the outcome.
+
+### DARTS
+
+A needle sweeps continuously back and forth across a four-ring target (bullseye, inner, outer, board) centered on the strip; a first button press arms the sweep and a second press freezes it, scoring whichever ring the needle lands on — or nothing, if it falls outside all four. The game runs for a fixed 48 darts across 12 levels, with the needle's speed and the target's size both easing from gentle to punishing as the levels climb, so the opening throws are nearly unmissable while the closing ones demand real precision. Two bars occupy the outer ends of the strip: one tracks how many of the 48 darts have been thrown, the other shows total score as a fraction of the maximum possible, changing color through four ranks (blue, green, yellow, red) as it climbs. With no lives or retries, the point isn't surviving — it's seeing how high a score and rank you can reach before the darts run out.
 
 ### PONG
 

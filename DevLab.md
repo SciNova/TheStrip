@@ -10,6 +10,8 @@ SimonSays 1.0 (17 May 2026): Fully playable. Player repeats an ever‑growing co
 
 Race 1.0 (17 May 2026): Fully playable. Two players, each controlled by a single button; boosting accelerates their racer while friction gradually slows them down. Bouncing off strip ends, laps counted by total distance travelled. Colored progress bars grow from each player's side toward the centre; first to reach the finish line wins.
 
+Darts 1.0 (6 Nov 2026): Fully playable. A needle sweeps continuously across a four-ring target; one press arms the sweep, a second freezes it and scores whichever ring it lands on. Fixed 48 darts across 12 levels, with needle speed and target size both easing from gentle to punishing as levels climb. One progress bar tracks darts thrown, the other shows score as a fraction of the maximum, changing color through four ranks as it climbs — no lives or retries, just how high a score you reach before the darts run out.
+
 FlappyBird: Bird falls with gravity, one button boosts upward; top and bottom terrain walls move randomly with shrinking gap and increasing fluctuation/speed.
 
 Pacman: Player moves bidirectionally along linear strip using two buttons; collects regular and power pellets that temporarily change player state; progresses through 10 levels with increasing power pellet density.
