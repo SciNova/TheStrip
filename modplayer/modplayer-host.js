@@ -1,19 +1,24 @@
-class ModPlayer {
+/**
+ * Thin main-thread shim: owns the AudioContext/node graph and relays
+ * messages to the real player (ModPlayer, running inside mod-processor.js
+ * on the audio thread). This class is NOT the player - it's the connection
+ * to it, plus the one thing that genuinely belongs on the main thread:
+ * loading a file into a Song via a format-specific loader.
+ */
+class ModPlayerHost {
 	constructor() {
 		this.context = null;
 		this.workletNode = null;
 		this.filterNode = null;
-		this.merger = null;
-		this.splitter = null;
+		this.gainNode = null;
 		this.analysers = [];
 		this.mixingRate = 44100;
 		this.playing = false;
 		this.ready = true;
 		this.loaded = false;
-		this.channels = [true, true, true, true];
-		this.audioWorkletSupport = true;
-		this.gainNode = null;
-		this.positions = 0;
+		this.channels = [];
+		this.song = null;
+		this.moduleAdded = false;
 		this._volume = 1.0;
 	}
 
@@ -29,10 +34,11 @@ class ModPlayer {
 		}
 	}
 
-	init(options = {}) {
-		this.audioWorkletSupport = options.audioWorkletSupport;
+	init() {
+		this.context = new (window.AudioContext || window.webkitAudioContext)();
+		this.mixingRate = this.context.sampleRate;
 
-		return this.createContext();
+		return Promise.resolve();
 	}
 
 	async loadModule(module) {
@@ -46,17 +52,20 @@ class ModPlayer {
 
 		this.pause();
 
-		if (!this.context) {
-			await this.createContext();
-		}
-
 		const buffer = typeof module === 'string' ?
 			await this.loadBinaryFromURL(module) :
 			await this.loadBinaryFromLocalFile(module);
 
+		const song = ModLoader.load(buffer);
+
+		await this.buildGraph(song.channelCount);
+
+		this.song = song;
+		this.channels = new Array(song.channelCount).fill(true);
+
 		this.postMessage({
-			message: 'loadModule',
-			buffer: buffer
+			message: 'loadSong',
+			song: song
 		});
 
 		this.ready = true;
@@ -81,76 +90,67 @@ class ModPlayer {
 		});
 	}
 
-	createContext() {
-		console.log('Creating audio context...');
-		this.context = new (window.AudioContext || window.webkitAudioContext)();
+	/**
+	 * Builds (or rebuilds, if the channel count changed) the AudioWorkletNode
+	 * and one analyser per track. Each track's worklet output is stereo, pre-panned
+	 * by the player itself - multiple stereo connections into the same destination
+	 * sum natively, so no merger node is needed regardless of channel count.
+	 */
+	async buildGraph(channelCount) {
+		if (this.workletNode) {
+			this.workletNode.disconnect();
+			this.analysers.forEach((analyser) => analyser.disconnect());
+		}
 
-		this.mixingRate = this.context.sampleRate;
+		if (!this.moduleAdded) {
+			await this.context.audioWorklet.addModule('note.js');
+			await this.context.audioWorklet.addModule('instrument.js');
+			await this.context.audioWorklet.addModule('track.js');
+			await this.context.audioWorklet.addModule('pattern.js');
+			await this.context.audioWorklet.addModule('song.js');
+			await this.context.audioWorklet.addModule('mod-processor.js');
+			this.moduleAdded = true;
+		}
 
-		return this.context.audioWorklet.addModule('mod-processor.js').then(() => {
-			const numAnalysers = this.audioWorkletSupport && 4 || 2;
-
-			// apply a filter
+		if (!this.filterNode) {
 			this.filterNode = this.context.createBiquadFilter();
 			this.filterNode.frequency.value = 22050;
+		}
 
+		if (!this.gainNode) {
 			this.gainNode = this.context.createGain();
-
-			// Use 4 inputs that will be used to send each track's data to a separate analyser
-			// NOTE: what should we do if we support more channels (and different mod formats)?
-			this.workletNode = new AudioWorkletNode(this.context, 'mod-processor', {
-				outputChannelCount: [1, 1, 1, 1],
-				numberOfInputs: 0,
-				numberOfOutputs: 4
-			});
-
-			if (!this.audioWorkletSupport) {
-				this.splitter = this.context.createChannelSplitter(numAnalysers);
-				this.filterNode.connect(this.splitter);
-			}
-
-			this.workletNode.port.onmessage = this.handleMessage.bind(this);
-			this.postMessage({
-				message: 'init',
-				mixingRate: this.mixingRate,
-				audioWorkletSupport: this.audioWorkletSupport
-			});
-			this.workletNode.port.start();
-
-			// create four analysers and connect each worklet's input to one
-			this.analysers = [];
-
-			for (let i = 0; i < numAnalysers; ++i) {
-				const analyser = this.context.createAnalyser();
-				analyser.fftSize = 256;
-				analyser.minDecibels = -90;
-				analyser.maxDecibels = -10;
-				analyser.smoothingTimeConstant = 0.65;
-				if (this.audioWorkletSupport) {
-					this.workletNode.connect(analyser, i, 0);
-				} else {
-					this.splitter.connect(analyser, i);
-				}
-				this.analysers.push(analyser);
-			}
-
-			if (this.audioWorkletSupport) {
-				this.merger = this.context.createChannelMerger(2);
-
-				// merge the channel 0+3 in left channel, 1+2 in right channel
-				this.workletNode.connect(this.merger, 0, 0);
-				this.workletNode.connect(this.merger, 1, 1);
-				this.workletNode.connect(this.merger, 2, 1);
-				this.workletNode.connect(this.merger, 3, 0);
-
-				// finally apply the lowpass filter and send audio to destination
-				this.merger.connect(this.filterNode);
-			} else {
-				this.workletNode.connect(this.filterNode);
-			}
-
+			this.gainNode.gain.value = this._volume;
 			this.filterNode.connect(this.gainNode);
 			this.gainNode.connect(this.context.destination);
+		}
+
+		this.workletNode = new AudioWorkletNode(this.context, 'mod-processor', {
+			outputChannelCount: new Array(channelCount).fill(2),
+			numberOfInputs: 0,
+			numberOfOutputs: channelCount
+		});
+
+		this.workletNode.port.onmessage = this.handleMessage.bind(this);
+		this.workletNode.port.start();
+
+		this.analysers = [];
+
+		for (let i = 0; i < channelCount; ++i) {
+			const analyser = this.context.createAnalyser();
+			analyser.fftSize = 256;
+			analyser.minDecibels = -90;
+			analyser.maxDecibels = -10;
+			analyser.smoothingTimeConstant = 0.65;
+
+			this.workletNode.connect(analyser, i, 0);
+			this.workletNode.connect(this.filterNode, i);
+
+			this.analysers.push(analyser);
+		}
+
+		this.postMessage({
+			message: 'init',
+			mixingRate: this.mixingRate
 		});
 	}
 
@@ -158,19 +158,11 @@ class ModPlayer {
 		this.filterNode.frequency.value = activate && 6000 || 22050;
 	}
 
-	setSpeed(speedUp) {
-		this.postMessage({
-			message: 'speedUp',
-			speedUp: speedUp
-		});
-	}
-
 	handleMessage(message) {
 		switch (message.data.message) {
-			case 'moduleLoaded': {
+			case 'songLoaded': {
 				this.loaded = true;
-				this.positions = message.data.data.positions;
-				const event = new Event('moduleLoaded');
+				const event = new Event('songLoaded');
 				event.data = message.data.data;
 				event.data.wasPlaying = this.wasPlaying;
 				document.dispatchEvent(event);
@@ -189,6 +181,11 @@ class ModPlayer {
 	}
 
 	postMessage(message) {
+		// no-op before the first song's loadModule() has built the graph
+		if (!this.workletNode) {
+			return;
+		}
+
 		this.workletNode.port.postMessage(message);
 	}
 
@@ -238,6 +235,21 @@ class ModPlayer {
 		}
 	}
 
+	pause(fadeDuration = 0) {
+		console.log('Pausing module...');
+
+		if (fadeDuration > 0) {
+			this.fadeOut(fadeDuration);
+			setTimeout(() => {
+				this.playing = false;
+				this.sendPlayingStatus();
+			}, fadeDuration * 1000);
+		} else {
+			this.playing = false;
+			this.sendPlayingStatus();
+		}
+	}
+
 	fadeIn(duration) {
 		this.fadeTo(0, this._volume, duration);
 	}
@@ -271,21 +283,6 @@ class ModPlayer {
 			message: 'seek',
 			position: pattern
 		});
-	}
-
-	pause(fadeDuration = 0) {
-		console.log('Pausing module...');
-
-		if (fadeDuration > 0) {
-			this.fadeOut(fadeDuration);
-			setTimeout(() => {
-				this.playing = false;
-				this.sendPlayingStatus();
-			}, fadeDuration * 1000);
-		} else {
-			this.playing = false;
-			this.sendPlayingStatus();
-		}
 	}
 
 	sendPlayingStatus() {
