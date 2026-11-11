@@ -12,6 +12,21 @@ class ModPlayer {
 		this.loaded = false;
 		this.channels = [true, true, true, true];
 		this.audioWorkletSupport = true;
+		this.gainNode = null;
+		this.positions = 0;
+		this._volume = 1.0;
+	}
+
+	get volume() {
+		return this._volume;
+	}
+
+	set volume(v) {
+		this._volume = Math.max(0, Math.min(1, v));
+		if (this.gainNode) {
+			this.gainNode.gain.cancelScheduledValues(this.context.currentTime);
+			this.gainNode.gain.value = this._volume;
+		}
 	}
 
 	init(options = {}) {
@@ -79,6 +94,8 @@ class ModPlayer {
 			this.filterNode = this.context.createBiquadFilter();
 			this.filterNode.frequency.value = 22050;
 
+			this.gainNode = this.context.createGain();
+
 			// Use 4 inputs that will be used to send each track's data to a separate analyser
 			// NOTE: what should we do if we support more channels (and different mod formats)?
 			this.workletNode = new AudioWorkletNode(this.context, 'mod-processor', {
@@ -132,7 +149,8 @@ class ModPlayer {
 				this.workletNode.connect(this.filterNode);
 			}
 
-			this.filterNode.connect(this.context.destination);
+			this.filterNode.connect(this.gainNode);
+			this.gainNode.connect(this.context.destination);
 		});
 	}
 
@@ -151,6 +169,7 @@ class ModPlayer {
 		switch (message.data.message) {
 			case 'moduleLoaded': {
 				this.loaded = true;
+				this.positions = message.data.data.positions;
 				const event = new Event('moduleLoaded');
 				event.data = message.data.data;
 				event.data.wasPlaying = this.wasPlaying;
@@ -173,7 +192,7 @@ class ModPlayer {
 		this.workletNode.port.postMessage(message);
 	}
 
-	play() {
+	play(fadeDuration = 0) {
 		if (!this.loaded) {
 			console.log('No module loaded');
 			return;
@@ -186,31 +205,87 @@ class ModPlayer {
 		}
 
 		console.log('Playing module...');
-		this.playing = !this.playing;
 
-		if (!this.playing) {
-			this.pause();
+		if (this.playing) {
+			this.pause(fadeDuration);
+			return;
 		}
 
+		this.playing = true;
+		this.fadeIn(fadeDuration);
 		this.sendPlayingStatus();
 	}
 
-	stop() {
+	stop(fadeDuration = 0) {
 		console.log('Stopping playback');
-		this.pause();
-		if (this.ready) {
-			this.postMessage({
-				message: 'reset'
-			});
-		}
 
-		this.setLowPass(false);
+		const finish = () => {
+			this.playing = false;
+			this.sendPlayingStatus();
+			if (this.ready) {
+				this.postMessage({
+					message: 'reset'
+				});
+			}
+			this.setLowPass(false);
+		};
+
+		if (fadeDuration > 0 && this.playing) {
+			this.fadeOut(fadeDuration);
+			setTimeout(finish, fadeDuration * 1000);
+		} else {
+			finish();
+		}
 	}
 
-	pause() {
+	fadeIn(duration) {
+		this.fadeTo(0, this._volume, duration);
+	}
+
+	fadeOut(duration) {
+		this.fadeTo(this.gainNode ? this.gainNode.gain.value : this._volume, 0, duration);
+	}
+
+	fadeTo(startVolume, targetVolume, duration) {
+		if (!this.gainNode) {
+			return;
+		}
+
+		const now = this.context.currentTime;
+		this.gainNode.gain.cancelScheduledValues(now);
+		this.gainNode.gain.setValueAtTime(startVolume, now);
+
+		if (duration > 0) {
+			this.gainNode.gain.linearRampToValueAtTime(targetVolume, now + duration);
+		} else {
+			this.gainNode.gain.value = targetVolume;
+		}
+	}
+
+	seek(pattern) {
+		if (!this.ready) {
+			return;
+		}
+
+		this.postMessage({
+			message: 'seek',
+			position: pattern
+		});
+	}
+
+	pause(fadeDuration = 0) {
 		console.log('Pausing module...');
-		this.playing = false;
-		this.sendPlayingStatus();
+
+		if (fadeDuration > 0) {
+			this.fadeOut(fadeDuration);
+			setTimeout(() => {
+				this.playing = false;
+				this.sendPlayingStatus();
+			}, fadeDuration * 1000);
+		} else {
+			this.playing = false;
+			this.sendPlayingStatus();
+		}
 	}
 
 	sendPlayingStatus() {

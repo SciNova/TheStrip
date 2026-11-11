@@ -87,6 +87,25 @@ class PTModuleProcessor extends AudioWorkletProcessor{
 				this.speedUp = event.data.speedUp;
 				this.calcTickSpeed();
 				break;
+
+			case 'seek':
+				if (this.ready) {
+					this.position = Math.max(0, Math.min(event.data.position, this.songLength - 1));
+					this.pattern = this.positions[this.position];
+					this.row = 0;
+					this.ticks = 0;
+					this.filledSamples = 0;
+					this.newTick = true;
+					this.rowRepeat = 0;
+					this.rowJump = -1;
+					this.skipPattern = false;
+					this.jumpPattern = -1;
+					for (let i = 0; i < this.channels.length; ++i) {
+						this.channels[i].loopInitiated = false;
+					}
+					this.decodeRow();
+				}
+				break;
 		}
 	}
 

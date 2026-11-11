@@ -1,5 +1,7 @@
 let player, view;
 
+const FADE_DURATION = 2;
+
 window.onload = function () {
 	const audioWorkletSupport = !!AudioWorkletNode.toString().match(/native code/);
 
@@ -17,10 +19,15 @@ window.onload = function () {
 }
 
 function togglePlay() {
-	player.play();
+	player.play(FADE_DURATION);
 	document.querySelector('button.play').innerText = player.playing ? 'Pause' : 'Play';
 
 	if (player.playing) {
 		view.start();
 	}
+}
+
+function seekRandom() {
+	const pattern = Math.floor(Math.random() * player.positions);
+	player.seek(pattern);
 }
