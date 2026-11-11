@@ -8,11 +8,31 @@ class ModPlayerView {
 	attach(player) {
 		this.player = player;
 
+		this.resize();
+		window.addEventListener('resize', () => this.resize());
+
 		document.addEventListener('songLoaded', () => {
 			if (!this.player.playing) {
 				this.renderScope();
 			}
 		});
+	}
+
+	/**
+	 * Matches the canvas's internal drawing-buffer width to its actual
+	 * displayed (CSS) width, so the scopes stay crisp instead of being
+	 * stretched/blurred by the browser from a fixed-size buffer.
+	 */
+	resize() {
+		const displayWidth = Math.floor(this.canvas.clientWidth) || this.canvas.width;
+
+		if (displayWidth && displayWidth !== this.canvas.width) {
+			this.canvas.width = displayWidth;
+
+			if (this.player && !this.player.playing) {
+				this.renderScope();
+			}
+		}
 	}
 
 	start() {
@@ -40,11 +60,6 @@ class ModPlayerView {
 			if (!analyser) {
 				continue;
 			}
-
-			this.ctx.font = "12px Verdana";
-			this.ctx.fillStyle = "rgba(255,255,255,0.8)";
-			this.ctx.textAlign = "left";
-			this.ctx.fillText(`chan ${i + 1}`, 46 + i * canvasWidth, 15);
 
 			if (!player.channels[i]) {
 				this.ctx.font = "18px Arial";

@@ -56,7 +56,7 @@ class ModPlayerHost {
 			await this.loadBinaryFromURL(module) :
 			await this.loadBinaryFromLocalFile(module);
 
-		const song = ModLoader.load(buffer);
+		const song = S3mLoader.isModule(buffer) ? S3mLoader.load(buffer) : ModLoader.load(buffer);
 
 		await this.buildGraph(song.channelCount);
 

@@ -6,7 +6,7 @@ const BinUtils = {
 		let str = '',
 			eof = false;
 
-		for (let i = 0; i < maxLength, !eof; ++i) {
+		for (let i = 0; i < maxLength && !eof; ++i) {
 			const char = uint8buf[offset + i];
 			eof = char === 0;
 			if (!eof) {
@@ -20,6 +20,11 @@ const BinUtils = {
 		const view = new DataView(buffer);
 
 		return view.getUint16(offset, littleEndian);
+	},
+	readDword(buffer, offset = 0, littleEndian = true) {
+		const view = new DataView(buffer);
+
+		return view.getUint32(offset, littleEndian);
 	}
 };
 

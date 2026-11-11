@@ -111,8 +111,8 @@ class ModPlayer extends AudioWorkletProcessor {
 		const channelCount = song.patterns.length ? song.patterns[0].tracks.length : 0;
 
 		this.channels = new Array(channelCount);
-		this.bpm = 125;
-		this.speed = 6;
+		this.bpm = song.initialTempo || 125;
+		this.speed = song.initialSpeed || 6;
 		this.position = 0;
 		this.patternIndex = 0;
 		this.row = 0;
@@ -151,12 +151,14 @@ class ModPlayer extends AudioWorkletProcessor {
 		this.row = 0;
 		this.ticks = 0;
 		this.filledSamples = 0;
-		this.speed = 6;
+		this.speed = this.song.initialSpeed || 6;
+		this.bpm = this.song.initialTempo || 125;
 		this.newTick = true;
 		this.rowRepeat = 0;
 		this.rowJump = -1;
 		this.skipPattern = false;
 		this.jumpPattern = -1;
+		this.calcTickSpeed();
 		this.createChannels();
 		this.decodeRow();
 	}
@@ -207,6 +209,11 @@ class ModPlayer extends AudioWorkletProcessor {
 	 */
 	mix(outputs) {
 		const length = outputs[0][0].length;
+		// MOD's fixed Amiga PAL clock, used when the song doesn't declare its own
+		// (S3M/IT declare their own PC-clock-based one via song.periodClock, since
+		// they're tuned to a different hardware reference than the Amiga - see note.js)
+		const periodClock = this.song.periodClock || 3546894.6;
+		const globalVolume = (this.song.globalVolume != null ? this.song.globalVolume : 64) / 64.0;
 
 		for (let i = 0; i < length; ++i) {
 			for (let chan = 0; chan < this.channels.length; ++chan) {
@@ -231,12 +238,12 @@ class ModPlayer extends AudioWorkletProcessor {
 
 				// actually mix audio: mono sample panned to stereo (constant-power law,
 				// gains precomputed once per row in decodeRow() rather than per sample)
-				const value = (instrument.data[Math.floor(channel.samplePos)] * channel.volume) / 64.0;
+				const value = (instrument.data[Math.floor(channel.samplePos)] * channel.volume * globalVolume) / 64.0;
 
 				outputs[chan][0][i] += value * channel.panLeft;
 				outputs[chan][1][i] += value * channel.panRight;
 
-				const sampleSpeed = 7093789.2 / ((channel.period * 2) * this.mixingRate);
+				const sampleSpeed = periodClock / (channel.period * this.mixingRate);
 				channel.samplePos += sampleSpeed;
 
 				// repeat samples
@@ -355,16 +362,30 @@ class ModPlayer extends AudioWorkletProcessor {
 				channel.volume = note.instrument.volume;
 			}
 
-			if (note.note !== Pitch.NONE) {
-				channel.done = false;
-				const period = PitchPeriods[note.note];
+			// S3M/IT: an explicit volume-column value overrides the instrument's
+			// default volume set above. MOD has no volume column, so note.volume
+			// is always null there and this never fires.
+			if (note.volume !== null) {
+				channel.volume = note.volume;
+			}
 
-				// portamento will slide to the period, keep the previous one
-				if (channel.cmd !== Effect.PORTAMENTO && channel.cmd !== Effect.VOLUME_SLIDE_PORTAMENTO) {
-					channel.period = period;
-					channel.samplePos = 0;
+			if (note.note !== Pitch.NONE) {
+				if (note.note === Pitch.CUT) {
+					channel.volume = 0;
+					channel.done = true;
 				} else {
-					channel.slideTo = period;
+					channel.done = false;
+					const period = this.song.format === 's3m'
+						? periodForS3mNote(note.note, channel.instrument ? channel.instrument.c2spd : 8363)
+						: PitchPeriods[note.note];
+
+					// portamento will slide to the period, keep the previous one
+					if (channel.cmd !== Effect.PORTAMENTO && channel.cmd !== Effect.VOLUME_SLIDE_PORTAMENTO) {
+						channel.period = period;
+						channel.samplePos = 0;
+					} else {
+						channel.slideTo = period;
+					}
 				}
 			}
 		}
@@ -503,25 +524,38 @@ const Effects = {
 		}
 	},
 	/**
-	 * Volume slide: happens every non-zero tick
+	 * Volume slide: regular slide happens every non-zero tick, exactly as before.
+	 * S3M/XM also use this same byte for a "fine" slide (one nibble is 0xF *and*
+	 * the other is non-zero) applied once, on tick 0 - previously always a no-op
+	 * tick (both branches below require ticks>0), so adding it here changes
+	 * nothing for plain MOD content (0xF0/0x0F, where one nibble is exactly 0,
+	 * keep meaning "regular slide by 15" as before - only the genuine fine-slide
+	 * byte range, 0xF1-0xFE / 0x1F-0xEF, is new).
 	 */
 	0xA(Module, channel) {
-		// do not execute effect on tick 0
-		if (Module.ticks) {
-			let x = channel.data >> 4,
-				y = channel.data & 0x0F;
+		const x = channel.data >> 4,
+			y = channel.data & 0x0F;
 
-			if (!y) {
-				channel.volume += x;
-			} else if (!x) {
+		if (!Module.ticks) {
+			if (x === 0xF && y > 0 && y < 0xF) {
 				channel.volume -= y;
+			} else if (y === 0xF && x > 0 && x < 0xF) {
+				channel.volume += x;
+			} else {
+				return;
 			}
+		} else if (!y) {
+			channel.volume += x;
+		} else if (!x) {
+			channel.volume -= y;
+		} else {
+			return;
+		}
 
-			if (channel.volume > 63) {
-				channel.volume = 63;
-			} else if (channel.volume < 0) {
-				channel.volume = 0;
-			}
+		if (channel.volume > 63) {
+			channel.volume = 63;
+		} else if (channel.volume < 0) {
+			channel.volume = 0;
 		}
 	},
 	/**
@@ -665,6 +699,46 @@ const Effects = {
 				Module.bpm = channel.data;
 				Module.calcTickSpeed();
 			}
+		}
+	},
+	/**
+	 * Fine pitch slide up/down: like 0x1/0x2, but applied once, on tick 0 only
+	 * (S3M's Fxx/Exx with param >= 0xE0, pre-translated by the loader into a
+	 * plain 0-15 amount)
+	 */
+	[Effect.FINE_SLIDE_UP](Module, channel) {
+		if (!Module.ticks) {
+			channel.period -= channel.data;
+			if (channel.period < 113) {
+				channel.period = 113;
+			}
+		}
+	},
+	[Effect.FINE_SLIDE_DOWN](Module, channel) {
+		if (!Module.ticks) {
+			channel.period += channel.data;
+			if (channel.period > 856) {
+				channel.period = 856;
+			}
+		}
+	},
+	/**
+	 * Set global (song-wide) volume, 0-64 - S3M's Vxx
+	 */
+	[Effect.SET_GLOBAL_VOLUME](Module, channel) {
+		if (!Module.ticks) {
+			Module.song.globalVolume = Math.min(64, channel.data);
+		}
+	},
+	/**
+	 * Set channel panning directly - S3M's Xxx (0=left, 255=right)
+	 */
+	[Effect.SET_PANNING](Module, channel) {
+		if (!Module.ticks) {
+			channel.pan = Math.min(1, channel.data / 255);
+			const angle = channel.pan * (Math.PI / 2);
+			channel.panLeft = Math.cos(angle);
+			channel.panRight = Math.sin(angle);
 		}
 	}
 }
