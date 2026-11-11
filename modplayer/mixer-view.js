@@ -1,21 +1,23 @@
-class ModPlayerView {
+/**
+ * Draws one oscilloscope trace per currently-reserved track across the
+ * whole Mixer, regardless of which Tracker each one belongs to - so
+ * selecting a second song just widens the strip with its own tracks next
+ * to the first song's, and pausing one tracker just flatlines its slice.
+ */
+class MixerView {
 	constructor(container) {
 		this.canvas = container;
 		this.ctx = this.canvas.getContext('2d');
-		this.player = null;
+		this.mixer = null;
+		this.running = false;
 	}
 
-	attach(player) {
-		this.player = player;
+	attach(mixer) {
+		this.mixer = mixer;
 
 		this.resize();
 		window.addEventListener('resize', () => this.resize());
-
-		document.addEventListener('songLoaded', () => {
-			if (!this.player.playing) {
-				this.renderScope();
-			}
-		});
+		this.start();
 	}
 
 	/**
@@ -28,42 +30,43 @@ class ModPlayerView {
 
 		if (displayWidth && displayWidth !== this.canvas.width) {
 			this.canvas.width = displayWidth;
-
-			if (this.player && !this.player.playing) {
-				this.renderScope();
-			}
 		}
 	}
 
 	start() {
-		if (this.player && this.player.playing) {
-			this.renderScope();
-			requestAnimationFrame(this.start.bind(this));
+		if (this.running) {
+			return;
 		}
+
+		this.running = true;
+		const loop = () => {
+			this.renderScope();
+			requestAnimationFrame(loop);
+		};
+		loop();
 	}
 
 	/**
 	 * render adapted from https://github.com/acarabott/audio-dsp-playground (MIT Licence)
 	 */
 	renderScope() {
-		const player = this.player;
-		const channelCount = player.song ? player.song.channelCount : 0;
-		const canvasWidth = this.canvas.width / (channelCount || 1);
+		const mixer = this.mixer;
+		const channelCount = mixer ? mixer.currentCapacity : 0;
 		const canvasHeight = this.canvas.height;
 
 		this.ctx.fillStyle = "transparent";
 		this.ctx.clearRect(0, 0, this.canvas.width, canvasHeight);
 
+		if (!channelCount) {
+			return;
+		}
+
+		const canvasWidth = this.canvas.width / channelCount;
+
 		for (let i = 0; i < channelCount; ++i) {
-			const analyser = player.analysers[i];
+			const analyser = mixer.analysers[i];
 
 			if (!analyser) {
-				continue;
-			}
-
-			if (!player.channels[i]) {
-				this.ctx.font = "18px Arial";
-				this.ctx.fillText('MUTE', 40 + i * canvasWidth, 70);
 				continue;
 			}
 

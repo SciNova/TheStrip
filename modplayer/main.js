@@ -1,6 +1,6 @@
-let player, view;
-
-const FADE_DURATION = 2;
+let mixer, view;
+// 1-indexed to match the two rows in index.html
+const trackers = {};
 
 const TRACKS = [
 	'mods/faggots_universe.mod',
@@ -21,22 +21,28 @@ const TRACKS = [
 ];
 
 window.onload = function () {
-	player = new ModPlayerHost();
-	view = new ModPlayerView(document.getElementById('visualizer'));
-	view.attach(player);
+	mixer = new Mixer();
+	view = new MixerView(document.getElementById('visualizer'));
 
 	// exposed for debugging in devtools
-	window.player = player;
+	window.mixer = mixer;
 	window.view = view;
 
-	const select = document.getElementById('track');
-	populateTrackList(select);
-	select.addEventListener('change', () => loadTrack(select.value));
+	[1, 2].forEach((n) => {
+		const select = document.getElementById(`track${n}`);
+		populateTrackList(select);
+		// give the two rows different starting songs by default
+		select.selectedIndex = n - 1;
+		select.addEventListener('change', () => loadTrack(n, select.value));
+	});
 
-	player.init().then(() => {
-		return loadTrack(TRACKS[0]);
+	mixer.init().then(() => {
+		view.attach(mixer);
+		return loadTrack(1, document.getElementById('track1').value);
+		// track 2 stays unloaded until picked or played, so opening the page
+		// is the single-track case; pressing play on row 2 makes it two at once
 	}).catch((err) => {
-		console.error('Error loading module:', err);
+		console.error('Error initializing mixer:', err);
 	});
 }
 
@@ -63,40 +69,51 @@ function populateTrackList(select) {
 }
 
 async function getTrackChannelCount(path) {
-	const response = await fetch(path);
+	const bytes = await fetchBytes(path);
+	const song = S3mLoader.isModule(bytes) ? S3mLoader.load(bytes) : ModLoader.load(bytes);
+
+	return song.channelCount;
+}
+
+/**
+ * The one platform-specific byte-source for this demo page. Tracker.loadSong()
+ * itself only ever sees a plain byte array - on the ESP32 the equivalent of
+ * this function reads from an SD card instead, with no other code changing.
+ */
+async function fetchBytes(url) {
+	const response = await fetch(url);
 
 	if (!response.ok) {
 		throw new Error(`${response.statusText} (${response.status})`);
 	}
 
-	const buffer = await response.arrayBuffer();
-	const song = S3mLoader.isModule(buffer) ? S3mLoader.load(buffer) : ModLoader.load(buffer);
-
-	return song.channelCount;
+	return await response.arrayBuffer();
 }
 
-function loadTrack(path) {
-	return player.loadModule(path).then(() => {
-		document.querySelector('button.play').innerText = 'Play';
-	}).catch((err) => {
-		console.error('Error loading module:', err);
+function loadTrack(n, path) {
+	if (!trackers[n]) {
+		trackers[n] = mixer.createTracker();
+		window[`tracker${n}`] = trackers[n];
+	}
+
+	document.querySelector(`button.play${n}`).innerText = 'Play';
+
+	return fetchBytes(path).then((bytes) => trackers[n].loadSong(bytes)).catch((err) => {
+		console.error(`Error loading module into tracker ${n}:`, err);
 	});
 }
 
-function togglePlay() {
-	player.play(FADE_DURATION);
-	document.querySelector('button.play').innerText = player.playing ? 'Pause' : 'Play';
+function toggleTrack(n) {
+	const path = document.getElementById(`track${n}`).value;
 
-	if (player.playing) {
-		view.start();
-	}
-}
+	// row 2 (and any further row, in principle) only actually gets a
+	// Tracker/reserved mixer capacity once it's used for the first time
+	const ready = trackers[n] && trackers[n].loaded;
 
-function seekRandom() {
-	if (!player.song) {
-		return;
-	}
+	const afterReady = ready ? Promise.resolve() : loadTrack(n, path);
 
-	const pattern = Math.floor(Math.random() * player.song.order.length);
-	player.seek(pattern);
+	afterReady.then(() => {
+		trackers[n].togglePlay();
+		document.querySelector(`button.play${n}`).innerText = trackers[n].playing ? 'Pause' : 'Play';
+	});
 }

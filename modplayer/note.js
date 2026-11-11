@@ -79,7 +79,7 @@ function periodForS3mNote(linearNote, c2spd) {
 
 // addModule() always loads this file as an ES module, which scopes the
 // declarations above to this file alone - publish them onto globalThis so
-// mod-processor.js (loaded via a separate addModule call) can see them too.
+// tracker-engine.js (loaded via a separate addModule call) can see them too.
 // Harmless on the main thread too, where classic <script> tags already share scope.
 globalThis.Pitch = Pitch;
 globalThis.PitchPeriods = PitchPeriods;

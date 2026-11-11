@@ -11,100 +11,31 @@ for (let i = 0; i < waveForms[0].length; ++i) {
 }
 
 /**
- * The actual tracker/player: holds a Song and renders it sample by sample.
- * Runs on the audio render thread (it IS the AudioWorkletProcessor), so the
- * only way in or out is via postMessage - see handleMessage() below.
+ * The format-agnostic tracker engine: holds a Song and renders it sample by
+ * sample into whatever buffer it's handed. Knows nothing about Web Audio,
+ * worklets, or postMessage - a MixerEngine (mixer-engine.js) owns the
+ * audio-API side and drives one or more of these. This is the part meant to
+ * be the same shape in a C++ port (e.g. for the ESP32); on that platform a
+ * Tracker likely just owns its TrackerEngine directly, calling it inline
+ * from an I2S fill callback, with no messaging boundary at all.
  */
-class ModPlayer extends AudioWorkletProcessor {
-	constructor() {
-		super();
-		this.port.onmessage = this.handleMessage.bind(this);
-	}
-
-	handleMessage(event) {
-		switch (event.data.message) {
-			case 'init':
-				this.mixingRate = event.data.mixingRate;
-				break;
-
-			case 'loadSong':
-				this.prepareSong(event.data.song);
-				break;
-
-			case 'setPlay':
-				if (this.ready) {
-					this.playing = event.data.playing;
-				}
-				break;
-
-			case 'reset':
-				if (this.ready) {
-					this.resetValues();
-				}
-				break;
-
-			case 'setPlayingChannels':
-				event.data.channels.forEach((active, i) => {
-					const channel = this.channels[i];
-					if (channel) {
-						channel.off = !active;
-					}
-				});
-				break;
-
-			case 'seek':
-				if (this.ready) {
-					this.position = Math.max(0, Math.min(event.data.position, this.song.order.length - 1));
-					this.patternIndex = this.song.order[this.position];
-					this.row = 0;
-					this.ticks = 0;
-					this.filledSamples = 0;
-					this.newTick = true;
-					this.rowRepeat = 0;
-					this.rowJump = -1;
-					this.skipPattern = false;
-					this.jumpPattern = -1;
-					for (let i = 0; i < this.channels.length; ++i) {
-						this.channels[i].loopInitiated = false;
-					}
-					this.decodeRow();
-				}
-				break;
-		}
-	}
-
-	postMessage(message) {
-		this.port.postMessage(message);
-	}
-
-	process(inputs, outputs) {
-		if (this.ready && this.playing) {
-			this.mix(outputs);
-		} else {
-			this.emptyOutputBuffer(outputs);
-		}
-
-		return true;
-	}
-
-	emptyOutputBuffer(outputs) {
-		const bufLength = outputs[0][0].length;
-
-		for (let chan = 0; chan < outputs.length; ++chan) {
-			for (let side = 0; side < outputs[chan].length; ++side) {
-				for (let i = 0; i < bufLength; ++i) {
-					outputs[chan][side][i] = 0.0;
-				}
-			}
-		}
+class TrackerEngine {
+	constructor(mixingRate) {
+		this.mixingRate = mixingRate;
+		this.ready = false;
+		this.playing = false;
+		// called for out-of-band notifications (songLoaded, toggleLowPass, ...)
+		// the owning Mixer sets this to forward them with its own trackerId
+		this.onEvent = null;
 	}
 
 	/**
 	 * Receives a freshly loaded Song (already parsed by a format-specific
 	 * loader on the main thread - this class never touches raw file bytes)
 	 */
-	prepareSong(song) {
+	loadSong(song) {
 		this.ready = false;
+		this.playing = false;
 		this.song = song;
 		// NOTE: song.channelCount getter doesn't survive postMessage's structured
 		// clone, so it's derived here directly from the cloned plain data instead
@@ -131,13 +62,66 @@ class ModPlayer extends AudioWorkletProcessor {
 		this.resetValues();
 		this.ready = true;
 
-		this.postMessage({
-			message: 'songLoaded',
-			data: {
-				title: song.title,
-				channelCount: channelCount,
-				patterns: song.patterns.length,
-				positions: song.order.length
+		this.emit('songLoaded', {
+			title: song.title,
+			channelCount: channelCount,
+			patterns: song.patterns.length,
+			positions: song.order.length
+		});
+	}
+
+	emit(message, data) {
+		if (this.onEvent) {
+			this.onEvent(message, data);
+		}
+	}
+
+	play() {
+		if (this.ready) {
+			this.playing = true;
+		}
+	}
+
+	pause() {
+		this.playing = false;
+	}
+
+	/**
+	 * Jumps the playhead to a song position (an index into song.order) and
+	 * decodes its first row immediately.
+	 */
+	seek(position) {
+		if (!this.ready) {
+			return;
+		}
+
+		this.position = Math.max(0, Math.min(position, this.song.order.length - 1));
+		this.patternIndex = this.song.order[this.position];
+		this.row = 0;
+		this.ticks = 0;
+		this.filledSamples = 0;
+		this.newTick = true;
+		this.rowRepeat = 0;
+		this.rowJump = -1;
+		this.skipPattern = false;
+		this.jumpPattern = -1;
+		for (let i = 0; i < this.channels.length; ++i) {
+			this.channels[i].loopInitiated = false;
+		}
+		this.decodeRow();
+	}
+
+	reset() {
+		if (this.ready) {
+			this.resetValues();
+		}
+	}
+
+	setPlayingChannels(channels) {
+		channels.forEach((active, i) => {
+			const channel = this.channels[i];
+			if (channel) {
+				channel.off = !active;
 			}
 		});
 	}
@@ -201,14 +185,16 @@ class ModPlayer extends AudioWorkletProcessor {
 	}
 
 	/**
-	 * Tracker audio mixer
+	 * Mixes this tracker's channels into outputs, starting at output index
+	 * `offset` - the slice of the Mixer's total output list reserved for it.
+	 * Does NOT zero the buffer first: the Mixer does that once for everything.
 	 *
-	 * @param {Float32Array[][]} outputs One stereo output pair per track,
-	 * each pre-sized to the render quantum. Called every time the audio
-	 * thread needs the buffer filled.
+	 * @param {Float32Array[][]} outputs The Mixer's full output list, one
+	 * stereo pair per reserved track slot, each pre-sized to the render quantum.
+	 * @param {number} offset This tracker's first output index within outputs.
 	 */
-	mix(outputs) {
-		const length = outputs[0][0].length;
+	render(outputs, offset) {
+		const length = outputs[offset][0].length;
 		// MOD's fixed Amiga PAL clock, used when the song doesn't declare its own
 		// (S3M/IT declare their own PC-clock-based one via song.periodClock, since
 		// they're tuned to a different hardware reference than the Amiga - see note.js)
@@ -216,15 +202,11 @@ class ModPlayer extends AudioWorkletProcessor {
 		const globalVolume = (this.song.globalVolume != null ? this.song.globalVolume : 64) / 64.0;
 
 		for (let i = 0; i < length; ++i) {
-			for (let chan = 0; chan < this.channels.length; ++chan) {
-				outputs[chan][0][i] = 0.0;
-				outputs[chan][1][i] = 0.0;
-			}
-
 			this.tick();
 
 			for (let chan = 0; chan < this.channels.length; ++chan) {
 				const channel = this.channels[chan];
+				const out = outputs[offset + chan];
 
 				if (this.newTick && channel.cmd) {
 					this.executeEffect(channel);
@@ -240,8 +222,8 @@ class ModPlayer extends AudioWorkletProcessor {
 				// gains precomputed once per row in decodeRow() rather than per sample)
 				const value = (instrument.data[Math.floor(channel.samplePos)] * channel.volume * globalVolume) / 64.0;
 
-				outputs[chan][0][i] += value * channel.panLeft;
-				outputs[chan][1][i] += value * channel.panRight;
+				out[0][i] += value * channel.panLeft;
+				out[1][i] += value * channel.panRight;
 
 				const sampleSpeed = periodClock / (channel.period * this.mixingRate);
 				channel.samplePos += sampleSpeed;
@@ -311,7 +293,6 @@ class ModPlayer extends AudioWorkletProcessor {
 
 		// Loop ? Use loop parameter
 		if (this.position > this.song.order.length - 1) {
-			console.log('Warning: last position reached, going back to 0');
 			this.position = 0;
 		}
 
@@ -400,16 +381,14 @@ class ModPlayer extends AudioWorkletProcessor {
 	}
 
 	toggleLowPass(enabled) {
-		this.postMessage({
-			message: 'toggleLowPass',
-			data: {
-				activate: enabled
-			}
+		this.emit('toggleLowPass', {
+			activate: enabled
 		});
 	}
 }
 
-registerProcessor('mod-processor', ModPlayer);
+// see note.js for why this is needed (addModule loads files as isolated ES modules)
+globalThis.TrackerEngine = TrackerEngine;
 
 const Effects = {
 	/**
@@ -458,15 +437,12 @@ const Effects = {
 					channel.period = channel.slideTo;
 				}
 			}
-		} else {
-			console.log('portamento + volume slide: keeping previous values');
 		}
 	},
 	/**
 	 * Vibrato
 	 */
 	0x4(Module, channel) {
-		// TODO: finish vibrato
 		if (!Module.ticks) {
 			var depth = channel.data & 0x0f,
 				speed = (channel.data & 0xf0) >> 4;
@@ -519,8 +495,6 @@ const Effects = {
 	0x9(Module, channel) {
 		if (!Module.ticks) {
 			channel.samplePos = channel.data * 256;
-			// does it happen on next line ?
-			// channel.done = true;
 		}
 	},
 	/**
@@ -593,7 +567,6 @@ const Effects = {
 	 */
 	0xE0(Module, channel) {
 		if (!Module.ticks) {
-			console.log('need to toggle lowPass', !!channel.data);
 			Module.toggleLowPass(!!channel.data);
 		}
 	},
@@ -601,9 +574,7 @@ const Effects = {
 	 * Set Vibrato waveform + retrigger
 	 */
 	0xE4(Module, channel) {
-		if (!Module.ticks) {
-			// channel.vform = //
-		}
+		// not implemented
 	},
 	/**
 	 * Loop pattern
@@ -638,7 +609,6 @@ const Effects = {
 	 */
 	0xE9(Module, channel) {
 		if (!((Module.ticks + 1) % channel.data)) {
-			console.log('retriggering note!', Module.ticks + 1);
 			// should we use repeat pos (if specified) instead ?)
 			channel.samplePos = 0;
 			channel.done = false;
@@ -681,14 +651,12 @@ const Effects = {
 		if (!Module.ticks) {
 			if (!Module.rowRepeat) {
 				Module.rowRepeat = channel.data;
-				console.log('setting repeat to', Module.rowRepeat);
 			} else if (Module.rowRepeat) {
 				Module.rowRepeat--;
 			}
 		}
 	},
 	/**
-	 *
 	 * Change playback speed
 	 */
 	0xF(Module, channel) {

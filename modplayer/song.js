@@ -10,7 +10,7 @@ class Song {
 		// clock and 6/125 speed/tempo, both hardcoded in the engine already)
 		this.format = 'mod';
 		// Hz constant for period->frequency conversion; null means "use the engine's
-		// built-in Amiga clock" (mod-processor.js falls back when this is null)
+		// built-in Amiga clock" (tracker-engine.js falls back when this is null)
 		this.periodClock = null;
 		this.globalVolume = 64;
 		this.initialSpeed = 0;

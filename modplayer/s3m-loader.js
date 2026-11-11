@@ -283,7 +283,7 @@ class S3mLoader {
 	/**
 	 * Translates an S3M command letter (1=A, 2=B, ... 26=Z) + parameter byte
 	 * into the shared, format-agnostic Effect enum. Most letters reuse the
-	 * exact same handler MOD's effects already use - see mod-processor.js.
+	 * exact same handler MOD's effects already use - see tracker-engine.js.
 	 * Letters with no mapping here (I, J, M, N, P, R, U, W, Y, Z, and most S
 	 * sub-commands) have no equivalent yet and are silently left unset; the
 	 * engine already handles an unset effect gracefully (no-op).
