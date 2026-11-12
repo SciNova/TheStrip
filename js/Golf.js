@@ -1,135 +1,215 @@
-import { Game, Colors, Sound, Command } from './system.js';
+import { Game, Colors, Command } from './system.js';
+
+class Hole {
+	constructor(game, location, radius) {
+		this.game = game;
+		this.location = location;
+		this.radius = radius;
+	}
+
+	render() {
+		const pixel = Math.round(this.location - this.game.viewportOffset);
+		if (pixel >= 0 && pixel < this.game.resolution) {
+			this.game.pixels[pixel] = Colors.GREEN;
+		}
+	}
+}
+
+class Ball {
+	static GRAVITY = 10.0; // pixels/sec^2, tuning constant, not physically real
+	static MAX_ANGLE = Math.PI / 4; // 45 degrees, reached at the farthest possible hole
+	static DRAG = 1.5; // per sec, at ground level; fades to 0 at this shot's apex
+	static HEIGHT_MARGIN = 1.2; // height=1.0 sits this far above the optimal 45-degree apex
+	static MAX_SHADOW = 30; // pixels, shadow distance at height=1.0 at the screen extremes
+	static SHADOW_COLOR = 0x333333;
+
+	constructor(game, location) {
+		this.game = game;
+		this.location = location;
+		this.height = 0.0;
+		this.apex = 0.0;
+		this.vx = 0.0;
+		this.vy = 0.0;
+		this.isFlying = false;
+		this.maxHeight = (game.resolution / 4) * Ball.HEIGHT_MARGIN;
+	}
+
+	requiredAngle(hole) {
+		const distance = Math.abs(hole.location - this.location);
+		const t = Math.min(1.0, distance / this.game.resolution);
+		return Ball.MAX_ANGLE * t;
+	}
+
+	requiredSpeed(hole) {
+		const distance = Math.abs(hole.location - this.location);
+		if (distance === 0) {
+			return 0.0;
+		}
+		const angle = this.requiredAngle(hole);
+		return Math.sqrt(distance * Ball.GRAVITY / Math.sin(2 * angle));
+	}
+
+	hit(angle, speed, direction) {
+		this.vx = speed * Math.cos(angle) * direction;
+		this.vy = speed * Math.sin(angle);
+		this.height = 0.0;
+		this.apex = 0.0;
+		this.isFlying = true;
+	}
+
+	update(dt) {
+		if (this.isFlying) {
+			this.apex = Math.max(this.apex, this.height);
+			if (this.apex > 0.0) {
+				const drag = Ball.DRAG * (1.0 - this.height / this.apex);
+				this.vx *= Math.max(0.0, 1.0 - drag * dt);
+			}
+
+			this.vy -= Ball.GRAVITY * dt;
+			this.location += this.vx * dt;
+			this.height += this.vy * dt;
+			if (this.height <= 0.0) {
+				this.height = 0.0;
+				this.isFlying = false;
+			}
+		}
+		this.render();
+	}
+
+	render() {
+		const pixel = Math.round(this.location - this.game.viewportOffset);
+		const center = Math.floor(this.game.resolution / 2);
+		const heightFraction = Math.min(1.0, this.height / this.maxHeight);
+
+		if (heightFraction > 0.0 && center > 0) {
+			const shadowDistance = Math.round(Math.abs(pixel - center) / center * Ball.MAX_SHADOW * heightFraction);
+			const shadowPixel = pixel < center ? pixel + shadowDistance : pixel - shadowDistance;
+			if (shadowPixel >= 0 && shadowPixel < this.game.resolution) {
+				this.game.pixels[shadowPixel] = Ball.SHADOW_COLOR;
+			}
+		}
+
+		if (pixel >= 0 && pixel < this.game.resolution) {
+			this.game.pixels[pixel] = Colors.WHITE;
+		}
+	}
+}
+
+class Player {
+	static POWER_FREQUENCY = 1.4; // oscillation cycles/sec while charging
+	static BAR_LENGTH = 20; // pixels
+	static BAR_BACKGROUND = Colors.DARK_GRAY;
+	static BAR_FILL = Colors.LIGHT_GRAY;
+
+	constructor(game, location) {
+		this.game = game;
+		this.location = location;
+		this.ball = new Ball(game, location);
+		this.power = 0.0;
+		this.charging = false;
+		this.chargeTime = 0.0;
+	}
+
+	startCharge() {
+		if (this.ball.isFlying) {
+			return;
+		}
+		this.charging = true;
+		this.chargeTime = 0.0;
+	}
+
+	release(hole) {
+		if (!this.charging) {
+			return;
+		}
+		this.charging = false;
+
+		const direction = Math.sign(hole.location - this.ball.location) || 1;
+		const angle = this.ball.requiredAngle(hole);
+		this.ball.hit(angle, this.power * this.game.maxSpeed, direction);
+	}
+
+	update(dt, hole) {
+		if (this.charging) {
+			this.chargeTime += dt;
+			this.power = 0.5 - 0.5 * Math.cos(this.chargeTime * Player.POWER_FREQUENCY * 2 * Math.PI);
+		}
+
+		this.ball.update(dt);
+		this.location = this.ball.location;
+		this.render(hole);
+	}
+
+	render(hole) {
+		if (!this.charging) {
+			return;
+		}
+
+		const direction = Math.sign(hole.location - this.location) || 1;
+		const fillCount = Math.round(this.power * Player.BAR_LENGTH);
+		const screenLocation = Math.round(this.location - this.game.viewportOffset);
+
+		for (let i = 0; i < Player.BAR_LENGTH; i++) {
+			const pixel = screenLocation + direction * (i + 1);
+			if (pixel >= 0 && pixel < this.game.resolution) {
+				this.game.pixels[pixel] = i < fillCount ? Player.BAR_FILL : Player.BAR_BACKGROUND;
+			}
+		}
+	}
+}
 
 export class Golf extends Game {
-	static POWER_FREQUENCY = 1.4; // oscillation cycles/sec while charging
-	static MAX_SHOT_SPEED = 2.2; // resolution units/sec
-	static FRICTION = 1.1; // per sec
-	static STOP_THRESHOLD = 0.03; // resolution units/sec
-	static HOLE_TOLERANCE = 0.06; // resolution units
-	static BASE_HOLE_DISTANCE = 3.0; // resolution units
-	static HOLE_DISTANCE_STEP = 0.6;
-	static OVERSHOOT_MARGIN = 1.2;
-	static PAR = 3;
+	static FIELD_SCREENS = 20;
+	static HOLE_COUNT = 18;
+	static SCROLL_SECONDS = 10.0; // time to scroll across the entire field
 
 	constructor(system) {
 		super('Golf', system);
-		this.holeNumber = 0;
-		this.score = 0;
-		this._startHole();
+		this.fieldLength = Golf.FIELD_SCREENS * this.resolution;
+		this.scrollSpeed = this.fieldLength / Golf.SCROLL_SECONDS;
+		this.viewportOffset = 0.0;
+		this.scrollDirection = 0;
+
+		this.field = [];
+		for (let i = 0; i < Golf.HOLE_COUNT; i++) {
+			this.field.push(new Hole(this, Math.random() * this.fieldLength, 1));
+		}
+
+		this.player = new Player(this, 0);
+		this.maxSpeed = Math.sqrt(this.resolution * Ball.GRAVITY);
 	}
 
-	_startHole() {
-		const holeDistance = (Golf.BASE_HOLE_DISTANCE + this.holeNumber * Golf.HOLE_DISTANCE_STEP) * this.resolution;
-		this.holeZ = holeDistance;
-		this.courseLength = holeDistance * Golf.OVERSHOOT_MARGIN;
-		this.ballZ = 0.0;
-		this.ballVelocity = 0.0;
-		this.strokes = 0;
-		this.charging = false;
-		this.chargeTime = 0.0;
-		this.stage = 'AIMING';
+	_currentHole() {
+		return this.field[0];
 	}
 
 	loop() {
 		super.loop();
+
 		const dt = this.system.clock.delta;
+		this.viewportOffset += this.scrollDirection * this.scrollSpeed * dt;
+		this.viewportOffset = Math.max(0, Math.min(this.fieldLength - this.resolution, this.viewportOffset));
 
-		if (this.stage === 'AIMING') {
-			if (this.charging) {
-				this.chargeTime += dt;
-			}
-		} else if (this.stage === 'ROLLING') {
-			this._loopRolling(dt);
-		} else if (this.stage === 'HOLED') {
-			if (this.delayTime <= 0.0) {
-				this.holeNumber += 1;
-				this._startHole();
-			}
+		this.clear();
+		for (const hole of this.field) {
+			hole.render();
 		}
-
-		this._render();
-	}
-
-	_currentPower() {
-		return 0.5 - 0.5 * Math.cos(this.chargeTime * Golf.POWER_FREQUENCY * 2 * Math.PI);
-	}
-
-	_loopRolling(dt) {
-		this.ballVelocity *= Math.max(0.0, 1.0 - Golf.FRICTION * dt);
-		this.ballZ += this.ballVelocity * dt;
-
-		if (this.ballZ < 0) {
-			this.ballZ = 0;
-			this.ballVelocity = -this.ballVelocity * 0.5;
-		} else if (this.ballZ > this.courseLength) {
-			this.ballZ = this.courseLength;
-			this.ballVelocity = 0;
-		}
-
-		if (Math.abs(this.ballVelocity) < Golf.STOP_THRESHOLD * this.resolution) {
-			this.ballVelocity = 0.0;
-			if (Math.abs(this.ballZ - this.holeZ) < Golf.HOLE_TOLERANCE * this.resolution) {
-				this.score += Math.max(1, Golf.PAR - this.strokes);
-				this.audio.play(Sound.LEVEL_COMPLETE);
-				this.stage = 'HOLED';
-				this.delay(2.0);
-			} else {
-				this.stage = 'AIMING';
-				this.chargeTime = 0.0;
-			}
-		}
-	}
-
-	_release() {
-		if (this.stage !== 'AIMING' || !this.charging) {
-			return;
-		}
-		this.charging = false;
-		const power = this._currentPower();
-		this.ballVelocity = power * Golf.MAX_SHOT_SPEED * this.resolution;
-		this.strokes += 1;
-		this.stage = 'ROLLING';
-		this.audio.play(Sound.SHOOT);
+		this.player.update(dt, this._currentHole());
 	}
 
 	handleInput(padId, event) {
-		if (event.command === Command.FIRE_PRESS && this.stage === 'AIMING') {
-			this.charging = true;
-			this.chargeTime = 0.0;
+		if (event.command === Command.FIRE_PRESS) {
+			this.player.startCharge();
 		} else if (event.command === Command.FIRE_RELEASE) {
-			this._release();
-		}
-	}
-
-	_render() {
-		this.clear();
-
-		if (this.stage === 'AIMING' && this.charging) {
-			const power = this._currentPower();
-			const v = Math.floor(0x30 + 0x30 * power);
-			for (let i = 0; i < this.resolution; i++) {
-				this.pixels[i] = v;
-			}
-		}
-
-		const holePos = Math.round((this.holeZ / this.courseLength) * (this.resolution - 1));
-		if (holePos >= 0 && holePos < this.resolution) {
-			this.pixels[holePos] = Colors.GREEN;
-		}
-
-		const ballPos = Math.round((this.ballZ / this.courseLength) * (this.resolution - 1));
-		if (ballPos >= 0 && ballPos < this.resolution) {
-			this.pixels[ballPos] = Colors.WHITE;
-		}
-
-		if (this.stage === 'HOLED') {
-			const flashOn = Math.floor(this.time * 6) % 2 === 0;
-			if (flashOn) {
-				for (let i = 0; i < this.resolution; i++) {
-					this.pixels[i] = Colors.DARK_GREEN;
-				}
-				this.pixels[holePos] = Colors.GREEN;
-			}
+			this.player.release(this._currentHole());
+		} else if (event.command === Command.LEFT_PRESS) {
+			this.scrollDirection = -1;
+		} else if (event.command === Command.RIGHT_PRESS) {
+			this.scrollDirection = 1;
+		} else if (event.command === Command.LEFT_RELEASE && this.scrollDirection === -1) {
+			this.scrollDirection = 0;
+		} else if (event.command === Command.RIGHT_RELEASE && this.scrollDirection === 1) {
+			this.scrollDirection = 0;
 		}
 	}
 }
