@@ -10,7 +10,7 @@ class Hole {
 	render() {
 		const pixel = Math.round(this.location - this.game.viewportOffset);
 		if (pixel >= 0 && pixel < this.game.resolution) {
-			this.game.pixels[pixel] = Colors.GREEN;
+			this.game.pixels[pixel] = Colors.OFF;
 		}
 	}
 }
@@ -57,8 +57,9 @@ class Ball {
 		this.isFlying = true;
 	}
 
-	update(dt) {
+	update() {
 		if (this.isFlying) {
+			const dt = this.game.system.clock.delta;
 			this.apex = Math.max(this.apex, this.height);
 			if (this.apex > 0.0) {
 				const drag = Ball.DRAG * (1.0 - this.height / this.apex);
@@ -95,23 +96,28 @@ class Ball {
 	}
 }
 
+const PlayerState = Object.freeze({ AIMING: 'AIMING', WALKING: 'WALKING' });
+
 class Player {
-	static POWER_FREQUENCY = 1.4; // oscillation cycles/sec while charging
-	static BAR_LENGTH = 20; // pixels
-	static BAR_BACKGROUND = Colors.DARK_GRAY;
+	static POWER_FREQUENCY = 0.6; // oscillation cycles/sec while charging
+	static BAR_LENGTH = 10; // pixels
 	static BAR_FILL = Colors.LIGHT_GRAY;
+	static COLOR = Colors.YELLOW;
+	static WALK_SECONDS_PER_SCREEN = 4.0;
 
 	constructor(game, location) {
 		this.game = game;
 		this.location = location;
 		this.ball = new Ball(game, location);
+		this.speed = game.resolution / Player.WALK_SECONDS_PER_SCREEN; // px/sec
 		this.power = 0.0;
 		this.charging = false;
 		this.chargeTime = 0.0;
+		this.state = PlayerState.AIMING;
 	}
 
 	startCharge() {
-		if (this.ball.isFlying) {
+		if (this.state !== PlayerState.AIMING || this.ball.isFlying) {
 			return;
 		}
 		this.charging = true;
@@ -129,30 +135,62 @@ class Player {
 		this.ball.hit(angle, this.power * this.game.maxSpeed, direction);
 	}
 
-	update(dt, hole) {
-		if (this.charging) {
-			this.chargeTime += dt;
-			this.power = 0.5 - 0.5 * Math.cos(this.chargeTime * Player.POWER_FREQUENCY * 2 * Math.PI);
+	_walk() {
+		const dt = this.game.system.clock.delta;
+		const step = this.speed * dt;
+		const remaining = this.ball.location - this.location;
+
+		if (Math.abs(remaining) <= step) {
+			this.location = this.ball.location;
+			this.state = PlayerState.AIMING;
+			return;
 		}
 
-		this.ball.update(dt);
-		this.location = this.ball.location;
+		this.location += Math.sign(remaining) * step;
+	}
+
+	update(hole) {
+		this.ball.update();
+
+		if (this.state === PlayerState.AIMING) {
+			if (!this.ball.isFlying && this.location !== this.ball.location) {
+				this.state = PlayerState.WALKING;
+				this.charging = false;
+			} else if (this.charging) {
+				const dt = this.game.system.clock.delta;
+				this.chargeTime += dt;
+				this.power = 0.5 - 0.5 * Math.cos(this.chargeTime * Player.POWER_FREQUENCY * 2 * Math.PI);
+			}
+		} else if (this.state === PlayerState.WALKING) {
+			this._walk();
+		}
+
 		this.render(hole);
 	}
 
 	render(hole) {
+		const direction = Math.sign(hole.location - this.location) || 1;
+
+		let playerLocation = this.location;
+		if (this.location === this.ball.location) {
+			playerLocation -= direction;
+		}
+		const playerPixel = Math.round(playerLocation - this.game.viewportOffset);
+		if (playerPixel >= 0 && playerPixel < this.game.resolution) {
+			this.game.pixels[playerPixel] = Player.COLOR;
+		}
+
 		if (!this.charging) {
 			return;
 		}
 
-		const direction = Math.sign(hole.location - this.location) || 1;
 		const fillCount = Math.round(this.power * Player.BAR_LENGTH);
 		const screenLocation = Math.round(this.location - this.game.viewportOffset);
 
-		for (let i = 0; i < Player.BAR_LENGTH; i++) {
-			const pixel = screenLocation + direction * (i + 1);
+		for (let i = 0; i < fillCount; i++) {
+			const pixel = screenLocation - direction * (i + 1);
 			if (pixel >= 0 && pixel < this.game.resolution) {
-				this.game.pixels[pixel] = i < fillCount ? Player.BAR_FILL : Player.BAR_BACKGROUND;
+				this.game.pixels[pixel] = Player.BAR_FILL;
 			}
 		}
 	}
@@ -160,7 +198,6 @@ class Player {
 
 export class Golf extends Game {
 	static FIELD_SCREENS = 20;
-	static HOLE_COUNT = 18;
 	static SCROLL_SECONDS = 10.0; // time to scroll across the entire field
 
 	constructor(system) {
@@ -170,12 +207,9 @@ export class Golf extends Game {
 		this.viewportOffset = 0.0;
 		this.scrollDirection = 0;
 
-		this.field = [];
-		for (let i = 0; i < Golf.HOLE_COUNT; i++) {
-			this.field.push(new Hole(this, Math.random() * this.fieldLength, 1));
-		}
+		this.field = [new Hole(this, this.resolution * 4 / 5, 1)];
 
-		this.player = new Player(this, 0);
+		this.player = new Player(this, this.resolution / 5);
 		this.maxSpeed = Math.sqrt(this.resolution * Ball.GRAVITY);
 	}
 
@@ -186,15 +220,16 @@ export class Golf extends Game {
 	loop() {
 		super.loop();
 
-		const dt = this.system.clock.delta;
-		this.viewportOffset += this.scrollDirection * this.scrollSpeed * dt;
+		this.viewportOffset += this.scrollDirection * this.scrollSpeed * this.system.clock.delta;
 		this.viewportOffset = Math.max(0, Math.min(this.fieldLength - this.resolution, this.viewportOffset));
 
-		this.clear();
+		for (let i = 0; i < this.resolution; i++) {
+			this.pixels[i] = Colors.DARK_GREEN;
+		}
 		for (const hole of this.field) {
 			hole.render();
 		}
-		this.player.update(dt, this._currentHole());
+		this.player.update(this._currentHole());
 	}
 
 	handleInput(padId, event) {
