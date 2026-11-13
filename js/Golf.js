@@ -1,18 +1,70 @@
 import { Game, Colors, Command } from './system.js';
 
 class Hole {
+	static BACKGROUND_COLOR = Colors.DARK_GREEN;
+	static RIM_COLOR = 0x003300; // darker than the field, so the hole stays visible to its edge
+
 	constructor(game, location, radius) {
 		this.game = game;
 		this.location = location;
 		this.radius = radius;
 	}
 
+	contains(location) {
+		return Math.abs(location - this.location) <= this.radius;
+	}
+
 	render() {
-		const pixel = Math.round(this.location - this.game.viewportOffset);
-		if (pixel >= 0 && pixel < this.game.resolution) {
-			this.game.pixels[pixel] = Colors.OFF;
+		const center = Math.round(this.location - this.game.viewportOffset);
+		const span = Math.round(this.radius);
+
+		for (let offset = -span; offset <= span; offset++) {
+			const pixel = center + offset;
+			if (pixel < 0 || pixel >= this.game.resolution) {
+				continue;
+			}
+			this.game.pixels[pixel] = offset === 0 ? Colors.OFF : Hole.RIM_COLOR;
 		}
 	}
+}
+
+class Obstacle {
+	static SPEED_FACTOR = 1.0; // walking speed multiplier
+
+	constructor(game, location, size) {
+		this.game = game;
+		this.location = location;
+		this.size = size;
+	}
+
+	contains(location) {
+		return location >= this.location && location < this.location + this.size;
+	}
+
+	render() {
+		const start = Math.round(this.location - this.game.viewportOffset);
+
+		for (let i = 0; i < this.size; i++) {
+			const pixel = start + i;
+			if (pixel >= 0 && pixel < this.game.resolution) {
+				this.game.pixels[pixel] = this.constructor.COLOR;
+			}
+		}
+	}
+}
+
+class Lake extends Obstacle {
+	static COLOR = Colors.CYAN;
+	static SPEED_FACTOR = 0.25;
+}
+
+class Sand extends Obstacle {
+	static COLOR = 0x998033; // muted brown
+	static SPEED_FACTOR = 0.5;
+}
+
+class Concrete extends Obstacle {
+	static COLOR = Colors.GRAY;
 }
 
 class Ball {
@@ -31,6 +83,7 @@ class Ball {
 		this.vx = 0.0;
 		this.vy = 0.0;
 		this.isFlying = false;
+		this.visible = true;
 		this.maxHeight = (game.resolution / 4) * Ball.HEIGHT_MARGIN;
 	}
 
@@ -78,6 +131,10 @@ class Ball {
 	}
 
 	render() {
+		if (!this.visible) {
+			return;
+		}
+
 		const pixel = Math.round(this.location - this.game.viewportOffset);
 		const center = Math.floor(this.game.resolution / 2);
 		const heightFraction = Math.min(1.0, this.height / this.maxHeight);
@@ -96,14 +153,15 @@ class Ball {
 	}
 }
 
-const PlayerState = Object.freeze({ AIMING: 'AIMING', WALKING: 'WALKING' });
+const PlayerState = Object.freeze({ AIMING: 'AIMING', WALKING: 'WALKING', ADVANCING: 'ADVANCING' });
 
 class Player {
 	static POWER_FREQUENCY = 0.6; // oscillation cycles/sec while charging
 	static BAR_LENGTH = 10; // pixels
 	static BAR_FILL = Colors.LIGHT_GRAY;
-	static COLOR = Colors.YELLOW;
+	static COLOR = Colors.BLUE;
 	static WALK_SECONDS_PER_SCREEN = 4.0;
+	static TEE_OFFSET_FRACTION = 1 / 6; // distance past a sunk hole where the next ball tees up
 
 	constructor(game, location) {
 		this.game = game;
@@ -113,6 +171,8 @@ class Player {
 		this.power = 0.0;
 		this.charging = false;
 		this.chargeTime = 0.0;
+		this.holed = false;
+		this.walkTarget = location;
 		this.state = PlayerState.AIMING;
 	}
 
@@ -129,20 +189,30 @@ class Player {
 			return;
 		}
 		this.charging = false;
+		this.holed = false;
 
 		const direction = Math.sign(hole.location - this.ball.location) || 1;
-		const angle = this.ball.requiredAngle(hole);
+		const angle = Ball.MAX_ANGLE * this.power;
 		this.ball.hit(angle, this.power * this.game.maxSpeed, direction);
 	}
 
 	_walk() {
 		const dt = this.game.system.clock.delta;
-		const step = this.speed * dt;
-		const remaining = this.ball.location - this.location;
+		const terrain = this.game.terrainAt(this.location);
+		const speedFactor = terrain ? terrain.constructor.SPEED_FACTOR : 1.0;
+		const step = this.speed * speedFactor * dt;
+		const remaining = this.walkTarget - this.location;
 
 		if (Math.abs(remaining) <= step) {
-			this.location = this.ball.location;
-			this.state = PlayerState.AIMING;
+			this.location = this.walkTarget;
+			if (this.holed) {
+				this.ball.location = this.walkTarget;
+				this.ball.visible = true;
+				this.state = PlayerState.ADVANCING;
+			} else {
+				this.state = PlayerState.AIMING;
+			}
+			this.holed = false;
 			return;
 		}
 
@@ -150,7 +220,17 @@ class Player {
 	}
 
 	update(hole) {
+		const wasFlying = this.ball.isFlying;
 		this.ball.update();
+		if (wasFlying && !this.ball.isFlying) {
+			this.holed = hole.contains(this.ball.location);
+			if (this.holed) {
+				this.ball.visible = false;
+				this.walkTarget = hole.location + Player.TEE_OFFSET_FRACTION * this.game.resolution;
+			} else {
+				this.walkTarget = this.ball.location;
+			}
+		}
 
 		if (this.state === PlayerState.AIMING) {
 			if (!this.ball.isFlying && this.location !== this.ball.location) {
@@ -185,10 +265,9 @@ class Player {
 		}
 
 		const fillCount = Math.round(this.power * Player.BAR_LENGTH);
-		const screenLocation = Math.round(this.location - this.game.viewportOffset);
 
 		for (let i = 0; i < fillCount; i++) {
-			const pixel = screenLocation - direction * (i + 1);
+			const pixel = playerPixel - direction * (i + 1);
 			if (pixel >= 0 && pixel < this.game.resolution) {
 				this.game.pixels[pixel] = Player.BAR_FILL;
 			}
@@ -198,38 +277,142 @@ class Player {
 
 export class Golf extends Game {
 	static FIELD_SCREENS = 20;
+	static HOLE_COUNT = 18;
+	static START_RADIUS_FRACTION = 1 / 10;
+	static END_RADIUS_FRACTION = 1 / 60;
 	static SCROLL_SECONDS = 10.0; // time to scroll across the entire field
+	static MAX_OBSTACLES_PER_GAP = 3;
+	static BASE_OBSTACLE_SIZE_FRACTION = 1 / 6;
+	static CONCRETE_CLEARANCE_FRACTION = 1 / 8; // grass buffer concrete needs from any neighbor
 
 	constructor(system) {
 		super('Golf', system);
+		this.maxSpeed = Math.sqrt(this.resolution * Ball.GRAVITY);
+		this.buildStage();
+	}
+
+	buildStage() {
 		this.fieldLength = Golf.FIELD_SCREENS * this.resolution;
 		this.scrollSpeed = this.fieldLength / Golf.SCROLL_SECONDS;
 		this.viewportOffset = 0.0;
 		this.scrollDirection = 0;
 
-		this.field = [new Hole(this, this.resolution * 4 / 5, 1)];
+		const playerStart = this.resolution / 5;
+		const gap = (this.resolution * 4 / 5) - playerStart; // same distance as the first hole, every hole
 
-		this.player = new Player(this, this.resolution / 5);
-		this.maxSpeed = Math.sqrt(this.resolution * Ball.GRAVITY);
+		this.field = [];
+		for (let i = 0; i < Golf.HOLE_COUNT; i++) {
+			const t = i / (Golf.HOLE_COUNT - 1);
+			const radiusFraction = Golf.START_RADIUS_FRACTION + (Golf.END_RADIUS_FRACTION - Golf.START_RADIUS_FRACTION) * t;
+			this.field.push(new Hole(this, playerStart + gap * (i + 1), this.resolution * radiusFraction));
+		}
+		this.currentHoleIndex = 0;
+
+		this.obstacles = this._placeObstacles();
+
+		this.player = new Player(this, playerStart);
+	}
+
+	_placeObstacles() {
+		const obstacles = [];
+		const clearance = this.resolution * Golf.CONCRETE_CLEARANCE_FRACTION;
+
+		const fits = (type, start, end, placed) => {
+			for (const other of placed) {
+				const otherStart = other.location;
+				const otherEnd = other.location + other.size;
+				const needsClearance = type === Concrete || other instanceof Concrete;
+				const touching = start < otherEnd && otherStart < end;
+				const tooClose = needsClearance && start < otherEnd + clearance && otherStart < end + clearance;
+				if (touching || tooClose) {
+					return false;
+				}
+			}
+			return true;
+		};
+
+		for (let i = 0; i < this.field.length - 1; i++) {
+			const from = this.field[i].location;
+			const to = this.field[i + 1].location;
+			const t = i / (this.field.length - 2); // 0 right after hole 1, 1 at the last gap
+
+			const count = Math.round(t * Golf.MAX_OBSTACLES_PER_GAP);
+			const types = [Sand];
+			if (t > 1 / 3) {
+				types.push(Lake);
+			}
+			if (t > 2 / 3) {
+				types.push(Concrete);
+			}
+
+			const placed = [];
+			for (let j = 0; j < count; j++) {
+				const ObstacleType = types[Math.floor(Math.random() * types.length)];
+				const sizeScale = 0.6 + t * 0.8; // obstacles grow as the course progresses
+				const size = this.resolution * Golf.BASE_OBSTACLE_SIZE_FRACTION * sizeScale * (0.7 + Math.random() * 0.6);
+
+				for (let attempt = 0; attempt < 20; attempt++) {
+					const location = from + Math.random() * Math.max(0, to - from - size);
+					if (fits(ObstacleType, location, location + size, placed)) {
+						placed.push(new ObstacleType(this, location, size));
+						break;
+					}
+				}
+			}
+			obstacles.push(...placed);
+		}
+
+		return obstacles;
 	}
 
 	_currentHole() {
-		return this.field[0];
+		return this.field[this.currentHoleIndex];
+	}
+
+	terrainAt(location) {
+		for (const obstacle of this.obstacles) {
+			if (obstacle.contains(location)) {
+				return obstacle;
+			}
+		}
+		return null;
 	}
 
 	loop() {
 		super.loop();
 
-		this.viewportOffset += this.scrollDirection * this.scrollSpeed * this.system.clock.delta;
+		const hole = this._currentHole();
+		if (this.player.ball.isFlying || this.player.state === PlayerState.WALKING) {
+			const points = [this.player.location, this.player.ball.location, hole.location];
+			const center = (Math.min(...points) + Math.max(...points)) / 2;
+			this.viewportOffset = center - this.resolution / 2;
+		} else if (this.player.state === PlayerState.ADVANCING) {
+			const nextHole = this.field[this.currentHoleIndex + 1];
+			const target = (this.player.location + nextHole.location) / 2 - this.resolution / 2;
+			const step = this.player.speed * this.system.clock.delta;
+			const remaining = target - this.viewportOffset;
+			if (Math.abs(remaining) <= step) {
+				this.viewportOffset = target;
+				this.currentHoleIndex += 1;
+				this.player.state = PlayerState.AIMING;
+			} else {
+				this.viewportOffset += Math.sign(remaining) * step;
+			}
+		} else {
+			this.viewportOffset += this.scrollDirection * this.scrollSpeed * this.system.clock.delta;
+		}
 		this.viewportOffset = Math.max(0, Math.min(this.fieldLength - this.resolution, this.viewportOffset));
 
 		for (let i = 0; i < this.resolution; i++) {
-			this.pixels[i] = Colors.DARK_GREEN;
+			this.pixels[i] = Hole.BACKGROUND_COLOR;
 		}
-		for (const hole of this.field) {
-			hole.render();
+		for (const obstacle of this.obstacles) {
+			obstacle.render();
 		}
-		this.player.update(this._currentHole());
+		for (const h of this.field) {
+			h.render();
+		}
+		this.player.update(hole);
 	}
 
 	handleInput(padId, event) {
