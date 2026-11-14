@@ -23,20 +23,40 @@ async function loadPanelSvg(model) {
 class SampleAudio extends Audio {
 	constructor(system) {
 		super(system);
+		this.system = system;
 		this.samples = {};
 		this.isReady = false;
-		const sounds = Object.values(Sound);
-		let readySamples = 0;
+		this.load();
+	}
 
+	load() {
+		this.isReady = false;
+
+		const entries = Object.values(Sound).map((sound) => ({ sound, path: `/sounds/${sound}.wav` }));
+
+		const game = this.system.game;
+		if (game && game.constructor.sounds) {
+			for (const sound of Object.values(game.constructor.sounds)) {
+				entries.push({ sound, path: `/sounds/${game.constructor.name}/${sound}.wav` });
+			}
+		}
+
+		const pending = entries.filter(({ sound }) => !this.samples[sound]);
+		if (pending.length === 0) {
+			this.isReady = true;
+			return;
+		}
+
+		let remaining = pending.length;
 		const onLoad = () => {
-			readySamples++;
-			if (readySamples === sounds.length) {
+			remaining--;
+			if (remaining === 0) {
 				this.isReady = true;
 			}
 		};
 
-		for (const sound of sounds) {
-			const sample = new window.Audio(`/sounds/${sound}.wav`);
+		for (const { sound, path } of pending) {
+			const sample = new window.Audio(path);
 			sample.addEventListener('canplaythrough', onLoad, { once: true });
 			sample.addEventListener('error', onLoad, { once: true });
 			this.samples[sound] = sample;

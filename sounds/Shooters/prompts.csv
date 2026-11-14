@@ -1,0 +1,15 @@
+name,prompt
+CROAK,A single short frog croak, low-pitched, natural pond ambience, under 1 second
+CROAK2,
+CROAK3,
+JUMP,A short soft frog leap sound, a quick hop, no splash, under 1 second
+MEAOW,A single short cat meow, natural, under 1 second
+MEAOW2,
+MEAOW3,
+GROWL,A short mild cat growl, a low warning tone, under 1 second
+GROWL2,A short more aggressive cat growl, tenser and louder than a mild warning growl
+GROWL3,A short aggressive cat growl that ends in a hiss, under 2 seconds
+GROWL4,A short intense mix of cat growls and hisses, like a cat fight, under 2 seconds
+RICOCHET,A short cartoonish bullet ricochet sound, metallic ping, classic movie western style
+RICOCHET2,
+RICOCHET3,

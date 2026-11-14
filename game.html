@@ -36,6 +36,7 @@
 			const GameClass = module['{{ game_class }}'];
 			cnsl.system.game = new GameClass(cnsl.system);
 			cnsl.system.game.playLevel();
+			cnsl.system.audio.load();
 
 			cnsl.setStripContainer(document.getElementById('strip'));
 		}
