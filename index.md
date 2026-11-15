@@ -1,7 +1,7 @@
 
 # The Strip
 
-[Games](Games.md)
+[Games](Library.md)
 
 [API](API.md)
 

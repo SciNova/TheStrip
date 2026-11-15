@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 70" width="120" height="70">
+	<rect x="0" y="0" width="120" height="70" rx="5" ry="5" fill="#1a1a1a" />
+	<rect x="4" y="23" width="18" height="18" rx="3" ry="3"
+			fill="#ffffff" data-label="L" data-code="DpadLeft" />
+	<rect x="42" y="23" width="18" height="18" rx="3" ry="3"
+			fill="#ffffff" data-label="R" data-code="DpadRight" />
+	<rect x="23" y="4" width="18" height="18" rx="3" ry="3"
+			fill="#ffffff" data-label="U" data-code="DpadUp" />
+	<rect x="23" y="42" width="18" height="18" rx="3" ry="3"
+			fill="#ffffff" data-label="D" data-code="DpadDown" />
+	<circle cx="92" cy="22" r="14"
+			fill="#e74c3c" data-label="F1" data-code="ButtonFire" />
+	<circle cx="92" cy="48" r="14"
+			fill="#c0392b" data-label="F2" data-code="ButtonFire2" />
+</svg>

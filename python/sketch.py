@@ -17,7 +17,7 @@ from Slots import Slots
 from Stack import Stack
 from Pacman import Pacman
 from Dices import Dices
-from DicesClock import DicesClock
+from StopWatch import StopWatch
 from Dino import Dino
 from Cars import Cars
 from DemoScene import DemoScene
@@ -34,7 +34,7 @@ games = (Moodlight(system),
 		Stack(system),
 		Pacman(system),
 		Dices(system),
-		DicesClock(system),
+		StopWatch(system),
 		Dino(system),
 		Cars(system),
 		DemoScene(system))
@@ -49,7 +49,7 @@ games = (Moodlight(system),
 #game = Stack(system) #### no Snake
 #game = Pacman(system) #### no wrap, no release
 #game = Dices(system)
-#game = DicesClock(system)
+#game = StopWatch(system)
 #game = Dino(system)
 #game = Cars(system) #### no release
 #game = DemoScene(system)

@@ -1,330 +1,302 @@
 # Platform API Reference
 
+This is one API, not three. The same classes, fields and functions exist in
+JavaScript (`js/`), Python (`python/`) and C++ (`cpp/`), kept in sync by hand
+on every change. Names below are given in camelCase (as JS and C++ spell
+them); Python spells the same names in snake_case (`handleInput` →
+`handle_input`, `nextLevel` → `next_level`) — same name, same shape, same
+behaviour either way. Signatures below are written in a neutral, language-
+agnostic notation, not any one language's actual syntax.
+
 ## Core
 
 ### System
 
-```haxe
-class System {
-    public static inline var RESOLUTION:Int = 120;
-    public var resolution:Int;
-    public var audio:Audio;
-    public var clock:Clock;
-    public var strip:Null<Strip>;
-    public var controller:Controller;
-    public var game:Null<Game>;
-    public var menu:Null<Game>;
-    public var uptime:Float;
-    public var delta:Float;
-    public var state:SystemState;
+```
+System
+    clock: Clock
+    audio: Audio
+    strip: Strip
+    game: Game | none
+    uptime: number
+    state: SystemState
 
-    public function new(?resolution:Int = RESOLUTION):Void;
-    public function loop():Void;
-    public function togglePause():Void;
-    public function toggleMenu():Void;
-    public function handleInput(controllerId:Int, input:Input, ?type:InputEvent, ?value:Float):Void;
-}
+    loop()
+    togglePause()
+    toggleMenu()
+    handleCommand(padId: number, event: InputEvent)
 ```
 
-The platform operating system. Owns all hardware services and the active game. `loop()` advances the clock, computes `delta` and `uptime`, then dispatches to the active game or menu based on `state`. `handleInput()` routes to the menu or game. `togglePause()` delegates to `game.togglePause()`. `toggleMenu()` swaps between `MENU` and `PLAY` states without pausing the game. On the JS target the constructor creates `SampleAudio`; on all other targets a silent `Audio`.
-
----
-
-### Game
-
-```haxe
-class Game {
-    public var pixels:Array<Int>;
-    public var name:String;
-    public var time:Float;
-    public var levelTime:Float;
-    public var level:Int;
-    public var gameState:GameState;
-
-    public function new(name:String, system:System):Void;
-    public function pause():Void;
-    public function play():Void;
-    public function togglePause():Void;
-    public function loop():Void;
-    public function defer(handler:Void->Void, seconds:Float):Void;
-    public function clear():Void;
-    public function setLevel(n:Int):Void;
-    public function nextLevel():Void;
-    public function buildStage():Void;
-    public function playLevel():Void;
-    public function handleInput(controllerId:Int, input:Input, ?type:InputEvent, ?value:Float):Void;
-}
-```
-
-Base class for every game. Owns the 120‑pixel canvas, a per‑game clock (`time`) that stops on pause, and a per‑level timer (`levelTime`). `audio` and `resolution` are read‑only properties delegating to `system`. `gameState` (`PLAY` / `PAUSED`) replaces the old `isPaused` boolean. `loop()` uses `system.delta` and `system.uptime` exclusively. `defer()` schedules a callback via `system.uptime`. `playLevel()` calls `buildStage()`, resets `levelTime`, and unpauses. `handleInput()` is the single reactive entry point replacing the old four button methods.
-
----
-
-### Shape
-
-```haxe
-class Shape {
-    public var game:Game;
-    public var pixels:Array<Null<Int>>;
-    public var alignment:Alignment;
-    public var rotation:Float;
-    public var viewAngle:Float;
-
-    public function new(game:Game, size:Int, ?alignment:Alignment):Void;
-    public function update():Void;
-    public function render(position:Float, ?edge:EdgeMode, ?scale:Float):Void;
-}
-```
-
-The rendering primitive. Owns a fixed‑size pixel buffer where `null` means transparent. Subclasses override `update()` to fill the buffer. `render()` blits non‑null pixels into `game.pixels` at the given strip position, applying `correctLuminance` and the chosen `EdgeMode`. The optional `scale` parameter enables perspective projection for 2D games. `rotation` and `viewAngle` support the rotating‑square projection.
-
----
-
-### Alignment
-
-```haxe
-enum Alignment {
-    CENTER;
-    FORWARD;
-    BACKWARD;
-}
-```
-
-The three ways a `Shape` positions its pixel buffer relative to the strip position passed to `render()`. `CENTER` places the midpoint at the position. `FORWARD` extends from the position toward larger indices. `BACKWARD` extends from the position toward smaller indices.
-
----
-
-### EdgeMode
-
-```haxe
-enum EdgeMode {
-    CLIP;
-    MIRROR;
-    WRAP;
-}
-```
-
-Determines how pixels that cross the strip boundaries (0–119) are handled during `render()`. `CLIP` drops out‑of‑bounds pixels. `MIRROR` reflects them at the edges. `WRAP` makes the strip toroidal.
-
----
-
-### GameState
-
-```haxe
-enum GameState {
-    PLAY;
-    PAUSED;
-}
-```
-
-Tracks whether the game is running or paused. `Game.gameState` replaces the old `isPaused` boolean. `pause()`, `play()`, and `togglePause()` manage transitions.
-
----
+The owner of the hardware services and the currently active game. `loop()`
+advances the clock, and while `state` is `GAME` and the game is playing,
+calls the game's own `loop()`. `togglePause()` delegates to the active
+game's `togglePause()`. `toggleMenu()` switches `state` between `GAME` and
+`MENU`. `handleCommand()` is the system's own input entry point — it handles
+power/menu/pause presses itself, and forwards anything else to the active
+game's `handleInput()`.
 
 ### SystemState
 
-```haxe
-enum SystemState {
-    MENU;
-    PLAY;
-}
+```
+SystemState
+    STANDBY
+    MENU
+    GAME
+    POWERSAVE
 ```
 
-Tracks whether the system is showing the menu or running a game. `System.state` uses this to decide which game's `loop()` and `handleInput()` to call.
+### Game
 
----
+```
+Game
+    system: System
+    pixels: Array<number>
+    resolution: number
+    audio: Audio
+    name: string
+    time: number
+    levelTime: number
+    level: number
+    state: GameState
 
-### Colors
-
-```haxe
-class Colors {
-    static var Black:Int; static var White:Int; static var Silver:Int;
-    static var Red:Int; static var Green:Int; static var Blue:Int;
-    static var Yellow:Int; static var Cyan:Int; static var Magenta:Int;
-    static var Orange:Int; static var Purple:Int; static var Pink:Int;
-    // ... and many more
-
-    static function correctLuminance(color:Int):Int;
-}
+    loop()
+    handleInput(padId: number, event: InputEvent)
+    buildStage()
+    pause()
+    play()
+    togglePause()
+    delay(seconds: number)
+    clear()
+    setLevel(n: number)
+    nextLevel()
+    playLevel()
 ```
 
-Pre‑defined colour palette with perceptual luminance correction applied automatically during rendering.
+The base class every game extends. `pixels` is the same array as
+`system.strip.pixels`. `loop()` advances `time`/`levelTime` and counts down
+any pending delay; every game overrides it and calls the base version
+first. `handleInput()` is the game's own reactive entry point; the base
+version does nothing. `buildStage()` (re)builds whatever a level needs; the
+base version does nothing, games with levels override it. `delay()` pauses
+the game's own logic for a duration without changing `state`. `playLevel()`
+calls `buildStage()` if the game has one, resets `levelTime`, and resumes
+play.
 
----
+A game that also declares a `sounds` enum (see **Sound**, below) owns a set
+of sounds of its own, in addition to the system's; nothing is required of a
+game that doesn't declare one.
 
-### Clock
+### GameState
 
-```haxe
-class Clock {
-    public var time:Float;
-    public function new():Void;
-    public function update():Void;
-}
 ```
-
-System timekeeping using `haxe.Timer.stamp()`. `System.loop()` calls `update()` each frame; `Button` reads `time` directly for debounce timing.
-
----
-
-### Strip
-
-```haxe
-class Strip {
-    public var game:Game;
-    public function new():Void;
-    public function begin():Void;
-    public function update():Void;
-}
+GameState
+    PLAY
+    PAUSED
+    COMPLETED
 ```
-
-LED output stub. The platform layer provides the real implementation — DOM‑based or Three.js in the browser, native LED driver on hardware. The stub allows the core to compile and run without a display.
 
 ---
 
 ## Input
 
-### Input
+### Command
 
+```
+Command
+    NONE
+    A
+    A_PRESS
+    A_RELEASE
+    B
+    B_PRESS
+    B_RELEASE
+    C
+    C_PRESS
+    C_RELEASE
+    D
+    D_PRESS
+    D_RELEASE
+    X
+    X_PRESS
+    X_RELEASE
+    Y
+    Y_PRESS
+    Y_RELEASE
+    Z
+    Z_PRESS
+    Z_RELEASE
+    W
+    W_PRESS
+    W_RELEASE
+    FIRE
+    FIRE_PRESS
+    FIRE_RELEASE
+    FIRE2
+    FIRE2_PRESS
+    FIRE2_RELEASE
+    UP
+    UP_PRESS
+    UP_RELEASE
+    DOWN
+    DOWN_PRESS
+    DOWN_RELEASE
+    LEFT
+    LEFT_PRESS
+    LEFT_RELEASE
+    RIGHT
+    RIGHT_PRESS
+    RIGHT_RELEASE
+    ENCODER_LEFT
+    ENCODER_RIGHT
+    ENCODER2_LEFT
+    ENCODER2_RIGHT
+    POWER_SHORT_PRESS
+    POWER_LONG_PRESS
+    MENU_SHORT_PRESS
+    MENU_LONG_PRESS
+    PAUSE_SHORT_PRESS
+    PAUSE_LONG_PRESS
+    BT_SHORT_PRESS
+    BT_LONG_PRESS
 
-
-```haxe
-abstract Input(Int) {
-    static var ButtonA;
-    static var ButtonB;
-    static var ButtonC;
-    static var ButtonD;
-    static var ButtonX;
-    static var ButtonY;
-    static var ButtonZ;
-    static var ButtonW;
-    static var Action;
-    static var ActionB;
-
-    static var DpadALeft;
-    static var DpadARight;
-    static var DpadAUp;
-    static var DpadADown;
-
-    static var Left;
-    static var Right;
-    static var Up;
-    static var Down;
-
-    static var DpadBLeft;
-    static var DpadBRight;
-    static var DpadBUp;
-    static var DpadBDown;
-
-    static var LeftB;
-    static var RightB;
-    static var UpB;
-    static var DownB;
-
-    static var EncoderA;
-    static var EncoderAButton;
-    static var EncoderB;
-    static var EncoderBButton;
-    static var EncoderC;
-    static var EncoderCButton;
-
-    static var JoystickAX;
-    static var JoystickAY;
-    static var JoystickBX;
-    static var JoystickBY;
-
-    static var Pause;
-    static var Menu;
-}
+isGameButtonPress(command: Command): boolean
 ```
 
-
-Bitmask catalogue of every signal a controller can emit. Constants are powers of two (bits 1–28 for regular inputs, bits 30‑31 for Pause/Menu), so signals can be OR'd together. The D‑pad shorthand aliases share integer values with their full names. Joystick axes are individual signals; the value parameter in handleInput carries the axis position. Pause and Menu are reserved at the platform level and never forwarded to games.
-
----
+The complete catalogue of input signals a game can receive. Every
+button-like command exists as a `_PRESS`/`_RELEASE` pair; the bare name
+(e.g. `Command.A`) is an alias for its `_PRESS` value. `isGameButtonPress()`
+tests whether a command is one of the ordinary gameplay button presses, as
+opposed to an encoder tick or a system-reserved power/menu/pause/BT press.
 
 ### InputEvent
 
-```haxe
-enum InputEvent {
-    ButtonPress;
-    ButtonRelease;
-    ButtonHold;
-    ButtonHoldRelease;
-    EncoderLeft;
-    EncoderRight;
-}
+```
+InputEvent
+    command: Command
+    value: number
 ```
 
-Event type passed through `handleInput`. Joystick axes carry no event type — recognised by the signal ID with the `value` parameter carrying position.
-
----
+A single input occurrence. `value` is used only by analogue signals; `0`
+otherwise.
 
 ### Button
 
-```haxe
-class Button {
-    static var DEBOUNCE_DURATION:Float;    // 0.05 s
-    static var HOLD_DURATION:Float;        // 1.0 s
-    public var isPressed(get, null):Bool;
+```
+Button
+    state: ButtonState
+    pressTimestamp: number
+    held: boolean
 
-    public function new(system:System, onPress:Void->Void, ?onRelease, ?onHold, ?onHoldRelease):Void;
-    public function update(val:Bool):Void;
-}
+    process(value: boolean, now: number): ButtonEvent | none
 ```
 
-Pure logic component. Uses `system.clock.time` for debounce and hold detection. The platform feeds raw boolean signals into `update()`; the appropriate callback fires on state transitions. `isPressed` returns true while the button is down or held.
-
----
-
-### Controller
-
-```haxe
-class Controller {
-    public var id:Int;
-    public var model:Null<PanelModel>;
-    public var system:System;
-    public var buttonA:Button;  // through buttonD
-    public var buttonPause:Button;
-    public var buttonMenu:Button;
-
-    public function new(system:System):Void;
-    public function update():Void;
-}
-```
-
-Owns the `Button` instances. `buttonPause` and `buttonMenu` are permanent, wired to `system.togglePause()` and `system.toggleMenu()`. Panel buttons (`buttonA`–`buttonD`) are created per the `PanelModel` enum when `update()` is called. All panel button callbacks route through `system.handleInput`. The platform feeds raw signals via `controller.buttonX.update(true/false)`.
-
----
-
-### PanelModel
-
-```haxe
-enum PanelModel {
-    A;
-    LR;
-    UD;
-    ABC;
-    ABCD;
-    EE;
-}
-```
-
-Detachable panel configurations. `A` is a single action button; `LR` and `UD` are two‑button directional panels; `ABC` and `ABCD` are three‑ and four‑button panels; `EE` is a dual encoder panel.
-
----
+Debounced press/hold/release tracking for one physical button. Call
+`process()` each tick with the raw signal and the current time; it returns
+a `ButtonEvent` on a state transition, or nothing.
 
 ### ButtonState
 
-```haxe
-enum ButtonState {
-    IDLE;
-    PRESS;
-    HOLD;
-    RELEASE;
-}
+```
+ButtonState
+    IDLE
+    PRESS
+    HOLD
 ```
 
-Internal state machine for `Button`. Not exposed to games.
+### ButtonEvent
+
+```
+ButtonEvent
+    PRESS
+    RELEASE
+    HOLD
+    HOLDRELEASE
+```
+
+### Encoder
+
+```
+Encoder
+    state: EncoderState
+    rawQuadState: number
+    previousQuadState: number
+    clkTimestamp: number
+    inputChangeTimestamp: number
+
+    update(clk: boolean, direction: boolean, now: number): EncoderEvent | none
+```
+
+Quadrature decoding for one rotary encoder. Call `update()` each tick with
+the two raw signal lines and the current time; it returns an `EncoderEvent`
+on a detent, or nothing.
+
+### EncoderState
+
+```
+EncoderState
+    IDLE
+    DEBOUNCING
+```
+
+### EncoderEvent
+
+```
+EncoderEvent
+    LEFT
+    RIGHT
+```
+
+### PcbPanelModel
+
+```
+PcbPanelModel
+    NONE
+    F
+    UD
+    LR
+    LRF
+    UDF
+    LRUDFF
+    ABC
+    ABCD
+```
+
+The set of physical button-panel variants a `ControlPad` can have attached.
+`F` is a single fire button. `UD`/`LR` are two-button direction-only panels.
+`LRF`/`UDF` add a fire button to one direction pair. `LRUDFF` has both
+direction pairs and two fire buttons. `ABC`/`ABCD` are three- and
+four-button colour panels, built to match a specific game's own colour
+language (`Stack`'s three colours, `SimonSays`'s four) rather than being
+generic.
+
+### ControlPad
+
+```
+ControlPad
+    system: System
+    id: number
+    panel: PcbPanel | none
+    buttons: Array<Button>
+    pressedState: Array<boolean>
+    directionButtons: Array<Button>
+    directionPressedState: Array<boolean>
+    namedButtons: Array<Button>
+    namedPressedState: Array<boolean>
+
+    update()
+    setButtonPressed(index: number, pressed: boolean)
+    setDirectionPressed(index: number, pressed: boolean)
+    setNamedButtonPressed(index: number, pressed: boolean)
+    poll(now: number)
+```
+
+One player's full set of inputs. `directionButtons`/`namedButtons` are
+always live, independent of whichever `panel` (if any) is attached — a
+panel only ever decides which physical buttons exist to click or wire on
+real hardware, never which `Command`s a game can receive;
+`UP`/`DOWN`/`LEFT`/`RIGHT`/`FIRE`/`FIRE2` and `A`/`B`/`C`/`D` always work.
+`poll()` reads every live button and encoder and forwards the resulting
+events to `system.handleCommand()`.
 
 ---
 
@@ -332,173 +304,259 @@ Internal state machine for `Button`. Not exposed to games.
 
 ### Sound
 
-```haxe
-enum Sound {
-    LEVEL_COMPLETE; LEVEL_FAIL; GAME_COMPLETE;
-    SHOOT; HIT; MISS; GENERATE_ITEM; TICK; CHECKPOINT;
-    SIMONSAYS1; SIMONSAYS2; SIMONSAYS3; SIMONSAYS4;
-    SIMONSAYS1_ORIGINAL; SIMONSAYS2_ORIGINAL; SIMONSAYS3_ORIGINAL; SIMONSAYS4_ORIGINAL;
-}
+```
+Sound
+    LEVEL_COMPLETE
+    LEVEL_FAIL
+    GAME_COMPLETE
+    SHOOT
+    HIT
+    MISS
+    GENERATE_ITEM
+    TICK
+    CHECKPOINT
+    SIMONSAYS1
+    SIMONSAYS2
+    SIMONSAYS3
+    SIMONSAYS4
+    SIMONSAYS1_ORIGINAL
+    SIMONSAYS2_ORIGINAL
+    SIMONSAYS3_ORIGINAL
+    SIMONSAYS4_ORIGINAL
 ```
 
-Enum of all audio events. The JS implementation uses the enum label as the WAV filename.
+The system's own shared vocabulary of sound events. Every game gets these
+for free.
 
----
+A game with sounds of its own declares a `sounds` enum on its own class,
+following the same convention `Sound` itself uses — name the base variant
+plainly, number the rest (`CROAK`, `CROAK2`, `CROAK3`). Both are played
+through the identical call below; there is no difference between a system
+sound and a game's own sound from the game's point of view.
 
 ### Audio
 
-```haxe
-class Audio {
-    public var system:System;
-    public function new(system:System):Void;
-    public function play(sound:Sound):Void;
-}
+```
+Audio
+    play(sound: Sound | string)
 ```
 
-Silent base class. `SampleAudio` (JS target, declared `extern` inside `#if js`) extends it with WAV playback. The platform constructor selects the correct backend at compile time.
+The base class does nothing. The browser simulator's implementation
+(`SampleAudio`) plays the matching `.wav` file, loading the system set
+always and a game's own `sounds` set (if it declares one) once that game is
+active.
 
 ---
 
-## 2D Extensions
+## Colours
 
-### World
+### Colors
 
-```haxe
-class World {
-    public var size:Float;
-    public var wraps:Bool;
-    public function new(size:Float, wraps:Bool):Void;
-}
+```
+Colors
+    RED
+    ROYAL_BLUE
+    DARK_SLATE_GRAY
+    ... (one entry per official CSS colour)
 ```
 
-1D world. `size` is in screens (multiplied by `system.resolution` for pixel extent). `wraps` enables toroidal lateral wrapping.
+One name per official CSS colour (`js/color.js`, mirrored in
+`system.py`/`system.h`), plus a small handful of aliases (`OFF`, and the
+fruit names `Slots` uses) for names CSS doesn't have. A game should reach
+for the closest named colour here rather than a literal hex value.
+
+### Colour functions
+
+```
+hsvToRgb(h: number, s: number, v: number): number
+balanceColors(color: number): number
+correctGamma(color: number): number
+```
+
+`hsvToRgb()` converts a hue/saturation/value colour to packed RGB.
+`balanceColors()`/`correctGamma()` are hooks for colour correction applied
+during rendering; both are currently no-ops.
 
 ---
 
-### World2D
+## Timing
 
-```haxe
-class World2D extends BaseWorld {
-    public var width:Float;
-    public var depth:Float;
-    public var wrapsX:Bool;
-    public var wrapsZ:Bool;
-    public function new(width:Float, depth:Float, wrapsX:Bool, wrapsZ:Bool):Void;
-}
+### Clock
+
+```
+Clock
+    time: number
+    timestamp: number
+    delta: number
+
+    update()
 ```
 
-2D toroidal world. `width` is the lateral (Z) extent, `depth` the forward (X) extent, both in screens. Wrapping is controlled independently per axis.
+`update()` advances `time`/`delta` from the current wall-clock time. Called
+once per frame by `System`.
+
+### Strip
+
+```
+Strip
+    pixels: Array<number>
+    length: number
+
+    clear()
+```
+
+`clear()` sets every pixel to off.
 
 ---
 
-### BaseWorld
+## Graphics
 
-```haxe
-class BaseWorld {
-    public function new():Void;
-}
+### Shape
+
+```
+Shape
+    game: Game
+    pixels: Array<number | none>
+    alignment: Alignment
+    rotation: number
+    viewAngle: number
+
+    update()
+    render(position: number, edge: EdgeMode, scale: number)
 ```
 
-Empty common root for typed `game.world:Null<BaseWorld>`. Not used directly by games.
+The rendering primitive: a fixed-size buffer of colours (or none, meaning
+transparent), blitted onto `game.pixels` at a given position. `update()`
+fills `pixels`; the base version does nothing, every subclass overrides it.
+`render()` blits non-empty pixels into `game.pixels` at `position`,
+resampling for `scale` and handling the strip's boundaries per `edge`.
 
----
+### Alignment
 
-### BasePlayer
-
-```haxe
-class BasePlayer {
-    public var game:Game;
-    public function new(game:Game):Void;
-}
+```
+Alignment
+    CENTER
+    FORWARD
+    BACKWARD
 ```
 
-Minimal player root. Holds only a `game` reference.
+How a `Shape`'s buffer sits relative to the position passed to `render()`.
+`CENTER` centres it on the position. `FORWARD` extends toward higher
+indices. `BACKWARD` extends toward lower indices.
 
----
+### EdgeMode
 
-### BasePlayer1D
-
-```haxe
-class BasePlayer1D extends BasePlayer {
-    public var location:Float;
-    public function distance(location:Float):Float;
-}
+```
+EdgeMode
+    CLIP
+    MIRROR
+    WRAP
 ```
 
-1D player. `location` is the strip coordinate. `distance()` returns the shortest distance respecting `World.wraps`.
-
----
-
-### BasePlayer2D
-
-```haxe
-class BasePlayer2D extends BasePlayer {
-    public var x:Float;
-    public var z:Float;
-    public var rotation:Float;
-    public function distance(z:Float, x:Float):Float;
-    public function direction(z:Float, x:Float):Float;
-}
-```
-
-2D player. `x` and `z` are world coordinates; `rotation` is heading (0–1). `distance()` returns Euclidean distance with optional toroidal wrapping. `direction()` returns the absolute world angle (0 = +X, 0.25 = +Z, etc.).
-
----
-
-### Camera
-
-```haxe
-class Camera {
-    public var x:Float;
-    public var z:Float;
-    public var rotation:Float;
-    public function new(x:Float, z:Float, rotation:Float):Void;
-}
-```
-
-Viewpoint for 2D games. Positioned behind the player and used by `Shape2D` to compute view‑relative angles for `Square2D` rendering.
-
----
+How `render()` handles pixels that fall outside the strip. `CLIP` drops
+them. `MIRROR` reflects them back in. `WRAP` treats the strip as toroidal.
 
 ### Shape2D
 
-```haxe
-class Shape2D extends Shape {
-    public var x:Float;
-    public var z:Float;
-    public function collides(z:Float, x:Float):Bool;
-}
+```
+Shape2D extends Shape
+    x: number
+    z: number
+
+    collides(z: number, x: number): boolean
 ```
 
-Adds 2D position and collision detection (point‑vs‑circle with toroidal wrapping) to `Shape`.
-
----
+A `Shape` with a position in a 2D world. `collides()` is a circular
+collision test against the shape's own size, respecting the game's
+`World2D` wrapping.
 
 ### Square / Square2D
 
-```haxe
-class Square extends Shape {
-    public var faces:Array<Array<Null<Int>>>;
-    public var invert:Bool;
-    public function new(game:Game, faces:Array<Array<Null<Int>>>, ?invert:Bool):Void;
-    override public function update():Void;
-}
+```
+Square extends Shape
+    faces: Array<Array<number | none>>
+    invert: boolean
 
-class Square2D extends Shape2D {
-    // identical interface, inherits 2D position and collision from Shape2D
-}
+    update()
+
+Square2D extends Shape2D
+    faces: Array<Array<number | none>>
+    invert: boolean
+
+    update()
 ```
 
-Rotating square projection. `faces` is an array of 1D patterns (at least 1, typically 4 for the four sides of the square). `rotation` (inherited from `Shape`) determines which face is visible; `viewAngle` offsets for camera‑relative viewing. `invert` flips the forward direction by 180° (used when objects face +X into the strip rather than toward the player). Both delegate the projection math to `SquareView.update()`.
-
----
+A shape that looks like a rotating cube's face, used for dice, clock digits
+and similar. Built from a set of `faces` (one 1D pattern per face);
+`rotation` (inherited from `Shape`) selects which face is showing, blended
+with its neighbour as it turns. `invert` flips the forward direction by
+180°. `Square2D` additionally carries a 2D position via `Shape2D`. Both
+delegate their `update()` to `SquareView`.
 
 ### SquareView
 
-```haxe
-class SquareView {
-    public static function update(obj:Dynamic):Void;
-}
+```
+SquareView
+    update(obj: Square | Square2D)    [static]
 ```
 
-Static projection engine shared by `Square` and `Square2D`. Avoids code duplication forced by Haxe's lack of multiple inheritance. The single acknowledged exception to the "does this thing exist?" test. Not used directly by games.
+The shared projection math behind `Square`/`Square2D`. Not used directly by
+games.
+
+### Camera
+
+```
+Camera
+    x: number
+    z: number
+    rotation: number
+```
+
+A viewpoint for 2D games, positioned behind the player and used to compute
+view-relative angles for `Square2D` rendering.
+
+### BaseWorld / World / World2D
+
+```
+BaseWorld
+
+World extends BaseWorld
+    size: number
+    wraps: boolean
+
+World2D extends BaseWorld
+    width: number
+    depth: number
+    wrapsX: boolean
+    wrapsZ: boolean
+```
+
+`BaseWorld` is the empty common root for `game.world`. `World` is a 1D
+world (`size` in screens). `World2D` is a 2D toroidal world (`width`/`depth`
+in screens, wrapping controlled independently per axis).
+
+### BasePlayer / BasePlayer1D / BasePlayer2D
+
+```
+BasePlayer
+    game: Game
+
+BasePlayer1D extends BasePlayer
+    location: number
+
+    distance(location: number): number
+
+BasePlayer2D extends BasePlayer
+    x: number
+    z: number
+    rotation: number
+
+    distance(z: number, x: number): number
+    direction(z: number, x: number): number
+```
+
+`BasePlayer` is the empty common root. `BasePlayer1D.distance()` returns
+the shortest distance to `location`, respecting `World.wraps`.
+`BasePlayer2D.distance()` returns Euclidean distance respecting
+`World2D`'s wrapping; `direction()` returns the absolute world angle (0–1,
+0 = +X, 0.25 = +Z, and so on).

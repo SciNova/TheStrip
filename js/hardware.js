@@ -1,15 +1,15 @@
-import { Command, InputEvent, Button, ButtonEvent } from './system.js';
+import { Command, InputEvent, Button, ButtonEvent } from '../core/system.js';
 
 export const PcbPanelModel = Object.freeze({
 	NONE: 'NONE',
 	ABCD: 'ABCD',
 	ABC: 'ABC',
-	A: 'A',
+	F: 'F',
 	UD: 'UD',
 	LR: 'LR',
-	LRA: 'LRA',
-	UDA: 'UDA',
-	EE: 'EE',
+	LRF: 'LRF',
+	UDF: 'UDF',
+	LRUDFF: 'LRUDFF',
 });
 
 class PcbPanel {
@@ -31,9 +31,9 @@ export class PcbPanelABC extends PcbPanel {
 	}
 }
 
-export class PcbPanelA extends PcbPanel {
+export class PcbPanelF extends PcbPanel {
 	constructor() {
-		super(PcbPanelModel.A, [Command.A_PRESS]);
+		super(PcbPanelModel.F, [Command.FIRE_PRESS]);
 	}
 }
 
@@ -49,38 +49,48 @@ export class PcbPanelLR extends PcbPanel {
 	}
 }
 
-export class PcbPanelLRA extends PcbPanel {
+export class PcbPanelLRF extends PcbPanel {
 	constructor() {
-		super(PcbPanelModel.LRA, [Command.LEFT_PRESS, Command.RIGHT_PRESS, Command.A_PRESS]);
+		super(PcbPanelModel.LRF, [Command.LEFT_PRESS, Command.RIGHT_PRESS, Command.FIRE_PRESS]);
 	}
 }
 
-export class PcbPanelUDA extends PcbPanel {
+export class PcbPanelUDF extends PcbPanel {
 	constructor() {
-		super(PcbPanelModel.UDA, [Command.UP_PRESS, Command.DOWN_PRESS, Command.A_PRESS]);
+		super(PcbPanelModel.UDF, [Command.UP_PRESS, Command.DOWN_PRESS, Command.FIRE_PRESS]);
 	}
 }
 
-export class PcbPanelEE extends PcbPanel {
+export class PcbPanelLRUDFF extends PcbPanel {
 	constructor() {
-		super(PcbPanelModel.EE, []);
+		super(PcbPanelModel.LRUDFF, [
+			Command.LEFT_PRESS, Command.RIGHT_PRESS, Command.UP_PRESS, Command.DOWN_PRESS,
+			Command.FIRE_PRESS, Command.FIRE2_PRESS,
+		]);
 	}
 }
 
 export const PANEL_CLASSES = Object.freeze({
 	ABCD: PcbPanelABCD,
 	ABC: PcbPanelABC,
-	A: PcbPanelA,
+	F: PcbPanelF,
 	UD: PcbPanelUD,
 	LR: PcbPanelLR,
-	LRA: PcbPanelLRA,
-	UDA: PcbPanelUDA,
-	EE: PcbPanelEE,
+	LRF: PcbPanelLRF,
+	UDF: PcbPanelUDF,
+	LRUDFF: PcbPanelLRUDFF,
 });
 
 const DIRECTION_COMMANDS = [
 	Command.UP_PRESS, Command.DOWN_PRESS, Command.LEFT_PRESS, Command.RIGHT_PRESS,
 	Command.FIRE_PRESS, Command.FIRE2_PRESS,
+];
+
+// Always available regardless of which panel (if any) is selected — a
+// keyboard shortcut just injects a raw press/release, the same as clicking
+// a panel's own on-screen button. Neither path knows about the other.
+const NAMED_COMMANDS = [
+	Command.A_PRESS, Command.B_PRESS, Command.C_PRESS, Command.D_PRESS,
 ];
 
 export class ControlPad {
@@ -92,6 +102,8 @@ export class ControlPad {
 		this.pressedState = [];
 		this.directionButtons = DIRECTION_COMMANDS.map(() => new Button());
 		this.directionPressedState = new Array(DIRECTION_COMMANDS.length).fill(false);
+		this.namedButtons = NAMED_COMMANDS.map(() => new Button());
+		this.namedPressedState = new Array(NAMED_COMMANDS.length).fill(false);
 	}
 
 	update() {
@@ -105,6 +117,10 @@ export class ControlPad {
 
 	setDirectionPressed(index, pressed) {
 		this.directionPressedState[index] = pressed;
+	}
+
+	setNamedButtonPressed(index, pressed) {
+		this.namedPressedState[index] = pressed;
 	}
 
 	poll(now) {
@@ -125,6 +141,15 @@ export class ControlPad {
 				this.system.handleCommand(this.id, new InputEvent(DIRECTION_COMMANDS[i]));
 			} else if (event === ButtonEvent.RELEASE || event === ButtonEvent.HOLDRELEASE) {
 				this.system.handleCommand(this.id, new InputEvent(DIRECTION_COMMANDS[i] + 1));
+			}
+		}
+
+		for (let i = 0; i < this.namedButtons.length; i++) {
+			const event = this.namedButtons[i].process(this.namedPressedState[i], now);
+			if (event === ButtonEvent.PRESS) {
+				this.system.handleCommand(this.id, new InputEvent(NAMED_COMMANDS[i]));
+			} else if (event === ButtonEvent.RELEASE || event === ButtonEvent.HOLDRELEASE) {
+				this.system.handleCommand(this.id, new InputEvent(NAMED_COMMANDS[i] + 1));
 			}
 		}
 	}

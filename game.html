@@ -9,8 +9,8 @@
 	<div id="debug"></div>
 
 	<script type="module">
-		import { Console } from '/Console.js';
-		import { Strip } from '/js/system.js';
+		import { Console } from '/js/Console.js';
+		import { Strip } from '/core/system.js';
 		import { ControlPad } from '/js/hardware.js';
 
 		let cnsl;
@@ -32,7 +32,7 @@
 			cnsl.pads[1] = guestCtrl;
 			await cnsl.renderPad(1);
 
-			const module = await import('/js/{{ game_js }}.js');
+			const module = await import('/{{ game_dir }}/{{ game_js }}.js');
 			const GameClass = module['{{ game_class }}'];
 			cnsl.system.game = new GameClass(cnsl.system);
 			cnsl.system.game.playLevel();
