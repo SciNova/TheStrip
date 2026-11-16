@@ -1,4 +1,4 @@
-import { Game, Command, Colors } from '../core/system.js';
+import { Game, Command, Colors } from '../../core/system.js';
 
 const PointerState = Object.freeze({ IDLE: 'IDLE', AIM_LEFT: 'AIM_LEFT', AIM_RIGHT: 'AIM_RIGHT' });
 
@@ -86,9 +86,9 @@ class Pointer {
 	}
 }
 
-export class Puzzle extends Game {
+export class Drag extends Game {
 	constructor(system) {
-		super('Puzzle', system);
+		super('Drag', system);
 
 		const colors = [Colors.CADET_BLUE, Colors.DARK_SEA_GREEN, Colors.INDIAN_RED, Colors.MEDIUM_PURPLE];
 		const BLOCK_COUNT = 4;
