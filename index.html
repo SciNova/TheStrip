@@ -1,90 +1,147 @@
 {% extends "base.html" %}
 
 {% block content %}
-<nav>
+<button id="menuToggle">☰</button>
+<nav id="nav">
 	<h3>Apps</h3>
-	<a href="/games/ColorLight">ColorLight</a>
-	<a href="/games/DemoScene">DemoScene</a>
-	<a href="/games/Dices">Dices</a>
-	<a href="/games/Moodlight">Moodlight</a>
-	<a href="/games/StopWatch">StopWatch</a>
-	<a href="/games/WhiteLight">WhiteLight</a>
+	<a onclick="loadGame('apps/ColorLight')">ColorLight</a>
+	<a onclick="loadGame('apps/DemoScene')">DemoScene</a>
+	<a onclick="loadGame('apps/Dices')">Dices</a>
+	<a onclick="loadGame('apps/Moodlight')">Moodlight</a>
+	<a onclick="loadGame('apps/StopWatch')">StopWatch</a>
+	<a onclick="loadGame('apps/WhiteLight')">WhiteLight</a>
 
 	<h3>Games</h3>
-	<a href="/games/Darts">Darts</a>
-	<a href="/games/Dino">Dino</a>
-	<a href="/games/FlappyBird">FlappyBird</a>
-	<a href="/games/Pacman">Pacman</a>
-	<a href="/games/Race">Race</a>
-	<a href="/games/SimonSays">SimonSays</a>
-	<a href="/games/Slots">Slots</a>
-	<a href="/games/Stack">Stack</a>
+	<a onclick="loadGame('apps/Darts')">Darts</a>
+	<a onclick="loadGame('apps/Dino')">Dino</a>
+	<a onclick="loadGame('apps/FlappyBird')">FlappyBird</a>
+	<a onclick="loadGame('apps/Pacman')">Pacman</a>
+	<a onclick="loadGame('apps/Race')">Race</a>
+	<a onclick="loadGame('apps/SimonSays')">SimonSays</a>
+	<a onclick="loadGame('apps/Slots')">Slots</a>
+	<a onclick="loadGame('apps/Stack')">Stack</a>
 
 	<h3>Devel</h3>
-	<a href="/games/Bomberman">Bomberman</a>
-	<a href="/games/Breakout">Breakout</a>
-	<a href="/games/Golf">Golf</a>
-	<a href="/games/MemoryMatch">MemoryMatch</a>
-	<a href="/games/Shooters">Shooters</a>
+	<a onclick="loadGame('drafts/Bomberman')">Bomberman</a>
+	<a onclick="loadGame('drafts/Breakout')">Breakout</a>
+	<a onclick="loadGame('drafts/Golf')">Golf</a>
+	<a onclick="loadGame('drafts/MemoryMatch')">MemoryMatch</a>
+	<a onclick="loadGame('apps/Shooters')">Shooters</a>
 
 	<h3>Drafts</h3>
-	<a href="/games/AsteroidsZ">AsteroidsZ</a>
-	<a href="/games/Blackjack">Blackjack</a>
-	<a href="/games/Cars">Cars</a>
-	<a href="/games/CentipedeZ">CentipedeZ</a>
-	<a href="/games/Drag">Drag</a>
-	<a href="/games/Fishing">Fishing</a>
-	<a href="/games/Frogger">Frogger</a>
-	<a href="/games/LunarLander">LunarLander</a>
-	<a href="/games/MissileCommand">MissileCommand</a>
-	<a href="/games/Pachinko">Pachinko</a>
-	<a href="/games/Pinball">Pinball</a>
-	<a href="/games/Pong">Pong</a>
-	<a href="/games/QuickDraw">QuickDraw</a>
-	<a href="/games/RhythmTap">RhythmTap</a>
-	<a href="/games/Shuffleboard">Shuffleboard</a>
-	<a href="/games/Sprint">Sprint</a>
-	<a href="/games/Submarine">Submarine</a>
-	<a href="/games/TowerDefense">TowerDefense</a>
-	<a href="/games/TreasureHunt">TreasureHunt</a>
-	<a href="/games/TugOfWar">TugOfWar</a>
-	<a href="/games/WhackAMole">WhackAMole</a>
+	<a onclick="loadGame('drafts/AsteroidsZ')">AsteroidsZ</a>
+	<a onclick="loadGame('drafts/Blackjack')">Blackjack</a>
+	<a onclick="loadGame('drafts/Cars')">Cars</a>
+	<a onclick="loadGame('drafts/CentipedeZ')">CentipedeZ</a>
+	<a onclick="loadGame('drafts/Drag')">Drag</a>
+	<a onclick="loadGame('drafts/Fishing')">Fishing</a>
+	<a onclick="loadGame('drafts/Frogger')">Frogger</a>
+	<a onclick="loadGame('drafts/LunarLander')">LunarLander</a>
+	<a onclick="loadGame('drafts/MissileCommand')">MissileCommand</a>
+	<a onclick="loadGame('drafts/Pachinko')">Pachinko</a>
+	<a onclick="loadGame('drafts/Pinball')">Pinball</a>
+	<a onclick="loadGame('drafts/Pong')">Pong</a>
+	<a onclick="loadGame('drafts/QuickDraw')">QuickDraw</a>
+	<a onclick="loadGame('drafts/RhythmTap')">RhythmTap</a>
+	<a onclick="loadGame('drafts/Shuffleboard')">Shuffleboard</a>
+	<a onclick="loadGame('drafts/Sprint')">Sprint</a>
+	<a onclick="loadGame('drafts/Submarine')">Submarine</a>
+	<a onclick="loadGame('drafts/TowerDefense')">TowerDefense</a>
+	<a onclick="loadGame('drafts/TreasureHunt')">TreasureHunt</a>
+	<a onclick="loadGame('drafts/TugOfWar')">TugOfWar</a>
+	<a onclick="loadGame('drafts/WhackAMole')">WhackAMole</a>
 
 	<h3>2D</h3>
-	<a href="/games/Highway2D">Highway2D</a>
-	<a href="/games/Maze2D">Maze2D</a>
-	<a href="/games/Shooter2D">Shooter2D</a>
-	<a href="/games/Snake2D">Snake2D</a>
-	<a href="/games/SpaceInvaders2D">SpaceInvaders2D</a>
+	<a onclick="loadGame('drafts/Highway2D')">Highway2D</a>
+	<a onclick="loadGame('drafts/Maze2D')">Maze2D</a>
+	<a onclick="loadGame('drafts/Shooter2D')">Shooter2D</a>
+	<a onclick="loadGame('drafts/Snake2D')">Snake2D</a>
+	<a onclick="loadGame('drafts/SpaceInvaders2D')">SpaceInvaders2D</a>
 </nav>
 
+<div id="strip"></div>
+<div id="pads">
+	<div id="pad"></div>
+	<div id="pad2"></div>
+</div>
+<div id="debug"></div>
 
-<!--
-<script src="node_modules/pfxr/dist/index.global.js"></script>
-<button id="test-sound">Test pfxr</button>
-<script>
-    document.getElementById('test-sound').addEventListener('click', function() {
-        var audioContext = new AudioContext();
-        pfxr.playSound(
-            {
-                waveForm: 2,          // SQUARE
-                frequency: 440,
-                attackTime: 0.01,
-                sustainTime: 0.1,
-                decayTime: 0.2,
-                volume: 0.5
-            },
-            audioContext,
-            audioContext.destination
-        );
-    });
-</script>-->
+<script type="module">
+	import { Console } from '/js/Console.js';
+	import { Strip } from '/core/system.js';
+	import { ControlPad } from '/js/hardware.js';
 
+	let cnsl = null;
 
+	async function bootstrap() {
+		if (cnsl) {
+			return;
+		}
 
+		cnsl = new Console();
+		await cnsl.system.audio.init();
+		cnsl.system.audio.synth.start();
+		cnsl.system.audio.sampler.start();
 
+		cnsl.system.strip = new Strip(120);
 
+		const ctrl = new ControlPad(cnsl.system);
+		ctrl.id = 0;
+		ctrl.panel = null;
+		ctrl.update();
+		cnsl.pads[0] = ctrl;
+		await cnsl.renderPad(0);
 
+		const guestCtrl = new ControlPad(cnsl.system);
+		guestCtrl.id = 1;
+		guestCtrl.panel = null;
+		guestCtrl.update();
+		cnsl.pads[1] = guestCtrl;
+		await cnsl.renderPad(1);
 
+		cnsl.setStripContainer(document.getElementById('strip'));
 
+		function frame() {
+			const now = cnsl.system.clock.time;
+			cnsl.poll(now);
+			cnsl.system.loop();
+			cnsl.updateView();
+			requestAnimationFrame(frame);
+		}
+		requestAnimationFrame(frame);
+	}
+
+	async function importGame(path) {
+		const name = path.split('/').pop();
+		const module = await import(`/${path}/${name}.js`);
+		return module[name];
+	}
+
+	window.loadGame = async function (path) {
+		await bootstrap();
+		const GameClass = await importGame(path);
+		cnsl.system.game = new GameClass(cnsl.system);
+		cnsl.system.game.playLevel();
+		document.getElementById('nav').classList.remove('open');
+	};
+
+	const menuToggle = document.getElementById('menuToggle');
+	const nav = document.getElementById('nav');
+	let fadeTimer = null;
+
+	function resetFade() {
+		menuToggle.classList.remove('faded');
+		clearTimeout(fadeTimer);
+		fadeTimer = setTimeout(() => {
+			menuToggle.classList.add('faded');
+		}, 4000);
+	}
+
+	menuToggle.addEventListener('click', () => {
+		nav.classList.toggle('open');
+		resetFade();
+	});
+
+	resetFade();
+</script>
 {% endblock %}

@@ -1,3 +1,5 @@
+import { Audio } from './audio.js';
+
 export const Command = Object.freeze({
 	NONE: 0,
 
@@ -90,26 +92,6 @@ export const GameState = Object.freeze({
 	PLAY: 'PLAY',
 	PAUSED: 'PAUSED',
 	COMPLETED: 'COMPLETED',
-});
-
-export const Sound = Object.freeze({
-	LEVEL_COMPLETE: 'LEVEL_COMPLETE',
-	LEVEL_FAIL: 'LEVEL_FAIL',
-	GAME_COMPLETE: 'GAME_COMPLETE',
-	SHOOT: 'SHOOT',
-	HIT: 'HIT',
-	MISS: 'MISS',
-	GENERATE_ITEM: 'GENERATE_ITEM',
-	TICK: 'TICK',
-	CHECKPOINT: 'CHECKPOINT',
-	SIMONSAYS1: 'SIMONSAYS1',
-	SIMONSAYS2: 'SIMONSAYS2',
-	SIMONSAYS3: 'SIMONSAYS3',
-	SIMONSAYS4: 'SIMONSAYS4',
-	SIMONSAYS1_ORIGINAL: 'SIMONSAYS1_ORIGINAL',
-	SIMONSAYS2_ORIGINAL: 'SIMONSAYS2_ORIGINAL',
-	SIMONSAYS3_ORIGINAL: 'SIMONSAYS3_ORIGINAL',
-	SIMONSAYS4_ORIGINAL: 'SIMONSAYS4_ORIGINAL',
 });
 
 // The CSS/X11 extended color keyword list (one spelling per gray/grey pair,
@@ -410,15 +392,10 @@ export class Strip {
 	}
 }
 
-export class Audio {
-	play(sound) {
-	}
-}
-
 export class System {
 	constructor() {
 		this.clock = new Clock();
-		this.audio = new Audio();
+		this.audio = new Audio(this);
 		this.strip = new Strip(60);
 		this.game = null;
 		this.uptime = 0.0;

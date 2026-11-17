@@ -1,4 +1,4 @@
-import { System, Sound, Audio } from '../core/system.js';
+import { System } from '../core/system.js';
 import { PcbPanelModel, PANEL_CLASSES } from './hardware.js';
 
 const ARROW_DIRECTION_INDEX = {
@@ -18,58 +18,6 @@ async function loadPanelSvg(model) {
 		panelSvgCache[model] = await res.text();
 	}
 	return panelSvgCache[model];
-}
-
-class SampleAudio extends Audio {
-	constructor(system) {
-		super(system);
-		this.system = system;
-		this.samples = {};
-		this.isReady = false;
-		this.load();
-	}
-
-	load() {
-		this.isReady = false;
-
-		const entries = Object.values(Sound).map((sound) => ({ sound, path: `/sounds/${sound}.wav` }));
-
-		const game = this.system.game;
-		if (game && game.constructor.sounds) {
-			for (const sound of Object.values(game.constructor.sounds)) {
-				entries.push({ sound, path: `/apps/${game.constructor.name}/${sound}.wav` });
-			}
-		}
-
-		const pending = entries.filter(({ sound }) => !this.samples[sound]);
-		if (pending.length === 0) {
-			this.isReady = true;
-			return;
-		}
-
-		let remaining = pending.length;
-		const onLoad = () => {
-			remaining--;
-			if (remaining === 0) {
-				this.isReady = true;
-			}
-		};
-
-		for (const { sound, path } of pending) {
-			const sample = new window.Audio(path);
-			sample.addEventListener('canplaythrough', onLoad, { once: true });
-			sample.addEventListener('error', onLoad, { once: true });
-			this.samples[sound] = sample;
-		}
-	}
-
-	play(sound) {
-		const sample = this.samples[sound];
-		if (sample) {
-			sample.currentTime = 0;
-			sample.play();
-		}
-	}
 }
 
 class StripView {
@@ -375,7 +323,6 @@ class StripView3D {
 class Console {
 	constructor() {
 		this.system = new System();
-		this.system.audio = new SampleAudio(this.system);
 		this.pads = [null, null];
 		this.stripContainer = null;
 		this.view = null;

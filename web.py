@@ -3,12 +3,11 @@ from flask import Flask, render_template, send_from_directory, abort
 
 app = Flask(__name__, template_folder='.', static_folder='.', static_url_path='')
 
-# Every game's .js lives somewhere under apps/: directly in apps/ (the base
-# library), in its own subfolder once it needs its own assets (apps/Shooters/),
-# or in apps/drafts/ (everything else). '/games/<name>' is just the page URL —
-# unrelated to any of these real folder names — so there's no collision with
-# static file serving to special-case here.
-GAME_SEARCH_DIRS = ['apps/{game}', 'apps', 'apps/drafts']
+# Every game's .js lives in its own folder, either under apps/ or under
+# drafts/. '/games/<name>' is just the page URL — unrelated to any of these
+# real folder names — so there's no collision with static file serving to
+# special-case here.
+GAME_SEARCH_DIRS = ['apps/{game}', 'drafts/{game}']
 
 @app.route('/')
 def index():
