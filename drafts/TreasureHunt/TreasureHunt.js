@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 
 export class TreasureHunt extends Game {
 	static CURSOR_SPEED = 0.8; // resolution-fraction/sec
@@ -55,11 +55,11 @@ export class TreasureHunt extends Game {
 		const toleranceUnits = this.tolerance * this.resolution;
 		if (Math.abs(this.cursorPos - this.targetPos) < toleranceUnits) {
 			this.score += 1;
-			this.audio.play(SampleID.LEVEL_COMPLETE);
+			this.audio.play(SampleID.CROWD_CHEERING);
 			this.tolerance = Math.max(TreasureHunt.MIN_TOLERANCE, this.tolerance - TreasureHunt.TOLERANCE_STEP);
 			this._spawnTarget();
 		} else {
-			this.audio.play(SampleID.MISS);
+			this.audio.synth.play(SynthSound.WARNING);
 		}
 		this.digFlash = 0.25;
 	}

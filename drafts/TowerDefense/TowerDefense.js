@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 
 export class TowerDefense extends Game {
 	static SPAWN_Z = 9.0; // resolution units
@@ -101,10 +101,10 @@ export class TowerDefense extends Game {
 
 		if (breached > 0) {
 			this.baseHealth -= breached;
-			this.audio.play(SampleID.MISS);
+			this.audio.synth.play(SynthSound.WARNING);
 			if (this.baseHealth <= 0) {
 				this.stage = 'GAMEOVER';
-				this.audio.play(SampleID.LEVEL_FAIL);
+				this.audio.play(SampleID.CROWD_BOOING);
 				this.delay(3.0);
 			}
 		}
@@ -121,12 +121,12 @@ export class TowerDefense extends Game {
 			if (nearest) {
 				nearest.health -= this.damage;
 				this.fireCooldown = 1.0 / this.fireRate;
-				this.audio.play(SampleID.SHOOT);
+				this.audio.synth.play(SynthSound.SHOOT);
 				if (nearest.health <= 0) {
 					this.enemies.splice(this.enemies.indexOf(nearest), 1);
 					this.currency += TowerDefense.KILL_REWARD;
 					this.score += 1;
-					this.audio.play(SampleID.HIT);
+					this.audio.synth.play(SynthSound.EXPLOSION);
 				}
 			}
 		}
@@ -139,7 +139,7 @@ export class TowerDefense extends Game {
 			this.currency -= this.rangeCost;
 			this.range += TowerDefense.RANGE_STEP;
 			this.rangeCost = Math.round(this.rangeCost * TowerDefense.COST_GROWTH);
-			this.audio.play(SampleID.TICK);
+			this.audio.synth.play(SynthSound.TICK);
 		}
 	}
 
@@ -148,7 +148,7 @@ export class TowerDefense extends Game {
 			this.currency -= this.fireRateCost;
 			this.fireRate += TowerDefense.FIRE_RATE_STEP;
 			this.fireRateCost = Math.round(this.fireRateCost * TowerDefense.COST_GROWTH);
-			this.audio.play(SampleID.TICK);
+			this.audio.synth.play(SynthSound.TICK);
 		}
 	}
 
@@ -157,7 +157,7 @@ export class TowerDefense extends Game {
 			this.currency -= this.damageCost;
 			this.damage += TowerDefense.DAMAGE_STEP;
 			this.damageCost = Math.round(this.damageCost * TowerDefense.COST_GROWTH);
-			this.audio.play(SampleID.TICK);
+			this.audio.synth.play(SynthSound.TICK);
 		}
 	}
 

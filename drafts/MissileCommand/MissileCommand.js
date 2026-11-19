@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 
 const MissileStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
@@ -103,7 +103,7 @@ export class MissileCommand extends Game {
 				const city = this.cities.find((c) => c.alive && Math.abs(c.x - missile.x) < 2);
 				if (city) {
 					city.alive = false;
-					this.audio.play(SampleID.MISS);
+					this.audio.synth.play(SynthSound.WARNING);
 				}
 			}
 		}
@@ -132,7 +132,7 @@ export class MissileCommand extends Game {
 				for (const missile of this.missiles) {
 					if (Math.abs(missile.x - explosion.x) < radius && Math.abs(missile.z - interceptZ) < zWindow) {
 						this.score += 1;
-						this.audio.play(SampleID.HIT);
+						this.audio.synth.play(SynthSound.EXPLOSION);
 						this.missileSpeed += MissileCommand.SPEED_STEP * this.resolution;
 						this.spawnInterval = Math.max(
 							MissileCommand.MIN_SPAWN_INTERVAL,
@@ -149,7 +149,7 @@ export class MissileCommand extends Game {
 
 		if (this.cities.every((c) => !c.alive)) {
 			this.stage = MissileStage.GAMEOVER;
-			this.audio.play(SampleID.LEVEL_FAIL);
+			this.audio.play(SampleID.CROWD_BOOING);
 			this.delay(3.0);
 		}
 
@@ -162,7 +162,7 @@ export class MissileCommand extends Game {
 		}
 		this.fireCooldown = MissileCommand.FIRE_COOLDOWN;
 		this.interceptors.push({ x: this.aimPos, z: 0.0 });
-		this.audio.play(SampleID.SHOOT);
+		this.audio.synth.play(SynthSound.SHOOT);
 	}
 
 	handleInput(padId, event) {

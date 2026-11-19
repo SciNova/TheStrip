@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 
 const PongStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
@@ -64,15 +64,15 @@ export class Pong extends Game {
 				if (hit) {
 					this.score += 1;
 					this.approachSpeed += Pong.APPROACH_SPEED_STEP;
-					this.audio.play(SampleID.HIT);
+					this.audio.synth.play(SynthSound.EXPLOSION);
 					this._spawnBall();
 					this.delay(0.1);
 				} else {
 					this.lives -= 1;
-					this.audio.play(SampleID.MISS);
+					this.audio.synth.play(SynthSound.WARNING);
 					if (this.lives <= 0) {
 						this.stage = PongStage.GAMEOVER;
-						this.audio.play(SampleID.LEVEL_FAIL);
+						this.audio.play(SampleID.CROWD_BOOING);
 						this.delay(3.0);
 					} else {
 						this._spawnBall();

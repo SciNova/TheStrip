@@ -1,4 +1,4 @@
-import { SampleID } from './audio-common.js';
+import { SampleID, LFODestination } from './audio-common.js';
 
 export class Sample {
 	constructor(path) {
@@ -29,11 +29,25 @@ class Synth {
 		this.audio.postMessage({ action: 'start', target: 'synth' });
 	}
 
-	play(waveform, frequency, duration = null, slot = null) {
+	play(patch, frequency = null, slot = null) {
+		this.play2(undefined, frequency ?? patch.frequency, undefined, undefined, undefined, undefined, undefined,
+			undefined, undefined, undefined, undefined, undefined, undefined, undefined, patch, slot);
+	}
+
+	play2(waveform = null, frequency, duration = null, attack = null, decay = null, sustain = null, release = null,
+		lfoWaveform = null, lfoFrequency = null, lfoDestination = null, lfoAmount = null, lfoSync = null,
+		cutoff = null, resonance = null, patch = null, slot = null) {
 		if (!this.enabled) {
 			return;
 		}
-		this.audio.postMessage({ action: 'play', target: 'synth', waveform, frequency, duration, slot });
+		this.audio.postMessage({
+			action: 'play', target: 'synth', waveform, frequency, duration, attack, decay, sustain, release,
+			lfoWaveform, lfoFrequency, lfoDestination, lfoAmount, lfoSync, cutoff, resonance, patch, slot,
+		});
+	}
+
+	noteOff(slot = null) {
+		this.audio.postMessage({ action: 'noteOff', target: 'synth', slot });
 	}
 
 	stop(slot = null) {
@@ -81,8 +95,18 @@ class Sampler {
 		}
 	}
 
-	play(id, note = null, rate = null, loop = false, duration = null, slot = null) {
-		this.audio.postMessage({ action: 'play', target: 'sampler', id, note, rate, loop, duration, slot });
+	play(id, slot = null) {
+		this.play2(id, undefined, undefined, undefined, undefined, undefined,
+			undefined, undefined, undefined, undefined, undefined, undefined, undefined, slot);
+	}
+
+	play2(id, note = null, rate = null, loop = false, duration = null, volume = 1.0,
+		lfoWaveform = null, lfoFrequency = null, lfoDestination = LFODestination.NONE, lfoAmount = 1.0, lfoSync = false,
+		cutoff = null, resonance = null, slot = null) {
+		this.audio.postMessage({
+			action: 'play', target: 'sampler', id, note, rate, loop, duration, volume,
+			lfoWaveform, lfoFrequency, lfoDestination, lfoAmount, lfoSync, cutoff, resonance, slot,
+		});
 	}
 
 	stop(slot = null) {

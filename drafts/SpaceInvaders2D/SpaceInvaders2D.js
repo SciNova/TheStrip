@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 
 const InvadersStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
 
@@ -157,7 +157,7 @@ export class SpaceInvaders2D extends Game {
 					if (Math.abs(bullet.x - currentX) < hitTolerance) {
 						enemy.alive = false;
 						this.score += 1;
-						this.audio.play(SampleID.HIT);
+						this.audio.synth.play(SynthSound.EXPLOSION);
 						consumed = true;
 						break;
 					}
@@ -187,10 +187,10 @@ export class SpaceInvaders2D extends Game {
 
 		if (playerHit) {
 			this.lives -= 1;
-			this.audio.play(SampleID.MISS);
+			this.audio.synth.play(SynthSound.WARNING);
 			if (this.lives <= 0) {
 				this.stage = InvadersStage.GAMEOVER;
-				this.audio.play(SampleID.LEVEL_FAIL);
+				this.audio.play(SampleID.CROWD_BOOING);
 				this.delay(3.0);
 				this._render();
 				return;
@@ -200,11 +200,11 @@ export class SpaceInvaders2D extends Game {
 		const anyAlive = this.enemies.some((e) => e.alive);
 		if (anyAlive && this.formationZ <= crashZ) {
 			this.stage = InvadersStage.GAMEOVER;
-			this.audio.play(SampleID.LEVEL_FAIL);
+			this.audio.play(SampleID.CROWD_BOOING);
 			this.delay(3.0);
 		} else if (!anyAlive) {
 			this.stage = InvadersStage.LEVEL_COMPLETE;
-			this.audio.play(SampleID.LEVEL_COMPLETE);
+			this.audio.play(SampleID.CROWD_CHEERING);
 			this.delay(2.0);
 		}
 
@@ -217,7 +217,7 @@ export class SpaceInvaders2D extends Game {
 		}
 		this.fireCooldown = SpaceInvaders2D.FIRE_COOLDOWN;
 		this.playerBullets.push({ x: this.turretX, z: this.resolution * 0.05 });
-		this.audio.play(SampleID.SHOOT);
+		this.audio.synth.play(SynthSound.SHOOT);
 	}
 
 	_render() {

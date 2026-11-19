@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 import { World2D } from '../../core/graphics.js';
 
 const AsteroidsStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
@@ -171,7 +171,7 @@ export class AsteroidsZ extends Game {
 			}
 			if (destroyed) {
 				this.score += tier.score;
-				this.audio.play(SampleID.HIT);
+				this.audio.synth.play(SynthSound.EXPLOSION);
 				if (tier.next) {
 					for (let s = 0; s < AsteroidsZ.SPLIT_COUNT; s++) {
 						this._addAsteroidInto(newAsteroids, asteroid.x, asteroid.z, tier.next);
@@ -197,10 +197,10 @@ export class AsteroidsZ extends Game {
 				const dz = this._wrapDelta(asteroid.z - this.shipZ, worldW);
 				if (Math.sqrt(dx * dx + dz * dz) < shipRadius + tier.radius * this.resolution) {
 					this.lives -= 1;
-					this.audio.play(SampleID.MISS);
+					this.audio.synth.play(SynthSound.WARNING);
 					if (this.lives <= 0) {
 						this.stage = AsteroidsStage.GAMEOVER;
-						this.audio.play(SampleID.LEVEL_FAIL);
+						this.audio.play(SampleID.CROWD_BOOING);
 						this.delay(3.0);
 					} else {
 						this.shipX = 0.0;
@@ -244,7 +244,7 @@ export class AsteroidsZ extends Game {
 			vz: speed * Math.sin(angle),
 			life: AsteroidsZ.BULLET_LIFETIME,
 		});
-		this.audio.play(SampleID.SHOOT);
+		this.audio.synth.play(SynthSound.SHOOT);
 	}
 
 	handleInput(padId, event) {

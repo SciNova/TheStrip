@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SynthSound } from '../../core/audio-common.js';
 
 function lerp(min, max, t) {
 	return min + (max - min) * t;
@@ -36,7 +36,7 @@ class Bomb {
 			if (elapsed >= this.fuse()) {
 				this.exploding = true;
 				this.blastStart = elapsed;
-				this.game.audio.play(SampleID.HIT);
+				this.game.audio.synth.play(SynthSound.EXPLOSION);
 			}
 		} else {
 			if (elapsed - this.blastStart >= Bomb.BLAST_DURATION) {
@@ -110,7 +110,7 @@ class Player {
 		}
 		this.bomb = new Bomb(this.game, this.location, Player.SIZE, Player.TIMEOUT);
 		this.game.plant(this.bomb);
-		this.game.audio.play(SampleID.TICK);
+		this.game.audio.synth.play(SynthSound.TICK);
 		this.game._playerPlanted();
 	}
 }
@@ -156,7 +156,7 @@ class Enemy {
 	plant() {
 		this.bomb = new Bomb(this.game, this.location, this.rank, this.rank);
 		this.game.plant(this.bomb);
-		this.game.audio.play(SampleID.TICK);
+		this.game.audio.synth.play(SynthSound.TICK);
 	}
 }
 

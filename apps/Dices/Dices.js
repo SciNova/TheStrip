@@ -1,5 +1,5 @@
 import { Game, Colors, isGameButtonPress } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SynthSound } from '../../core/audio-common.js';
 import { Square, EdgeMode } from '../../core/graphics.js';
 
 const Stage = Object.freeze({ IDLE: 'IDLE', ROLLING: 'ROLLING' });
@@ -68,7 +68,7 @@ export class Dices extends Game {
 				this.speed1 = Math.max(this.speed1 - Dices.DECELERATION * dt, 0);
 				if (this.speed1 === 0) {
 					this.dice1.rotation = Math.round(this.dice1.rotation * 6) / 6.0;
-					this.audio.play(SampleID.CHECKPOINT);
+					this.audio.synth.play(SynthSound.CHECKPOINT);
 				} else {
 					this.dice1.rotation = (this.dice1.rotation + this.speed1 * dt) % 1.0;
 				}
@@ -77,7 +77,7 @@ export class Dices extends Game {
 			const face1 = Math.floor(this.dice1.rotation * 6) % 6;
 			if (face1 !== this.lastFace1) {
 				this.lastFace1 = face1;
-				this.audio.play(SampleID.TICK);
+				this.audio.synth.play(SynthSound.TICK);
 			}
 
 			if (this.remaining2 > 0) {
@@ -87,7 +87,7 @@ export class Dices extends Game {
 				this.speed2 = Math.max(this.speed2 - Dices.DECELERATION * dt, 0);
 				if (this.speed2 === 0) {
 					this.dice2.rotation = Math.round(this.dice2.rotation * 6) / 6.0;
-					this.audio.play(SampleID.CHECKPOINT);
+					this.audio.synth.play(SynthSound.CHECKPOINT);
 				} else {
 					this.dice2.rotation = (this.dice2.rotation + this.speed2 * dt) % 1.0;
 				}
@@ -96,7 +96,7 @@ export class Dices extends Game {
 			const face2 = Math.floor(this.dice2.rotation * 6) % 6;
 			if (face2 !== this.lastFace2) {
 				this.lastFace2 = face2;
-				this.audio.play(SampleID.TICK);
+				this.audio.synth.play(SynthSound.TICK);
 			}
 
 			if (this.speed1 === 0 && this.remaining1 <= 0 && this.speed2 === 0 && this.remaining2 <= 0) {

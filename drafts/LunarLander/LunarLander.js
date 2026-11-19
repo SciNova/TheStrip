@@ -64,13 +64,13 @@ export class LunarLander extends Game {
 			const speed = Math.abs(this.velocity);
 			if (speed <= LunarLander.SAFE_LANDING_SPEED * this.resolution) {
 				this.score += 1;
-				this.audio.play(SampleID.LEVEL_COMPLETE);
+				this.audio.play(SampleID.CROWD_CHEERING);
 				this.stage = LanderStage.RESULT;
 				this.landed = true;
 				this.delay(2.0);
 			} else {
 				this.lives -= 1;
-				this.audio.play(SampleID.LEVEL_FAIL);
+				this.audio.play(SampleID.CROWD_BOOING);
 				this.stage = LanderStage.RESULT;
 				this.landed = false;
 				this.delay(2.5);

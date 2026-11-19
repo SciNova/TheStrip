@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 
 const BreakoutStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
 
@@ -114,15 +114,15 @@ export class Breakout extends Game {
 					brick.alive = false;
 				}
 				this.score += 1;
-				this.audio.play(SampleID.HIT);
+				this.audio.synth.play(SynthSound.EXPLOSION);
 			} else {
-				this.audio.play(SampleID.TICK);
+				this.audio.synth.play(SynthSound.TICK);
 			}
 			ball.vx += (Math.random() * 2 - 1) * Breakout.BALL_PERTURB * this.resolution;
 
 			if (this.bricks.every((b) => !b.alive)) {
 				this.stage = BreakoutStage.LEVEL_COMPLETE;
-				this.audio.play(SampleID.LEVEL_COMPLETE);
+				this.audio.play(SampleID.CROWD_CHEERING);
 				this.delay(2.0);
 			}
 		} else if (ball.z <= 0.0) {
@@ -131,13 +131,13 @@ export class Breakout extends Game {
 				ball.direction = 1;
 				const offset = (ball.x - this.paddleCenter) / (Breakout.PADDLE_WIDTH / 2.0);
 				ball.vx = offset * Breakout.BALL_BOUNCE_VX * this.resolution;
-				this.audio.play(SampleID.TICK);
+				this.audio.synth.play(SynthSound.TICK);
 			} else {
 				this.lives -= 1;
-				this.audio.play(SampleID.MISS);
+				this.audio.synth.play(SynthSound.WARNING);
 				if (this.lives <= 0) {
 					this.stage = BreakoutStage.GAMEOVER;
-					this.audio.play(SampleID.LEVEL_FAIL);
+					this.audio.play(SampleID.CROWD_BOOING);
 					this.delay(3.0);
 				} else {
 					this._respawnBall();

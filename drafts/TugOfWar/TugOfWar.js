@@ -55,14 +55,14 @@ export class TugOfWar extends Game {
 			this.ropePos = 1.0;
 			this.score += 1;
 			this.round += 1;
-			this.audio.play(SampleID.LEVEL_COMPLETE);
+			this.audio.play(SampleID.CROWD_CHEERING);
 			this.won = true;
 			this.stage = 'RESULT';
 			this.delay(TugOfWar.RESULT_FLASH);
 		} else if (this.ropePos <= 0.0) {
 			this.ropePos = 0.0;
 			this.lives -= 1;
-			this.audio.play(SampleID.LEVEL_FAIL);
+			this.audio.play(SampleID.CROWD_BOOING);
 			this.won = false;
 			this.stage = 'RESULT';
 			this.delay(TugOfWar.RESULT_FLASH);

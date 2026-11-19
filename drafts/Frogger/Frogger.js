@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SampleID, SynthSound } from '../../core/audio-common.js';
 
 const FroggerStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
 
@@ -121,10 +121,10 @@ export class Frogger extends Game {
 
 		if (died) {
 			this.lives -= 1;
-			this.audio.play(SampleID.MISS);
+			this.audio.synth.play(SynthSound.WARNING);
 			if (this.lives <= 0) {
 				this.stage = FroggerStage.GAMEOVER;
-				this.audio.play(SampleID.LEVEL_FAIL);
+				this.audio.play(SampleID.CROWD_BOOING);
 				this.delay(3.0);
 			} else {
 				this._resetCrossing();
@@ -143,10 +143,10 @@ export class Frogger extends Game {
 			if (this.lane < this.lanes - 1) {
 				this.lane += 1;
 				this.score += 1;
-				this.audio.play(SampleID.TICK);
+				this.audio.synth.play(SynthSound.TICK);
 				if (this.lane === this.lanes - 1) {
 					this.stage = FroggerStage.LEVEL_COMPLETE;
-					this.audio.play(SampleID.LEVEL_COMPLETE);
+					this.audio.play(SampleID.CROWD_CHEERING);
 					this.delay(2.0);
 				}
 			}
