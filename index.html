@@ -27,6 +27,7 @@
 	<a onclick="loadGame('drafts/Golf')">Golf</a>
 	<a onclick="loadGame('drafts/MemoryMatch')">MemoryMatch</a>
 	<a onclick="loadGame('apps/Shooters')">Shooters</a>
+	<a onclick="loadGame('apps/Test')">Test</a>
 
 	<h3>Drafts</h3>
 	<a onclick="loadGame('drafts/AsteroidsZ')">AsteroidsZ</a>
@@ -101,11 +102,21 @@
 
 		cnsl.setStripContainer(document.getElementById('strip'));
 
-		function frame() {
+		// Only the view repaint is capped below the display's refresh rate -
+		// poll/loop still run every tick. Repainting (the 3D view especially,
+		// a full WebGL scene) competes with the browser's own audio engine
+		// for the same CPU/GPU, and repainting less often leaves it more room.
+		let lastViewUpdate = 0;
+		const viewUpdateInterval = 1000 / 15;
+
+		function frame(timestamp) {
 			const now = cnsl.system.clock.time;
 			cnsl.poll(now);
 			cnsl.system.loop();
-			cnsl.updateView();
+			if (timestamp - lastViewUpdate >= viewUpdateInterval) {
+				lastViewUpdate = timestamp;
+				cnsl.updateView();
+			}
 			requestAnimationFrame(frame);
 		}
 		requestAnimationFrame(frame);
@@ -113,13 +124,14 @@
 
 	async function importGame(path) {
 		const name = path.split('/').pop();
-		const module = await import(`/${path}/${name}.js`);
+		const module = await import(`/${path}/${name}.js?v=${Date.now()}`);
 		return module[name];
 	}
 
 	window.loadGame = async function (path) {
 		await bootstrap();
 		const GameClass = await importGame(path);
+		cnsl.system.game?.cleanup();
 		cnsl.system.game = new GameClass(cnsl.system);
 		cnsl.system.game.playLevel();
 		document.getElementById('nav').classList.remove('open');

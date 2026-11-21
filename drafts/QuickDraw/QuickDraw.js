@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 export class QuickDraw extends Game {
 	static MIN_WAIT = 1.0; // seconds
@@ -33,7 +33,7 @@ export class QuickDraw extends Game {
 			if (this.waitTime <= 0.0) {
 				this.stage = 'GO';
 				this.cueTime = this.time;
-				this.audio.synth.play(SynthSound.TICK);
+				this.audio.synth.play(SystemSound.TICK);
 			}
 		} else if (this.stage === 'GO') {
 			const elapsed = this.time - this.cueTime;
@@ -53,10 +53,10 @@ export class QuickDraw extends Game {
 		if (playerTime === null) {
 			this.losses += 1;
 			this.lastResult = 'CPU wins';
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 		} else if (playerTime < this.cpuReaction) {
 			this.wins += 1;
-			this.audio.play(SampleID.CROWD_CHEERING);
+			this.audio.play(SystemSound.CHEERING);
 			if (playerTime < QuickDraw.LIGHTNING_TIME) {
 				this.lastResult = 'Lightning';
 			} else if (playerTime < QuickDraw.FAST_TIME) {
@@ -69,7 +69,7 @@ export class QuickDraw extends Game {
 		} else {
 			this.losses += 1;
 			this.lastResult = 'Too slow';
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 		}
 		this.stage = 'RESULT';
 		this.delay(QuickDraw.RESULT_FLASH);
@@ -82,7 +82,7 @@ export class QuickDraw extends Game {
 		if (this.stage === 'WAITING') {
 			this.losses += 1;
 			this.lastResult = 'False start';
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 			this.stage = 'RESULT';
 			this.delay(QuickDraw.RESULT_FLASH);
 		} else if (this.stage === 'GO') {

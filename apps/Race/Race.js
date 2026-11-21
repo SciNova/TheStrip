@@ -1,5 +1,5 @@
 import { Game, Colors, Command, balanceColors } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
 const RaceStage = Object.freeze({ PLAYING: 'PLAYING', RESULT: 'RESULT' });
@@ -45,13 +45,13 @@ class Player extends Shape {
 		const prevTick = Math.floor(prevTravel / (this.game.resolution * Player.TICK));
 		const currTick = Math.floor(this.travel / (this.game.resolution * Player.TICK));
 		if (prevTick !== currTick) {
-			this.game.audio.synth.play(SynthSound.TICK);
+			this.game.audio.synth.play(SystemSound.TICK);
 		}
 
 		const prevCheck = Math.floor(prevTravel / (this.game.resolution * Player.CHECKPOINT));
 		const currCheck = Math.floor(this.travel / (this.game.resolution * Player.CHECKPOINT));
 		if (prevCheck !== currCheck) {
-			this.game.audio.synth.play(SynthSound.CHECKPOINT);
+			this.game.audio.synth.play(SystemSound.CHECKPOINT);
 		}
 
 		this.alignment = this.reverse ? Alignment.FORWARD : Alignment.BACKWARD;
@@ -116,7 +116,7 @@ export class Race extends Game {
 
 			if (scoreA >= 1.0 || scoreB >= 1.0) {
 				this.stage = RaceStage.RESULT;
-				this.audio.play(SampleID.CROWD_CHEERING);
+				this.audio.play(SystemSound.CHEERING);
 				this.delay(4.0);
 			}
 

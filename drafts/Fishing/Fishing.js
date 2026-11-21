@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 const FishingStage = Object.freeze({ IDLE: 'IDLE', WAITING: 'WAITING', BITE: 'BITE', REELING: 'REELING', RESULT: 'RESULT' });
 
@@ -56,7 +56,7 @@ export class Fishing extends Game {
 				this.stage = FishingStage.BITE;
 				this.biteTimer = Fishing.REACTION_WINDOW;
 				this.fish = this._pickFish();
-				this.audio.synth.play(SynthSound.SPAWN);
+				this.audio.synth.play(SystemSound.SPAWN);
 			}
 		} else if (this.stage === FishingStage.BITE) {
 			this.biteTimer -= dt;
@@ -97,9 +97,9 @@ export class Fishing extends Game {
 		this.success = success;
 		if (success) {
 			this.score += this.fish.value;
-			this.audio.play(SampleID.CROWD_CHEERING);
+			this.audio.play(SystemSound.CHEERING);
 		} else {
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 		}
 		this.stage = FishingStage.RESULT;
 		this.delay(1.8);
@@ -115,7 +115,7 @@ export class Fishing extends Game {
 				this.tension = 0.3;
 				this.reelTimer = Fishing.REEL_TIME_LIMIT;
 				this.reeling = true;
-				this.audio.synth.play(SynthSound.EXPLOSION);
+				this.audio.synth.play(SystemSound.EXPLOSION);
 			}
 		} else if (event.command === Command.FIRE_RELEASE) {
 			if (this.stage === FishingStage.REELING) {

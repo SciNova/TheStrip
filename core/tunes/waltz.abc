@@ -1,0 +1,16 @@
+X:1
+T:Basic Waltz Phrase (I-IV-V-I)
+M:3/4
+L:1/4
+Q:1/4=120
+K:C
+V:1 name="Bass"
+V:2 name="Piano"
+V:1
+C z2 | F z2 | G z2 | C z2 |
+V:2
+z [ceg]/2 z/2 [ceg]/2 z/2 | z [fac']/2 z/2 [fac']/2 z/2 | z [gbd']/2 z/2 [gbd']/2 z/2 | z [ceg]/2 z/2 [ceg]/2 z/2 |
+V:1
+A z2 | F z2 | C z2 | G z2 |
+V:2
+z [ace]/2 z/2 [ace]/2 z/2 | z [fac]/2 z/2 [fac]/2 z/2 | z [ceg]/2 z/2 [ceg]/2 z/2 | z [gbd]/2 z/2 [gbd]/2 z/2 |

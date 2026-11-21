@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 export class CentipedeZ extends Game {
 	static SPAWN_Z = 9.0; // resolution units
@@ -98,10 +98,10 @@ export class CentipedeZ extends Game {
 
 		if (playerHit) {
 			this.lives -= 1;
-			this.audio.synth.play(SynthSound.WARNING);
+			this.audio.synth.play(SystemSound.WARNING);
 			if (this.lives <= 0) {
 				this.stage = 'GAMEOVER';
-				this.audio.play(SampleID.CROWD_BOOING);
+				this.audio.play(SystemSound.BOOING);
 				this.delay(3.0);
 				this._render();
 				return;
@@ -148,9 +148,9 @@ export class CentipedeZ extends Game {
 		if (best) {
 			this._destroySegment(best.ci, best.k);
 			this.score += 1;
-			this.audio.synth.play(SynthSound.EXPLOSION);
+			this.audio.synth.play(SystemSound.EXPLOSION);
 		} else {
-			this.audio.synth.play(SynthSound.SHOOT);
+			this.audio.synth.play(SystemSound.SHOOT);
 		}
 	}
 

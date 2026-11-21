@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 export class Pinball extends Game {
 	static GRAVITY = 0.9; // normalized-z units/sec^2 (z spans 0..1, 0 = flipper end)
@@ -107,7 +107,7 @@ export class Pinball extends Game {
 				ball.vx += (Math.random() * 2 - 1) * 0.2 * this.resolution;
 				bumper.cooldown = Pinball.BUMPER_COOLDOWN;
 				this.score += 1;
-				this.audio.synth.play(SynthSound.EXPLOSION);
+				this.audio.synth.play(SystemSound.EXPLOSION);
 			}
 		}
 
@@ -117,13 +117,13 @@ export class Pinball extends Game {
 				const offset = (ball.x - this.flipperPos) / (Pinball.FLIPPER_WIDTH / 2.0);
 				ball.vz = Pinball.FLIPPER_KICK;
 				ball.vx += offset * 0.6 * this.resolution;
-				this.audio.synth.play(SynthSound.TICK);
+				this.audio.synth.play(SystemSound.TICK);
 			} else {
 				this.balls -= 1;
-				this.audio.synth.play(SynthSound.WARNING);
+				this.audio.synth.play(SystemSound.WARNING);
 				if (this.balls <= 0) {
 					this.stage = 'GAMEOVER';
-					this.audio.play(SampleID.CROWD_BOOING);
+					this.audio.play(SystemSound.BOOING);
 					this.delay(3.0);
 				} else {
 					this._launchBall();

@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 export class TugOfWar extends Game {
 	static PULL_IMPULSE = 0.35; // boost units per press
@@ -55,14 +55,14 @@ export class TugOfWar extends Game {
 			this.ropePos = 1.0;
 			this.score += 1;
 			this.round += 1;
-			this.audio.play(SampleID.CROWD_CHEERING);
+			this.audio.play(SystemSound.CHEERING);
 			this.won = true;
 			this.stage = 'RESULT';
 			this.delay(TugOfWar.RESULT_FLASH);
 		} else if (this.ropePos <= 0.0) {
 			this.ropePos = 0.0;
 			this.lives -= 1;
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 			this.won = false;
 			this.stage = 'RESULT';
 			this.delay(TugOfWar.RESULT_FLASH);

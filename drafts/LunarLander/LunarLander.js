@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 const LanderStage = Object.freeze({ PLAYING: 'PLAYING', RESULT: 'RESULT' });
 
@@ -64,13 +64,13 @@ export class LunarLander extends Game {
 			const speed = Math.abs(this.velocity);
 			if (speed <= LunarLander.SAFE_LANDING_SPEED * this.resolution) {
 				this.score += 1;
-				this.audio.play(SampleID.CROWD_CHEERING);
+				this.audio.play(SystemSound.CHEERING);
 				this.stage = LanderStage.RESULT;
 				this.landed = true;
 				this.delay(2.0);
 			} else {
 				this.lives -= 1;
-				this.audio.play(SampleID.CROWD_BOOING);
+				this.audio.play(SystemSound.BOOING);
 				this.stage = LanderStage.RESULT;
 				this.landed = false;
 				this.delay(2.5);

@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 export class Blackjack extends Game {
 	static INITIAL_CARDS = 2;
@@ -38,7 +38,7 @@ export class Blackjack extends Game {
 				if (this.dealerTotal < Blackjack.DEALER_STAND) {
 					this.dealerTotal += this._drawCard();
 					this.dealerTimer = Blackjack.DEALER_DRAW_DELAY;
-					this.audio.synth.play(SynthSound.TICK);
+					this.audio.synth.play(SystemSound.TICK);
 				} else {
 					this._resolveHand();
 				}
@@ -66,12 +66,12 @@ export class Blackjack extends Game {
 		this.outcome = outcome;
 		if (outcome === 'win') {
 			this.wins += 1;
-			this.audio.play(SampleID.CROWD_CHEERING);
+			this.audio.play(SystemSound.CHEERING);
 		} else if (outcome === 'lose') {
 			this.losses += 1;
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 		} else {
-			this.audio.synth.play(SynthSound.TICK);
+			this.audio.synth.play(SystemSound.TICK);
 		}
 		this.stage = 'RESULT';
 		this.delay(Blackjack.RESULT_FLASH);
@@ -83,11 +83,11 @@ export class Blackjack extends Game {
 		}
 		if (event.command === Command.A_PRESS) {
 			this.playerTotal += this._drawCard();
-			this.audio.synth.play(SynthSound.TICK);
+			this.audio.synth.play(SystemSound.TICK);
 			if (this.playerTotal > 21) {
 				this.outcome = 'lose';
 				this.losses += 1;
-				this.audio.play(SampleID.CROWD_BOOING);
+				this.audio.play(SystemSound.BOOING);
 				this.stage = 'RESULT';
 				this.delay(Blackjack.RESULT_FLASH);
 			}

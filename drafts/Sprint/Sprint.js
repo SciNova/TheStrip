@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 export class Sprint extends Game {
 	static SPEED_BOOST = 0.3; // resolution-fraction/sec per press
@@ -76,13 +76,13 @@ export class Sprint extends Game {
 					hurdle.cleared = true;
 					this.speed = Math.min(Sprint.MAX_SPEED * this.resolution, this.speed + Sprint.SPEED_BOOST * this.resolution * 0.5);
 					this.score += 1;
-					this.audio.synth.play(SynthSound.TICK);
+					this.audio.synth.play(SystemSound.TICK);
 				}
 			}
 			if (!hurdle.cleared && hurdle.z <= 0) {
 				this.gap -= Sprint.STUMBLE_PENALTY * this.resolution;
 				this.speed = 0.0;
-				this.audio.synth.play(SynthSound.WARNING);
+				this.audio.synth.play(SystemSound.WARNING);
 			}
 			if (hurdle.z > -this.resolution * 0.5) {
 				survivors.push(hurdle);
@@ -93,7 +93,7 @@ export class Sprint extends Game {
 		if (this.gap <= 0.0) {
 			this.gap = 0.0;
 			this.stage = 'GAMEOVER';
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 			this.delay(3.0);
 		}
 

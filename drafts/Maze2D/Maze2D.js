@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
 const MazeStage = Object.freeze({ PLAYING: 'PLAYING', WIN: 'WIN' });
@@ -137,7 +137,7 @@ export class Maze2D extends Game {
 		}
 		const dir = forwardSign > 0 ? this.facingDir : (this.facingDir + 2) % DIR_COUNT;
 		if (!this.open[this.playerCellZ][this.playerCellX][dir]) {
-			this.audio.synth.play(SynthSound.WARNING);
+			this.audio.synth.play(SystemSound.WARNING);
 			this.moveCooldown = Maze2D.MOVE_COOLDOWN;
 			return;
 		}
@@ -147,16 +147,16 @@ export class Maze2D extends Game {
 
 		if (this.playerCellX === this.exitX && this.playerCellZ === this.exitZ) {
 			this.stage = MazeStage.WIN;
-			this.audio.play(SampleID.CROWD_CHEERING);
+			this.audio.play(SystemSound.CHEERING);
 			this.delay(2.5);
 		} else {
-			this.audio.synth.play(SynthSound.TICK);
+			this.audio.synth.play(SystemSound.TICK);
 		}
 	}
 
 	_turn(delta) {
 		this.facingDir = (((this.facingDir + delta) % DIR_COUNT) + DIR_COUNT) % DIR_COUNT;
-		this.audio.synth.play(SynthSound.TICK);
+		this.audio.synth.play(SystemSound.TICK);
 	}
 
 	_render() {

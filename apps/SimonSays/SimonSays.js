@@ -1,5 +1,5 @@
 import { Game, Command, Colors } from '../../core/system.js';
-import { Note, SampleID } from '../../core/audio-common.js';
+import { Note, SystemSound } from '../../core/audio-common.js';
 
 const TOTAL_LEVELS = 10;
 const TONE_DURATION = 0.3;
@@ -111,7 +111,7 @@ export class SimonSays extends Game {
 		this.inputStartTime = 0.0;
 		this.playLevel();
 		this._display(this.sequence[0]);
-		this.audio.synth.play('SQUARE', this.noteForColor(this.sequence[0]), TONE_DURATION, 0, 0, 1.0, TONE_RELEASE);
+		this.audio.synth.play('SQUARE', Note.frequency(this.noteForColor(this.sequence[0])), TONE_DURATION, 0, 0, 1.0, TONE_RELEASE);
 	}
 
 	loop() {
@@ -138,14 +138,14 @@ export class SimonSays extends Game {
 					this.step = curStep;
 					const col = this.sequence[curStep - 1];
 					this._display(col);
-					this.audio.synth.play('SQUARE', this.noteForColor(col), TONE_DURATION, 0, 0, 1.0, TONE_RELEASE);
+					this.audio.synth.play('SQUARE', Note.frequency(this.noteForColor(col)), TONE_DURATION, 0, 0, 1.0, TONE_RELEASE);
 				}
 			} else {
 				this._display(0);
 			}
 		} else if (this.stage === SimonStage.INPUT) {
 			if (this.levelTime - this.inputStartTime > INPUT_TIMEOUT) {
-				this.audio.synth.play('SAWTOOTH', FAIL_NOTE, FAIL_DURATION, 0, 0, 1.0, TONE_RELEASE);
+				this.audio.synth.play('SAWTOOTH', Note.frequency(FAIL_NOTE), FAIL_DURATION, 0, 0, 1.0, TONE_RELEASE);
 				this.delay(1.0);
 				this.stage = SimonStage.LEVEL_FAIL;
 			}
@@ -156,7 +156,7 @@ export class SimonSays extends Game {
 			if (this.level >= TOTAL_LEVELS) {
 				this.stage = SimonStage.COMPLETE;
 				this.clear();
-				this.audio.play(SampleID.CROWD_CHEERING);
+				this.audio.play(SystemSound.CHEERING);
 			} else {
 				this._startLevel();
 			}
@@ -194,14 +194,14 @@ export class SimonSays extends Game {
 		if (pressed) {
 			const expected = this.sequence[this.step - 1];
 			if (color !== expected) {
-				this.audio.synth.play('SAWTOOTH', FAIL_NOTE, FAIL_DURATION, 0, 0, 1.0, TONE_RELEASE);
+				this.audio.synth.play('SAWTOOTH', Note.frequency(FAIL_NOTE), FAIL_DURATION, 0, 0, 1.0, TONE_RELEASE);
 				this.delay(1.0);
 				this.stage = SimonStage.LEVEL_FAIL;
 				return;
 			}
 			this.inputColor = color;
 			this._display(color);
-			this.audio.synth.play('SQUARE', this.noteForColor(color), TONE_DURATION, 0, 0, 1.0, TONE_RELEASE);
+			this.audio.synth.play('SQUARE', Note.frequency(this.noteForColor(color)), TONE_DURATION, 0, 0, 1.0, TONE_RELEASE);
 			return;
 		}
 
@@ -210,7 +210,7 @@ export class SimonSays extends Game {
 		}
 		this._display(0);
 		if (this.step === this.level + 1) {
-			this.audio.synth.play('SAWTOOTH', COMPLETE_NOTE, COMPLETE_DURATION, 0, 0, 1.0, TONE_RELEASE);
+			this.audio.synth.play('SAWTOOTH', Note.frequency(COMPLETE_NOTE), COMPLETE_DURATION, 0, 0, 1.0, TONE_RELEASE);
 			this.delay(1.0);
 			this.stage = SimonStage.LEVEL_COMPLETE;
 		} else {

@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 import { BasePlayer2D, World2D } from '../../core/graphics.js';
 
 const SnakeStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
@@ -104,7 +104,7 @@ export class Snake2D extends Game {
 
 		if (crashed) {
 			this.stage = SnakeStage.GAMEOVER;
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 			this.delay(3.0);
 			this._render();
 			return;
@@ -115,7 +115,7 @@ export class Snake2D extends Game {
 			this.score += 1;
 			this.maxVisible += Snake2D.GROWTH_PER_FOOD;
 			this.speed += Snake2D.SPEED_STEP * this.resolution;
-			this.audio.synth.play(SynthSound.EXPLOSION);
+			this.audio.synth.play(SystemSound.EXPLOSION);
 			this._spawnFood();
 		}
 

@@ -1,5 +1,5 @@
 import { Game, Colors, isGameButtonPress } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
 const Fruit = Object.freeze({
@@ -56,7 +56,7 @@ class Wheel extends Shape {
 
 		if (this.speed > 0) {
 			if (Math.floor(this.rotation) !== Math.floor(this._prevRotation)) {
-				this.game.audio.synth.play(SynthSound.TICK);
+				this.game.audio.synth.play(SystemSound.TICK);
 			}
 		}
 
@@ -170,9 +170,9 @@ export class Slots extends Game {
 		}
 
 		if (centreFruits[0] === centreFruits[1] && centreFruits[1] === centreFruits[2]) {
-			this.audio.play(SampleID.CROWD_CHEERING);
+			this.audio.play(SystemSound.CHEERING);
 		} else {
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 		}
 
 		this.delay(4.0);

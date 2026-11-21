@@ -3,80 +3,53 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Audio test</title>
+	<title>Track player test</title>
 	<style>
 		button { display: block; width: 100%; text-align: left; margin: 2px 0; font-family: monospace; }
 		h3 { margin: 10px 0 2px; }
 	</style>
 </head>
 <body>
-	<button id="start">Start</button>
+	<h3>Basic Waltz Phrase (I-IV-V-I)</h3>
+	<button id="waltz">Play</button>
 
-	<h3>Tick</h3>
-	<button id="synthTick">Synth — NOISE 7000Hz dur=0.015s decay=0.01 sustain=0</button>
+	<h3>Jingle Bells (first segment)</h3>
+	<button id="jingleBells">Play</button>
 
-	<h3>Shoot</h3>
-	<button id="synthShoot">Synth — SAWTOOTH 1200Hz dur=0.07s decay=0.05 sustain=0.3 release=0.03 | LFO REVERSE_SAWTOOTH 6Hz -&gt; PITCH amt=0.9 sync</button>
+	<h3>Portnoy Tribute (7/8)</h3>
+	<button id="portnoy">Play</button>
 
-	<h3>Warning</h3>
-	<button id="synthWarning">Synth — SQUARE 150Hz dur=0.4s decay=0.05 sustain=0.8 release=0.05 | LFO SQUARE 30Hz -&gt; VOLUME amt=0.8 sync</button>
+	<h3>Looney Tunes Theme (melody only)</h3>
+	<button id="looneyTunes">Play</button>
 
-	<h3>Explosion</h3>
-	<button id="synthExplosion">Synth — NOISE 1200Hz dur=0.9s decay=0.7 sustain=0 release=0.15 | LFO REVERSE_SAWTOOTH 1.2Hz -&gt; CUTOFF amt=0.9 sync | cutoff=3000 resonance=0.3</button>
-
-	<h3>Spawn</h3>
-	<button id="synthSpawn">Synth — SINUS 1800Hz dur=0.08s decay=0.06 sustain=0 release=0.02 | LFO SAWTOOTH 8Hz -&gt; PITCH amt=0.7 sync</button>
+	<h3>Mario Theme (melody only)</h3>
+	<button id="mario">Play</button>
 
 	<div id="status">not started</div>
 
 	<script type="module">
-		import { Audio } from '/core/audio.js';
-		import { SynthSound } from '/core/audio-common.js';
+		import { ABCFormat } from '/core/abc.js';
+		import { Tracker } from '/core/tracker.js';
 
 		const status = document.getElementById('status');
-		const startButton = document.getElementById('start');
+		let context = null;
 
-		let audio = null;
-
-		startButton.addEventListener('click', async () => {
-			if (!audio) {
-				audio = new Audio();
-				await audio.init();
-			}
-			audio.synth.start();
-			audio.sampler.start();
-			status.textContent = `started (context.state: ${audio.context.state})`;
-		});
-
-		function bind(id, play) {
-			document.getElementById(id).addEventListener('click', () => {
-				if (!audio) {
-					return;
+		function bind(id, path) {
+			document.getElementById(id).addEventListener('click', async () => {
+				if (!context) {
+					context = new AudioContext();
 				}
-				play();
+				const track = await ABCFormat.load(path);
+				new Tracker(track).play(context);
 				status.textContent = `played ${id}`;
 			});
 		}
 
-		bind('synthTick', () => {
-			audio.synth.play(SynthSound.TICK);
-		});
-
-		bind('synthShoot', () => {
-			audio.synth.play(SynthSound.SHOOT);
-		});
-
-		bind('synthWarning', () => {
-			audio.synth.play(SynthSound.WARNING);
-		});
-
-		bind('synthExplosion', () => {
-			audio.synth.play(SynthSound.EXPLOSION);
-		});
-
-		bind('synthSpawn', () => {
-			audio.synth.play(SynthSound.SPAWN);
-		});
+		bind('waltz', 'tunes/waltz.abc');
+		bind('jingleBells', 'tunes/jingle.abc');
+		bind('portnoy', 'tunes/portnoy.abc');
+		bind('looneyTunes', 'tunes/looney.abc');
+		bind('mario', 'tunes/mario.abc');
 	</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 const ShooterStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
@@ -102,10 +102,10 @@ export class Shooter2D extends Game {
 
 			if (breached) {
 				this.lives -= 1;
-				this.audio.synth.play(SynthSound.WARNING);
+				this.audio.synth.play(SystemSound.WARNING);
 				if (this.lives <= 0) {
 					this.stage = ShooterStage.GAMEOVER;
-					this.audio.play(SampleID.CROWD_BOOING);
+					this.audio.play(SystemSound.BOOING);
 					this.delay(3.0);
 				} else {
 					this.delay(0.4);
@@ -146,14 +146,14 @@ export class Shooter2D extends Game {
 		if (bestIndex >= 0) {
 			this.targets.splice(bestIndex, 1);
 			this.score += 1;
-			this.audio.synth.play(SynthSound.EXPLOSION);
+			this.audio.synth.play(SystemSound.EXPLOSION);
 			this.targetSpeed += Shooter2D.SPEED_STEP * this.resolution;
 			this.spawnInterval = Math.max(
 				Shooter2D.MIN_SPAWN_INTERVAL,
 				this.spawnInterval - Shooter2D.SPAWN_INTERVAL_STEP
 			);
 		} else {
-			this.audio.synth.play(SynthSound.SHOOT);
+			this.audio.synth.play(SystemSound.SHOOT);
 		}
 	}
 

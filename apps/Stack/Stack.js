@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SampleID, SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
 class Dot extends Shape {
@@ -193,14 +193,14 @@ export class Stack extends Game {
 			for (const dot of this.snake.dots) {
 				currentPos += 1 + dot.gap;
 				if (currentPos === this.resolution - 1) {
-					this.audio.synth.play(SynthSound.SPAWN);
+					this.audio.synth.play(SystemSound.SPAWN);
 					break;
 				}
 			}
 		}
 
 		if (this.snake.isAtEnd()) {
-			this.audio.play(SampleID.CROWD_BOOING);
+			this.audio.play(SystemSound.BOOING);
 			this.pause();
 			this.bullets = [];
 			this.delay(4.0);
@@ -232,24 +232,24 @@ export class Stack extends Game {
 					headDot.explode();
 					this.snake.position += 1 + headDot.gap;
 					this.bullets.shift();
-					this.audio.synth.play(SynthSound.EXPLOSION);
+					this.audio.synth.play(SystemSound.EXPLOSION);
 				} else {
 					this.bullets.shift();
 					const newDot = new Dot(this, bullet.color, 0);
 					this.snake.dots.unshift(newDot);
 					this.snake.position -= 1;
-					this.audio.synth.play(SynthSound.WARNING);
+					this.audio.synth.play(SystemSound.WARNING);
 				}
 			}
 		}
 
 		if (this.snake.dots.length === 0) {
 			if (this.level >= this.snake.LEVELS) {
-				this.audio.play(SampleID.CROWD_CHEERING);
+				this.audio.play(SystemSound.CHEERING);
 				this.setLevel(0);
 				this.delay(30.0);
 			} else {
-				this.audio.play(SampleID.CROWD_CHEERING);
+				this.audio.play(SystemSound.CHEERING);
 				this.nextLevel();
 				this.delay(4.0);
 			}
@@ -262,13 +262,13 @@ export class Stack extends Game {
 	handleInput(padId, event) {
 		if (event.command === Command.A) {
 			this.bullets.push(new Bullet(this, Colors.RED));
-			this.audio.synth.play(SynthSound.SHOOT);
+			this.audio.synth.play(SystemSound.SHOOT);
 		} else if (event.command === Command.B) {
 			this.bullets.push(new Bullet(this, Colors.GREEN));
-			this.audio.synth.play(SynthSound.SHOOT);
+			this.audio.synth.play(SystemSound.SHOOT);
 		} else if (event.command === Command.C) {
 			this.bullets.push(new Bullet(this, Colors.BLUE));
-			this.audio.synth.play(SynthSound.SHOOT);
+			this.audio.synth.play(SystemSound.SHOOT);
 		}
 	}
 }

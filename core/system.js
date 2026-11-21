@@ -541,6 +541,14 @@ export class Game {
 		this.levelTime = 0.0;
 		this.play();
 	}
+
+	// Called right before this game is replaced by another one (or the
+	// console otherwise discards it) - a no-op by default, overridden by
+	// any game that owns something which keeps running on its own after
+	// the game object itself is gone (e.g. a Tracker playing in the
+	// worklet, which nothing else would ever tell to stop).
+	cleanup() {
+	}
 }
 
 export function balanceColors(color) {

@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SynthSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio-common.js';
 
 const SLOTS = [
 	{ fraction: 0.5, width: 0.08, score: 50, color: Colors.YELLOW },
@@ -52,7 +52,7 @@ export class Pachinko extends Game {
 		this.ballZ = 1.0;
 		this.nextPegZ = 1.0 - Pachinko.PEG_INTERVAL;
 		this.stage = 'DROPPING';
-		this.audio.synth.play(SynthSound.TICK);
+		this.audio.synth.play(SystemSound.TICK);
 	}
 
 	_loopDropping(dt) {
@@ -83,9 +83,9 @@ export class Pachinko extends Game {
 			this.lastSlot = best;
 			if (best) {
 				this.score += best.score;
-				this.audio.synth.play(SynthSound.EXPLOSION);
+				this.audio.synth.play(SystemSound.EXPLOSION);
 			} else {
-				this.audio.synth.play(SynthSound.WARNING);
+				this.audio.synth.play(SystemSound.WARNING);
 			}
 			this.stage = 'RESULT';
 			this.delay(Pachinko.RESULT_FLASH);
