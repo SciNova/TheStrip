@@ -8,12 +8,12 @@ export class Frogger extends Game {
 	static MAX_LANES = 14;
 	static BASE_HAZARD_COUNT = 4;
 	static MAX_HAZARD_COUNT = 7;
-	static BASE_SPEED = 0.45; // resolution-fraction/sec
+	static BASE_SPEED = 0.45;
 	static SPEED_PER_LANE = 0.03;
 	static SPEED_PER_LEVEL = 0.03;
-	static ROAD_OBSTACLE_FRACTION = 0.5; // of lane spacing
-	static RIVER_LOG_FRACTION = 0.7; // of lane spacing
-	static LATERAL_SPEED = 0.9; // resolution-fraction/sec
+	static ROAD_OBSTACLE_FRACTION = 0.5;
+	static RIVER_LOG_FRACTION = 0.7;
+	static LATERAL_SPEED = 0.9;
 	static MAX_LIVES = 3;
 
 	constructor(system) {

@@ -1,4 +1,4 @@
-import { System } from '../core/system.js';
+import { System, SystemState } from '../core/system.js';
 import { PcbPanelModel, PANEL_CLASSES } from './hardware.js';
 
 const ARROW_DIRECTION_INDEX = {
@@ -37,9 +37,9 @@ class StripView {
 	begin() {}
 
 	update() {
-		const game = this.system.game;
+		const dark = this.system.state === SystemState.OFF;
 		for (let i = 0; i < this.system.strip.length; i++) {
-			const packed = game ? this.system.strip.pixels[i] : 0x000000;
+			const packed = dark ? 0x000000 : this.system.strip.pixels[i];
 			const r = (packed >> 16) & 0xFF;
 			const g = (packed >> 8) & 0xFF;
 			const b = packed & 0xFF;
@@ -100,8 +100,6 @@ class StripView3D {
 			});
 		}
 
-		// Camera view angle/target are fixed (this is a video backdrop, not a
-		// scene you fly around) — only cameraRadius changes, via zoom.
 		this.cameraTheta = 0;
 		this.cameraPhi = 65.0 / 180.0 * Math.PI;
 		this.cameraRadius = 50;
@@ -229,10 +227,6 @@ class StripView3D {
 		}
 	}
 
-	// No modifier: move the strip. Shift: rotate it (yaw/pitch). Ctrl: zoom
-	// the (fixed) camera and roll the strip. The camera itself never moves
-	// on its own — this is a fixed backdrop you place the strip into, for
-	// recording video, not a scene you fly a camera around.
 	handleControls() {
 		if (!this.isComposeActive()) return;
 
@@ -294,9 +288,9 @@ class StripView3D {
 	begin() {}
 
 	update() {
-		const game = this.system.game;
+		const dark = this.system.state === SystemState.OFF;
 		for (let i = 0; i < this.system.strip.length; i++) {
-			const packed = game ? game.pixels[i] : 0x000000;
+			const packed = dark ? 0x000000 : this.system.strip.pixels[i];
 			this.pixelElements[i].topMaterial.color.setHex(packed);
 		}
 
@@ -343,12 +337,6 @@ class Console {
 			this.view.update();
 	}
 
-	poll(now) {
-		for (const ctrl of this.pads) {
-			if (ctrl) ctrl.poll(now);
-		}
-	}
-
 	handleKeyDown(e) {
 		if (e.key === '+')
 			this.swapPanel(0);
@@ -360,13 +348,22 @@ class Console {
 			this.composeMode = !this.composeMode;
 		if (e.key === 'F11')
 			this.toggleFullscreen();
-		if (e.key === 'F12')
-			this.system.toggleMenu();
-		if (e.key === ' ')
-			this.system.togglePause();
 
 		const home = this.pads[0];
 		const guest = this.pads[1];
+
+		const systemTarget = e.shiftKey ? guest : home;
+		if (systemTarget) {
+			if (e.key.toLowerCase() === 'p')
+				systemTarget.setSystemButtonPressed(0, true);
+			if (e.key.toLowerCase() === 'm')
+				systemTarget.setSystemButtonPressed(1, true);
+			if (e.key === ' ')
+				systemTarget.setSystemButtonPressed(2, true);
+			if (e.key.toLowerCase() === 'b')
+				systemTarget.setSystemButtonPressed(3, true);
+		}
+
 		if (home) {
 			if (e.key === '1')
 				home.setNamedButtonPressed(0, true);
@@ -402,6 +399,19 @@ class Console {
 	handleKeyUp(e) {
 		const home = this.pads[0];
 		const guest = this.pads[1];
+
+		const systemTarget = e.shiftKey ? guest : home;
+		if (systemTarget) {
+			if (e.key.toLowerCase() === 'p')
+				systemTarget.setSystemButtonPressed(0, false);
+			if (e.key.toLowerCase() === 'm')
+				systemTarget.setSystemButtonPressed(1, false);
+			if (e.key === ' ')
+				systemTarget.setSystemButtonPressed(2, false);
+			if (e.key.toLowerCase() === 'b')
+				systemTarget.setSystemButtonPressed(3, false);
+		}
+
 		if (home) {
 			if (e.key === '1')
 				home.setNamedButtonPressed(0, false);
@@ -461,7 +471,16 @@ class Console {
 			return;
 		const model = ctrl.panel ? ctrl.panel.model : PcbPanelModel.NONE;
 		div.innerHTML = await loadPanelSvg(model);
-		div.style.display = model === PcbPanelModel.NONE ? 'none' : 'block';
+		const hasPanel = model !== PcbPanelModel.NONE;
+		div.style.display = hasPanel ? 'block' : 'none';
+
+		const systemRow = document.querySelector(`.systemRow[data-pad="${index}"]`);
+		if (systemRow) {
+			systemRow.style.display = hasPanel ? 'flex' : 'none';
+			const svg = div.querySelector('svg');
+			systemRow.style.width = svg ? `${svg.getBoundingClientRect().width}px` : '';
+		}
+
 		this._updateHandlers(index);
 	}
 

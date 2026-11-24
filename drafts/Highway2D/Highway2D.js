@@ -18,10 +18,10 @@ class OncomingCar extends Square2D {
 		const body = OncomingCar.BODY_COLORS[Math.floor(Math.random() * OncomingCar.BODY_COLORS.length)];
 		const dark = OncomingCar._darken(body);
 		const faces = [
-			OncomingCar._buildFace(length, body, Colors.WHITE), // front (headlights) - always facing the player
-			OncomingCar._solidFace(length, dark), // side
-			OncomingCar._solidFace(length, dark), // rear
-			OncomingCar._solidFace(length, dark), // other side
+			OncomingCar._buildFace(length, body, Colors.WHITE),
+			OncomingCar._solidFace(length, dark),
+			OncomingCar._solidFace(length, dark),
+			OncomingCar._solidFace(length, dark),
 		];
 		super(game, faces, true);
 		this.rotation = 0.0;
@@ -65,13 +65,13 @@ class OncomingCar extends Square2D {
 }
 
 export class Highway2D extends Game {
-	static LANE_HALF_WIDTH = 1.0; // in resolution units
-	static STEER_SPEED = 1.3; // lanes/sec, scaled by resolution
-	static SPAWN_Z = 9.0; // resolution units ahead
-	static CRASH_Z = 0.3; // resolution units - the "at the camera" zone
-	static CRASH_TOLERANCE = 0.22; // resolution units, lateral miss tolerance
-	static BASE_CAR_SPEED = 1.6; // resolution units/sec
-	static SPEED_STEP = 0.06; // per car passed
+	static LANE_HALF_WIDTH = 1.0;
+	static STEER_SPEED = 1.3;
+	static SPAWN_Z = 9.0;
+	static CRASH_Z = 0.3;
+	static CRASH_TOLERANCE = 0.22;
+	static BASE_CAR_SPEED = 1.6;
+	static SPEED_STEP = 0.06;
 	static BASE_SPAWN_INTERVAL = 1.4;
 	static MIN_SPAWN_INTERVAL = 0.55;
 	static SPAWN_INTERVAL_STEP = 0.03;

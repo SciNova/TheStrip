@@ -16,9 +16,6 @@ export class ABCFormat {
 		return new ABCFormat(abc);
 	}
 
-	// path is resolved relative to this file, same in Node (reads the real
-	// file) and in a browser (fetches it) - branching on the resolved URL's
-	// own protocol rather than checking which environment this is.
 	static async _readText(path) {
 		const url = new URL(path, import.meta.url);
 		if (url.protocol === 'file:') {
@@ -30,9 +27,6 @@ export class ABCFormat {
 		return response.text();
 	}
 
-	// Returns a Track, not an ABCFormat instance - the constructor does the parse
-	// and hands back the result directly, so `new ABCFormat(abcString)` is itself
-	// the "parse this string" entry point.
 	constructor(abc) {
 		const track = new Track();
 
@@ -50,9 +44,6 @@ export class ABCFormat {
 		return track;
 	}
 
-	// The voice's own name= attribute, matched against a SystemSound key (case
-	// insensitive). No match, or no name given, leaves that voice's channels
-	// with no sound assigned.
 	static _parseVoiceNames(abc) {
 		const names = new Map();
 		const regex = /^V:\s*(\S+).*\bname="([^"]*)"/gm;
@@ -171,8 +162,6 @@ export class ABCFormat {
 		return pitches;
 	}
 
-	// The widest bracket chord this voice ever uses, across all its segments
-	// - that's how many channels the voice needs. 1 if it never uses a chord.
 	static _countVoiceChannels(voiceText) {
 		let max = 1;
 		const regex = /\[([^\]]*)\]/g;
@@ -186,11 +175,6 @@ export class ABCFormat {
 		return max;
 	}
 
-	// One bar's worth of SoundEvents, split across this voice's own channelCount
-	// channels. A single note/rest always lands on channel 0; a bracket chord
-	// [CEG] fills channels 0..N-1 simultaneously (same position, same shared
-	// duration from after the closing bracket). Channels beyond a given
-	// chord's actual width just get nothing at that position.
 	static _parseVoiceEvents(barText, baseDurationInBeats, channelCount, sound) {
 		const channelEvents = new Array(channelCount).fill(null).map(() => []);
 		let position = 0;

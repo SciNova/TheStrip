@@ -81,11 +81,60 @@ export function isGameButtonPress(command) {
 	return command >= Command.A_PRESS && command <= Command.RIGHT_PRESS && (command & 1) === 1;
 }
 
+export const GameId = Object.freeze({
+	WHITE_LIGHT: 1,
+	COLOR_LIGHT: 2,
+	MOODLIGHT: 3,
+	STOPWATCH: 4,
+	DICES: 5,
+	SLOTS: 6,
+	DARTS: 7,
+	SIMON_SAYS: 8,
+	STACK: 9,
+	FLAPPY_BIRD: 10,
+	DINO: 11,
+	RACE: 12,
+	PACMAN: 13,
+	DEMO_SCENE: 14,
+
+	DRAFT_BOMBERMAN: 15,
+	DRAFT_BREAKOUT: 16,
+	DRAFT_GOLF: 17,
+	DRAFT_MEMORY_MATCH: 18,
+	DRAFT_SHOOTERS: 19,
+	DRAFT_TEST: 20,
+	DRAFT_ASTEROIDS_Z: 21,
+	DRAFT_BLACKJACK: 22,
+	DRAFT_CARS: 23,
+	DRAFT_CENTIPEDE_Z: 24,
+	DRAFT_DRAG: 25,
+	DRAFT_FISHING: 26,
+	DRAFT_FROGGER: 27,
+	DRAFT_LUNAR_LANDER: 28,
+	DRAFT_MISSILE_COMMAND: 29,
+	DRAFT_PACHINKO: 30,
+	DRAFT_PINBALL: 31,
+	DRAFT_PONG: 32,
+	DRAFT_QUICK_DRAW: 33,
+	DRAFT_RHYTHM_TAP: 34,
+	DRAFT_SHUFFLEBOARD: 35,
+	DRAFT_SPRINT: 36,
+	DRAFT_SUBMARINE: 37,
+	DRAFT_TOWER_DEFENSE: 38,
+	DRAFT_TREASURE_HUNT: 39,
+	DRAFT_TUG_OF_WAR: 40,
+	DRAFT_WHACK_A_MOLE: 41,
+	DRAFT_HIGHWAY_2D: 42,
+	DRAFT_MAZE_2D: 43,
+	DRAFT_SHOOTER_2D: 44,
+	DRAFT_SNAKE_2D: 45,
+	DRAFT_SPACE_INVADERS_2D: 46,
+});
+
 export const SystemState = Object.freeze({
-	STANDBY: 'STANDBY',
+	OFF: 'OFF',
 	MENU: 'MENU',
 	GAME: 'GAME',
-	POWERSAVE: 'POWERSAVE',
 });
 
 export const GameState = Object.freeze({
@@ -94,8 +143,6 @@ export const GameState = Object.freeze({
 	COMPLETED: 'COMPLETED',
 });
 
-// The CSS/X11 extended color keyword list (one spelling per gray/grey pair,
-// American spelling kept). Values are the official CSS hex values.
 export const Colors = Object.freeze({
 	ALICE_BLUE: 0xF0F8FF,
 	ANTIQUE_WHITE: 0xFAEBD7,
@@ -239,7 +286,6 @@ export const Colors = Object.freeze({
 	YELLOW: 0xFFFF00,
 	YELLOW_GREEN: 0x9ACD32,
 
-	// Aliases: not CSS names, but meaningful labels for an actual CSS color above.
 	OFF: 0x000000,
 	BANANA: 0xFFD700,
 	LEMON: 0xFFFF00,
@@ -247,9 +293,6 @@ export const Colors = Object.freeze({
 	BLACKBERRY: 0x4B0082,
 	STRAWBERRY: 0xDC143C,
 
-	// Bogus, invented entries with no CSS equivalent. Kept only so the games
-	// still using them don't break outright; remove once those games are
-	// updated to reference a real color name above.
 	DARK_YELLOW: 0x999900,
 	DARK_WHITE: 0x7F7F7F,
 	DARK_PURPLE: 0x44007F,
@@ -264,19 +307,19 @@ export class InputEvent {
 }
 
 const DEBOUNCE_DURATION = 0.0;
-const HOLD_DURATION = 1.0;
+const HOLD_DURATION = 5.0;
+const MAX_LOG_LINES = 200;
 
 export class Clock {
 	constructor() {
 		this.time = 0.0;
 		this.timestamp = 0.0;
 		this.delta = 0.0;
-		this.update();
 	}
 
 	update() {
-		const now = Date.now() / 1000;
-		this.delta = now - this.timestamp;
+		const now = performance.now() / 1000;
+		this.delta = this.timestamp === 0.0 ? 0.0 : now - this.timestamp;
 		this.timestamp = now;
 		this.time = now;
 	}
@@ -303,13 +346,15 @@ export const ButtonState = Object.freeze({ IDLE: 'IDLE', PRESS: 'PRESS', HOLD: '
 export const ButtonEvent = Object.freeze({ PRESS: 'PRESS', RELEASE: 'RELEASE', HOLD: 'HOLD', HOLDRELEASE: 'HOLDRELEASE' });
 
 export class Button {
-	constructor() {
+	constructor(system) {
+		this.system = system;
 		this.state = ButtonState.IDLE;
 		this.pressTimestamp = 0.0;
 		this.held = false;
 	}
 
-	process(value, now) {
+	process(value) {
+		const now = this.system.clock.timestamp;
 		if (value && this.state === ButtonState.IDLE) {
 			this.state = ButtonState.PRESS;
 			this.pressTimestamp = now;
@@ -327,6 +372,26 @@ export class Button {
 			}
 		}
 		return null;
+	}
+}
+
+export class Pad {
+	constructor(system, id) {
+		this.system = system;
+		this.id = id;
+	}
+}
+
+export class WiredPad extends Pad {
+	constructor(system, id) {
+		super(system, id);
+		this.buttons = {
+			A: new Button(system), B: new Button(system), C: new Button(system), D: new Button(system),
+			X: new Button(system), Y: new Button(system), Z: new Button(system), W: new Button(system),
+			FIRE: new Button(system), FIRE2: new Button(system),
+			UP: new Button(system), DOWN: new Button(system), LEFT: new Button(system), RIGHT: new Button(system),
+			POWER: new Button(system), MENU: new Button(system), PAUSE: new Button(system), BT: new Button(system),
+		};
 	}
 }
 
@@ -392,23 +457,114 @@ export class Strip {
 	}
 }
 
+export class Menu {
+	static APPS_BEFORE_GAP = 5;
+
+	constructor(system) {
+		this.system = system;
+		this.games = [
+			{ name: 'WhiteLight', color: 0x7F7F7F },
+			{ name: 'ColorLight', color: 0xCEAA68 },
+			{ name: 'Moodlight', color: 0xA53FA5 },
+			{ name: 'StopWatch', color: 0x6BD1D1 },
+			{ name: 'Dices', color: 0x82C2BC },
+			{ name: 'Slots', color: 0xBBA570 },
+			{ name: 'Darts', color: 0x942E2E },
+			{ name: 'SimonSays', color: 0x2D602D },
+			{ name: 'Stack', color: 0x111177 },
+			{ name: 'FlappyBird', color: 0xE5CCD0 },
+			{ name: 'Dino', color: 0xB48AB3 },
+			{ name: 'Race', color: 0xC89DC8 },
+			{ name: 'Pacman', color: 0xEEEE88 },
+			{ name: 'DemoScene', color: 0x532053 },
+		];
+		this.selected = 0;
+	}
+
+	loop() {
+		const pixels = this.system.strip.pixels;
+		const resolution = this.system.strip.length;
+		const slotCount = this.games.length + 1;
+		const section = Math.floor(resolution / slotCount);
+		const center = Math.floor(section / 2);
+
+		for (let slot = 0; slot < slotCount; slot++) {
+			const g = slot < Menu.APPS_BEFORE_GAP ? slot
+				: slot === Menu.APPS_BEFORE_GAP ? null
+				: slot - 1;
+			const color = g === null ? Colors.BLACK : this.games[g].color;
+
+			for (let i = 0; i < section; i++) {
+				pixels[slot * section + i] = color;
+			}
+			if (g === this.selected) {
+				pixels[slot * section + center] = Colors.WHITE;
+			}
+		}
+	}
+
+	handleInput(padId, event) {
+		if (event.command === Command.LEFT_PRESS) {
+			if (this.selected > 0) {
+				this.selected -= 1;
+			}
+		} else if (event.command === Command.RIGHT_PRESS) {
+			if (this.selected < this.games.length - 1) {
+				this.selected += 1;
+			}
+		}
+	}
+}
+
 export class System {
 	constructor() {
 		this.clock = new Clock();
 		this.audio = new Audio(this);
 		this.strip = new Strip(60);
 		this.game = null;
+		this.GAMES = null;
+		this.sounds = [];
+		this.trackers = [];
+		this.freeChannels = Audio.CHANNELS;
+		this.menu = new Menu(this);
 		this.uptime = 0.0;
+		this.state = SystemState.OFF;
+		this.logLines = [];
+	}
+
+	log(text) {
+		this.logLines.push(text);
+		if (this.logLines.length > MAX_LOG_LINES) {
+			this.logLines.shift();
+		}
+	}
+
+	loadGame(gameId) {
+		const GameClass = this.GAMES[gameId];
+		this.game = new GameClass(this);
+		this.game.playLevel();
 		this.state = SystemState.GAME;
+		this.audio.postMessage({ action: 'loadGame', id: gameId });
+	}
+
+	unload() {
+		this.game = null;
+		this.audio.postMessage({ action: 'loadGame', id: null });
 	}
 
 	loop() {
 		this.clock.update();
+		if (this.state === SystemState.OFF) {
+			return;
+		}
 		this.uptime += this.clock.delta;
+		this.audio.loop();
 		if (this.state === SystemState.GAME) {
 			if (this.game && this.game.state === GameState.PLAY) {
 				this.game.loop();
 			}
+		} else if (this.state === SystemState.MENU) {
+			this.menu.loop();
 		}
 	}
 
@@ -418,56 +574,69 @@ export class System {
 		}
 	}
 
-	toggleMenu() {
-		this.state = this.state === SystemState.GAME ? SystemState.MENU : SystemState.GAME;
-	}
-
 	handleCommand(padId, event) {
 		switch (event.command) {
 			case Command.POWER_SHORT_PRESS:
-				if (this.state === SystemState.STANDBY || this.state === SystemState.POWERSAVE) {
+				if (this.state === SystemState.OFF) {
+					this.audio.on();
 					this.state = this.game === null ? SystemState.MENU : SystemState.GAME;
 				} else if (this.state === SystemState.MENU || this.state === SystemState.GAME) {
-					this.state = SystemState.STANDBY;
+					this.audio.off();
+					this.state = SystemState.OFF;
 				}
 				break;
 
 			case Command.POWER_LONG_PRESS:
-				if (this.state === SystemState.MENU || this.state === SystemState.GAME) {
-					this.state = SystemState.POWERSAVE;
+				if (padId === 0 && (this.state === SystemState.MENU || this.state === SystemState.GAME)) {
+					this.unload();
+					this.uptime = 0.0;
+					this.audio.off();
+					this.state = SystemState.OFF;
 				}
 				break;
 
 			case Command.MENU_SHORT_PRESS:
 				if (this.state === SystemState.GAME) {
 					this.state = SystemState.MENU;
-				} else if (this.state === SystemState.MENU) {
+					this.game?.pause();
+				} else if (this.state === SystemState.MENU && this.game !== null) {
 					this.state = SystemState.GAME;
+					this.game.play();
 				}
 				break;
 
 			case Command.MENU_LONG_PRESS:
-				if (this.game !== null) {
-					this.game = null;
+				if (padId === 0 && this.game !== null) {
+					this.unload();
 					this.state = SystemState.MENU;
 				}
 				break;
 
 			case Command.PAUSE_SHORT_PRESS:
 				if (this.state === SystemState.GAME && this.game) {
-					if (this.game.state === GameState.PLAY) {
-						this.game.pause();
-					} else if (this.game.state === GameState.PAUSED) {
-						this.game.play();
-					}
+					this.togglePause();
 				}
 				break;
 
 			case Command.PAUSE_LONG_PRESS:
 				break;
 
+			case Command.BT_SHORT_PRESS:
+			case Command.BT_LONG_PRESS:
+				break;
+
+			case Command.FIRE_PRESS:
+				if (this.state === SystemState.MENU) {
+					this.loadGame(this.menu.selected + 1);
+				} else if (this.game !== null && this.state === SystemState.GAME) {
+					this.game.handleInput(padId, event);
+				}
+				break;
+
 			default:
-				if (this.game !== null && this.state === SystemState.GAME) {
+				if (this.state === SystemState.MENU) {
+					this.menu.handleInput(padId, event);
+				} else if (this.game !== null && this.state === SystemState.GAME) {
 					this.game.handleInput(padId, event);
 				}
 		}
@@ -486,6 +655,9 @@ export class Game {
 		this.level = 0;
 		this.state = GameState.PLAY;
 		this.delayTime = 0.0;
+		this.sounds = [];
+		this.trackers = [];
+		this.freeChannels = Audio.CHANNELS;
 	}
 
 	loop() {
@@ -502,10 +674,16 @@ export class Game {
 
 	pause() {
 		this.state = GameState.PAUSED;
+		for (const tracker of this.trackers) {
+			tracker.pause();
+		}
 	}
 
 	play() {
 		this.state = GameState.PLAY;
+		for (const tracker of this.trackers) {
+			tracker.play();
+		}
 	}
 
 	togglePause() {
@@ -542,13 +720,6 @@ export class Game {
 		this.play();
 	}
 
-	// Called right before this game is replaced by another one (or the
-	// console otherwise discards it) - a no-op by default, overridden by
-	// any game that owns something which keeps running on its own after
-	// the game object itself is gone (e.g. a Tracker playing in the
-	// worklet, which nothing else would ever tell to stop).
-	cleanup() {
-	}
 }
 
 export function balanceColors(color) {

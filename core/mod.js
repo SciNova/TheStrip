@@ -2,26 +2,18 @@ import { Sample } from './audio.js';
 import { Note } from './audio-common.js';
 import { SoundEvent, Track } from './tracker.js';
 
-// Amiga/Paula hardware timer periods, index-aligned with Note.C1..Note.B3
-// (36 entries spanning 3 octaves) - the classic MOD pitch table.
 const PERIODS = new Float32Array([
 	856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453,
 	428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226,
 	214, 202, 190, 180, 170, 160, 151, 143, 135, 127, 120, 113,
 ]);
 
-// Standard Amiga Paula sample rate - MOD files carry no sample-rate field of
-// their own, every sample is assumed recorded at this reference rate.
 const NATIVE_SAMPLE_RATE = 8363;
-// What each sample's data gets stretched to at load time (see
-// _readSampleData/_resample) - purely a local detail of preparing this
-// MOD's own data, same idea as a .wav being resampled once when decoded.
 const RESAMPLED_RATE = 48000;
 const CHANNEL_COUNT = 4;
 const ROWS_PER_PATTERN = 64;
 const PATTERN_LENGTH = 1024;
 
-// Fallback only - used when a file sets neither, which is rare in practice.
 const DEFAULT_TEMPO = 125;
 const DEFAULT_SPEED = 6;
 
@@ -31,21 +23,12 @@ const Effect = Object.freeze({
 	SET_SPEED: 0xF,
 });
 
-// Classic 4-channel Amiga .mod reader. Only maps what the engine can
-// actually represent today: note, sample, volume (from the SET_VOLUME
-// effect, or the instrument's own default), sample offset (from
-// SET_SAMPLE_OFFSET), and the song's own initial tempo/speed (from its
-// first SET_SPEED effect). No portamento, vibrato, slides, retrigger,
-// panning, or mid-song speed/tempo changes - those are simply skipped,
-// the row still plays, just without them.
 export class MODFormat {
 	static async load(path) {
 		const buffer = await MODFormat._readBinary(path);
 		return new MODFormat(buffer);
 	}
 
-	// path is resolved relative to this file, same in Node (reads the real
-	// file) and in a browser (fetches it) - same convention as ABCFormat.
 	static async _readBinary(path) {
 		const url = new URL(path, import.meta.url);
 		if (url.protocol === 'file:') {
@@ -58,8 +41,6 @@ export class MODFormat {
 		return response.arrayBuffer();
 	}
 
-	// Returns a Track, not a MODFormat instance - same constructor-override
-	// pattern as ABCFormat.
 	constructor(buffer) {
 		const maxSamples = MODFormat._readAscii(buffer, 4, 1080) === 'M.K.' ? 31 : 15;
 		const patternOffset = maxSamples === 15 ? 600 : 1084;
@@ -75,13 +56,7 @@ export class MODFormat {
 		track.tempo = 60 / rowDuration;
 		track.beatsPerMeasure = ROWS_PER_PATTERN;
 		track.segments = order.map((patternIndex) => [patterns[patternIndex]]);
-		// Raw sample data, indexed exactly as this MOD's SoundEvents
-		// reference them (sound.sample). Not part of Track's own shape -
-		// only present here so the host can send it to the worklet and
-		// remap these local indices to real global ones.
 		track.customSamples = samples;
-		// Total length of the whole track, in seconds - computed once,
-		// here, rather than re-derived from position/segment lookups later.
 		const secondsPerBeat = 60 / track.tempo;
 		const barDuration = track.beatsPerMeasure * secondsPerBeat;
 		const totalBars = track.segments.reduce((sum, bars) => sum + bars.length, 0);
@@ -107,9 +82,6 @@ export class MODFormat {
 		return new DataView(buffer).getUint16(offset, false);
 	}
 
-	// One Sample (sound) per instrument slot - name/volume/loop fields are
-	// read here, the raw PCM data is filled in later by _readSampleData once
-	// we know where the pattern data ends.
 	static _readSamples(buffer, maxSamples) {
 		const bytes = new Uint8Array(buffer);
 		const headerLength = 30;
@@ -121,8 +93,6 @@ export class MODFormat {
 			let length = MODFormat._readWord(buffer, offset + 22) * 2;
 			let loopLength = MODFormat._readWord(buffer, offset + 28) * 2;
 
-			// existing mod players treat loopLength===2 as "no loop", and some
-			// modules then also skip the first two (now meaningless) length bytes
 			if (loopLength === 2) {
 				loopLength = 0;
 				if (length === 2) {
@@ -141,10 +111,6 @@ export class MODFormat {
 		return samples;
 	}
 
-	// A file can retune its tempo/speed mid-song (or even every row, for a
-	// swing feel) via the same effect code - we don't support that, but
-	// using the file's own FIRST tempo and FIRST speed, instead of blindly
-	// assuming 125/6, gets the overall feel far closer than ignoring them.
 	static _readInitialTiming(buffer, patternOffset, order) {
 		let tempo = null;
 		let speed = null;
@@ -224,10 +190,6 @@ export class MODFormat {
 			const cmd = raw[2 + offset] & 0xF;
 			const cmdData = raw[3 + offset];
 			const sample = samples[sampleIndex];
-			// sample is this MOD's own local slot index (0-30), not a
-			// global one - track.customSamples[sampleIndex] holds the raw
-			// data; whoever sends this track to the worklet is responsible
-			// for assigning real global indices and rewriting this field.
 			const sound = { sample: sampleIndex, waveform: null };
 			const note = Note.C1 + MODFormat._periodToPitch(period);
 
@@ -268,11 +230,6 @@ export class MODFormat {
 			for (let i = 0; i < maxLength; i++) {
 				data[i] = pcm[i] / 128.0;
 			}
-			// The raw data is at this MOD's own native rate (NATIVE_SAMPLE_RATE)
-			// - stretched here, once, at load time, to RESAMPLED_RATE frames
-			// per array element, so that reading it one element per rendered
-			// sample (this engine's existing, unchanged playback pattern)
-			// reproduces its real pitch and duration.
 			sample.data = MODFormat._resample(data, NATIVE_SAMPLE_RATE, RESAMPLED_RATE);
 			offset += maxLength;
 		}

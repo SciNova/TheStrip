@@ -2,17 +2,17 @@ import { Game, Colors, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 
 export class Pinball extends Game {
-	static GRAVITY = 0.9; // normalized-z units/sec^2 (z spans 0..1, 0 = flipper end)
-	static FLIPPER_WIDTH = 11; // pixels
-	static FLIPPER_SPEED = 1.1; // resolution-fraction/sec
-	static FLIPPER_KICK = 1.4; // z-velocity units/sec imparted on a good hit
+	static GRAVITY = 0.9;
+	static FLIPPER_WIDTH = 11;
+	static FLIPPER_SPEED = 1.1;
+	static FLIPPER_KICK = 1.4;
 	static TOP_DAMPING = 0.6;
 	static BUMPER_COUNT = 6;
-	static BUMPER_RADIUS_X = 9; // pixels
-	static BUMPER_RADIUS_Z = 0.1; // normalized z units
-	static BUMPER_KICK = 1.0; // z-velocity units/sec
-	static BUMPER_COOLDOWN = 0.3; // seconds
-	static BALL_VX_RANGE = 0.5; // resolution-fraction/sec
+	static BUMPER_RADIUS_X = 9;
+	static BUMPER_RADIUS_Z = 0.1;
+	static BUMPER_KICK = 1.0;
+	static BUMPER_COOLDOWN = 0.3;
+	static BALL_VX_RANGE = 0.5;
 	static MAX_BALLS = 3;
 	static MIN_BALL_SIZE = 1;
 	static MAX_BALL_SIZE = 4;

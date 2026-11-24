@@ -4,17 +4,17 @@ import { SystemSound } from '../../core/audio-common.js';
 const WhackStage = Object.freeze({ PLAYING: 'PLAYING', ROUND_END: 'ROUND_END' });
 
 export class WhackAMole extends Game {
-	static ROUND_DURATION = 30.0; // seconds
-	static BASE_LIT_DURATION = 1.1; // seconds
+	static ROUND_DURATION = 30.0;
+	static BASE_LIT_DURATION = 1.1;
 	static MIN_LIT_DURATION = 0.45;
-	static LIT_DURATION_STEP = 0.02; // shrink per successful hit
-	static BASE_SPAWN_INTERVAL = 0.6; // seconds
+	static LIT_DURATION_STEP = 0.02;
+	static BASE_SPAWN_INTERVAL = 0.6;
 	static MIN_SPAWN_INTERVAL = 0.25;
 	static SPAWN_INTERVAL_STEP = 0.01;
 	static MAX_CONCURRENT = 3;
-	static CURSOR_SPEED = 0.9; // resolution-fraction/sec
-	static HIT_TOLERANCE = 5; // pixels
-	static MOLE_MARGIN = 4; // pixels from each strip edge
+	static CURSOR_SPEED = 0.9;
+	static HIT_TOLERANCE = 5;
+	static MOLE_MARGIN = 4;
 
 	constructor(system) {
 		super('WhackAMole', system);

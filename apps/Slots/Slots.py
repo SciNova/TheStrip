@@ -179,9 +179,6 @@ class Slots(Game):
 			centre = segment_start + (self.segment_pixels - 1) / 2.0
 			wheel.render(centre, EdgeMode.CLIP)
 
-#			pixel_centre = int(round(centre))
-#			if 0 <= pixel_centre < self.resolution:
-#				self.pixels[pixel_centre] = balance_colors(Colors.WHITE)
 
 
 	def handle_input(self, pad_id, event):

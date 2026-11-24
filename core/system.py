@@ -6,7 +6,7 @@ from enum import IntEnum
 
 STRIP_MAX_LEDS = 60
 DEBOUNCE_DURATION = 0.0
-HOLD_DURATION = 1.0
+HOLD_DURATION = 5.0
 GAME_MIN_RESOLUTION = 120
 
 _ACTION_BUTTON = 0x80
@@ -20,7 +20,6 @@ _ACTION_ID = 0x1F
 class Command(IntEnum):
 	NONE = 0
 
-	# Game buttons
 	A_PRESS   = 0x01
 	A_RELEASE = 0x02
 	A = A_PRESS
@@ -100,10 +99,9 @@ def is_game_button_press(command):
 
 
 class SystemState(Enum):
-	STANDBY = 0
+	OFF = 0
 	MENU = 1
 	GAME = 2
-	POWERSAVE = 3
 
 class GameState(Enum):
 	PLAY = 0
@@ -139,9 +137,6 @@ class Sound(Enum):
 	SIMONSAYS3_ORIGINAL = 15
 	SIMONSAYS4_ORIGINAL = 16
 
-# The CSS/X11 extended color keyword list (one spelling per gray/grey pair,
-# American spelling kept). Values are the official CSS hex values.
-# This must stay in sync with js/color.js — that file is the source of truth.
 class Colors:
 	ALICE_BLUE = 0xF0F8FF
 	ANTIQUE_WHITE = 0xFAEBD7
@@ -285,7 +280,6 @@ class Colors:
 	YELLOW = 0xFFFF00
 	YELLOW_GREEN = 0x9ACD32
 
-	# Aliases: not CSS names, but meaningful labels for an actual CSS color above.
 	OFF = 0x000000
 	BANANA = 0xFFD700
 	LEMON = 0xFFFF00
@@ -293,9 +287,6 @@ class Colors:
 	BLACKBERRY = 0x4B0082
 	STRAWBERRY = 0xDC143C
 
-	# Bogus, invented entries with no CSS equivalent. Kept only so the games
-	# still using them don't break outright; remove once those games are
-	# updated to reference a real color name above.
 	DARK_YELLOW = 0x999900
 	DARK_WHITE = 0x7F7F7F
 	DARK_PURPLE = 0x44007F
@@ -502,14 +493,16 @@ class System:
 	def handle_command(self, pad_id, event):
 		match event.command:
 			case Command.POWER_SHORT_PRESS:
-				if self.state in (SystemState.STANDBY, SystemState.POWERSAVE):
+				if self.state == SystemState.OFF:
 					self.state = SystemState.MENU if self.game is None else SystemState.GAME
 				elif self.state in (SystemState.MENU, SystemState.GAME):
-					self.state = SystemState.STANDBY
+					self.state = SystemState.OFF
 
 			case Command.POWER_LONG_PRESS:
 				if self.state in (SystemState.MENU, SystemState.GAME):
-					self.state = SystemState.POWERSAVE
+					self.game = None
+					self.uptime = 0.0
+					self.state = SystemState.OFF
 
 			case Command.MENU_SHORT_PRESS:
 				if self.state == SystemState.GAME:
@@ -530,7 +523,6 @@ class System:
 						self.game.play()
 
 			case Command.PAUSE_LONG_PRESS:
-				##self.buzzer_muted = not self.buzzer_muted
 				pass
 
 			case _:
@@ -638,8 +630,8 @@ def snapshot(system, dt):
 	filename = f"{label}-{timestamp}.px"
 	data = bytearray()
 	for color in system.strip.pixels:
-		data.append((color >> 16) & 0xFF) # R
-		data.append((color >> 8) & 0xFF) # G
-		data.append(color & 0xFF)		 # B
+		data.append((color >> 16) & 0xFF)
+		data.append((color >> 8) & 0xFF)
+		data.append(color & 0xFF)
 	with open(filename, "wb") as f:
 		f.write(data)

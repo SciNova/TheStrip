@@ -1,12 +1,6 @@
 import { Note, Waveform, LFODestination } from './audio-common.js';
 import { SoundEvent, Track } from './tracker.js';
 
-// Rehydrates the plain, structure-cloned data a 'track' message carries into
-// real Track/SoundEvent instances - a structured clone preserves the shape
-// but not the class/prototype, so SoundEvent.render() wouldn't exist on it
-// otherwise. sound objects (whatever shape they have - a SystemSound-style
-// patch, or a MOD-style {sample, waveform:null}) cross over as-is; nothing
-// about them needs resolving here.
 function reconstructTrack(data) {
 	const track = new Track();
 	track.tempo = data.tempo;
@@ -37,14 +31,40 @@ class Clock {
 	}
 }
 
+class Game {
+	constructor() {
+		this.sounds = new Array(Audio.CHANNELS).fill(null);
+		this.trackers = [];
+		this.freeChannels = Audio.CHANNELS;
+	}
+}
+
 class System {
 	constructor() {
 		this.clock = new Clock();
 		this.audio = null;
+		this.sounds = new Array(Audio.CHANNELS).fill(null);
+		this.trackers = [];
+		this.freeChannels = Audio.CHANNELS;
+		this.game = null;
+		this.games = {};
 	}
 
 	loop() {
 		this.clock.update();
+	}
+
+	loadGame(gameId) {
+		if (gameId === null) {
+			this.game = null;
+			return;
+		}
+		let instance = this.games[gameId];
+		if (!instance) {
+			instance = new Game();
+			this.games[gameId] = instance;
+		}
+		this.game = instance;
 	}
 }
 
@@ -53,11 +73,11 @@ class LFO {
 		this.audio = audio;
 		this.waveform = waveform;
 		this.frequency = frequency;
-		this.timestamp = this.audio.system.clock.time;
+		this.timestamp = this.audio.timestamp;
 	}
 
-	render(offset = 0.0) {
-		const time = this.audio.system.clock.time - this.timestamp + offset;
+	render() {
+		const time = this.audio.timestamp - this.timestamp;
 		let phase = (time * this.frequency) % 1.0;
 		if (phase < 0) {
 			phase += 1.0;
@@ -100,11 +120,6 @@ class Filter {
 	}
 }
 
-// The one live, currently-sounding voice - either synth-generated or
-// sample-played, decided purely by which of playSynth()/playSample() was
-// called. Both kinds share the same fields/LFO/filter/pool-membership
-// machinery; render() just branches on this.waveform vs this.sample to pick
-// the right formula.
 class Sound {
 	constructor(audio) {
 		this.audio = audio;
@@ -119,7 +134,6 @@ class Sound {
 		this.lfoSync = null;
 		this.filter = new Filter();
 
-		// synth-only
 		this.waveform = null;
 		this.frequency = 0.0;
 		this.attack = null;
@@ -130,7 +144,6 @@ class Sound {
 		this.releaseTimestamp = null;
 		this.releaseVolume = 0.0;
 
-		// sampler-only
 		this.sample = null;
 		this.rate = 1.0;
 		this.loop = false;
@@ -148,7 +161,7 @@ class Sound {
 		this.sustain = sustain ?? p.sustain ?? 1.0;
 		this.release = release ?? p.release ?? 0.0;
 		this.duration = duration ?? p.duration ?? null;
-		this.timestamp = this.audio.system.clock.time;
+		this.timestamp = this.audio.timestamp;
 		this.phase = offset !== null ? (offset * this.frequency) % 1.0 : 0.0;
 		this.playing = true;
 		this.volume = 0.0;
@@ -174,7 +187,7 @@ class Sound {
 		const naturalDuration = data ? (data.length / this.rate) / sampleRate : 0.0;
 		this.duration = duration !== null ? duration : naturalDuration;
 
-		this.timestamp = this.audio.system.clock.time;
+		this.timestamp = this.audio.timestamp;
 		this.position = offset !== null ? offset * sampleRate : 0.0;
 		this.playing = true;
 
@@ -212,14 +225,15 @@ class Sound {
 			return;
 		}
 		this.playing = false;
-		this.releaseTimestamp = this.audio.system.clock.time;
+		this.releaseTimestamp = this.audio.timestamp;
 		this.releaseVolume = this.volume;
 	}
 
 	remove() {
-		const index = this.audio.sounds.indexOf(this);
+		const sounds = (this.audio.system.game ?? this.audio.system).sounds;
+		const index = sounds.indexOf(this);
 		if (index !== -1) {
-			this.audio.sounds[index] = null;
+			sounds[index] = null;
 		}
 	}
 
@@ -229,15 +243,15 @@ class Sound {
 		this.remove();
 	}
 
-	render(offset = 0.0) {
+	render() {
 		if (this.waveform !== null) {
-			return this._renderSynth(offset);
+			return this._renderSynth();
 		}
-		return this._renderSample(offset);
+		return this._renderSample();
 	}
 
-	_renderSynth(offset) {
-		const now = this.audio.system.clock.time + offset;
+	_renderSynth() {
+		const now = this.audio.timestamp;
 
 		if (this.playing && this.duration !== null && (now - this.timestamp) >= this.duration) {
 			this.noteOff();
@@ -287,7 +301,7 @@ class Sound {
 
 		if (this.lfoDestination === LFODestination.PITCH) {
 			const source = this.lfoSync ? this.lfo : this.audio.lfo;
-			const frequency = this.frequency * (1.0 + this.lfoAmount * source.render(offset));
+			const frequency = this.frequency * (1.0 + this.lfoAmount * source.render());
 			this.phase = (this.phase + frequency / sampleRate) % 1.0;
 			value *= this.volume;
 		} else {
@@ -295,10 +309,10 @@ class Sound {
 
 			if (this.lfoDestination === LFODestination.VOLUME) {
 				const source = this.lfoSync ? this.lfo : this.audio.lfo;
-				value *= this.volume * this.lfoAmount * source.render(offset);
+				value *= this.volume * this.lfoAmount * source.render();
 			} else if (this.lfoDestination === LFODestination.CUTOFF) {
 				const source = this.lfoSync ? this.lfo : this.audio.lfo;
-				const cutoff = this.filter.cutoff * (1.0 + this.lfoAmount * source.render(offset));
+				const cutoff = this.filter.cutoff * (1.0 + this.lfoAmount * source.render());
 				value = this.filter.process(value, cutoff) * this.volume;
 			} else {
 				value *= this.volume;
@@ -308,7 +322,7 @@ class Sound {
 		return value;
 	}
 
-	_renderSample(offset) {
+	_renderSample() {
 		if (!this.playing) {
 			return 0.0;
 		}
@@ -319,7 +333,7 @@ class Sound {
 			return 0.0;
 		}
 
-		const now = this.audio.system.clock.time + offset;
+		const now = this.audio.timestamp;
 		let elapsed = now - this.timestamp;
 		if (elapsed >= this.duration) {
 			if (!this.loop) {
@@ -345,14 +359,14 @@ class Sound {
 
 		if (this.lfoDestination === LFODestination.VOLUME) {
 			const source = this.lfoSync ? this.lfo : this.audio.lfo;
-			value *= this.volume * this.lfoAmount * source.render(offset);
+			value *= this.volume * this.lfoAmount * source.render();
 		} else if (this.lfoDestination === LFODestination.CUTOFF) {
 			const source = this.lfoSync ? this.lfo : this.audio.lfo;
-			const cutoff = this.filter.cutoff * (1.0 + this.lfoAmount * source.render(offset));
+			const cutoff = this.filter.cutoff * (1.0 + this.lfoAmount * source.render());
 			value = this.filter.process(value, cutoff) * this.volume;
 		} else if (this.lfoDestination === LFODestination.PITCH) {
 			const source = this.lfoSync ? this.lfo : this.audio.lfo;
-			const rate = this.rate * (1.0 + this.lfoAmount * source.render(offset));
+			const rate = this.rate * (1.0 + this.lfoAmount * source.render());
 			this.position += rate - this.rate;
 			value *= this.volume;
 		} else {
@@ -363,34 +377,22 @@ class Sound {
 	}
 }
 
-// Plays a Track into a fixed range of the shared channel pool. Holds a
-// single timestamp (set once, at play()) and nothing else - every
-// SoundEvent derives its own delta time from the tracker's own current
-// position plus its own fixed position, so there's no per-note state to
-// manage here.
 class Tracker {
 	constructor(audio, track, channel) {
 		this.audio = audio;
 		this.track = track;
 		this.channel = channel;
 		this.channelCount = track.segments[0]?.[0]?.length ?? 0;
+		(audio.system.game ?? audio.system).trackers.push(this);
+		(audio.system.game ?? audio.system).freeChannels -= this.channelCount;
 		this.playing = false;
-		this.timestamp = 0.0;
-		// The range play() was given - fixed for the life of this play().
 		this.startSegment = 0;
 		this.segmentCount = 1;
 		this.loop = false;
-		// Where playback actually is right now - updated every render()
-		// call. position is the playhead, in seconds, since play(); segment
-		// and bar are which segment/bar that falls in; beat is the
-		// position within that bar, in beats.
 		this.position = 0.0;
 		this.segment = 0;
 		this.bar = 0;
-		this.beat = 0.0;
-		// The event currently sounding on each channel - a bar with nothing
-		// new in it doesn't mean silence, it means whatever was already
-		// playing keeps playing (a sample isn't retriggered every bar).
+		this.beat = 0;
 		this.active = new Array(this.channelCount).fill(null);
 
 		for (const bars of track.segments) {
@@ -408,28 +410,34 @@ class Tracker {
 		this.startSegment = segment;
 		this.segmentCount = segments;
 		this.loop = loop;
-		this.timestamp = this.audio.system.clock.time;
 		this.playing = true;
 		this.position = 0.0;
 		this.segment = segment;
 		this.bar = 0;
-		this.beat = 0.0;
+		this.beat = 0;
 		this.active.fill(null);
+	}
+
+	pause() {
+		this.playing = false;
+		for (let c = 0; c < this.channelCount; c++) {
+			this.audio.channels[Audio.CHANNELS - 1 - (this.channel + c)] = 0.0;
+		}
+	}
+
+	resume() {
+		this.playing = true;
 	}
 
 	stop() {
 		this.playing = false;
 		this.active.fill(null);
 		for (let c = 0; c < this.channelCount; c++) {
-			this.audio.channels[this.channel + c] = 0.0;
+			this.audio.channels[Audio.CHANNELS - 1 - (this.channel + c)] = 0.0;
 		}
 	}
 
-	// Finds the segment/bar/beat the current playhead falls on, updates
-	// this.position/segment/bar/beat, and renders whichever event is
-	// active in each of this tracker's channels into the shared channel
-	// pool directly - nothing is returned.
-	render(offset = 0.0) {
+	render() {
 		const secondsPerBeat = 60 / this.track.tempo;
 		const barDuration = this.track.beatsPerMeasure * secondsPerBeat;
 
@@ -439,19 +447,20 @@ class Tracker {
 		}
 		const totalDuration = totalBars * barDuration;
 
-		const now = this.audio.system.clock.time + offset;
-		this.position = now - this.timestamp;
+		this.position += 1 / sampleRate;
 
 		if (totalDuration <= 0 || (!this.loop && this.position >= totalDuration)) {
 			this.stop();
 			return;
 		}
-		if (this.loop) {
-			this.position = this.position % totalDuration;
+		if (this.loop && this.position >= totalDuration) {
+			this.position -= totalDuration;
+			this.active.fill(null);
 		}
 
 		let barIndex = Math.floor(this.position / barDuration);
-		this.beat = (this.position - barIndex * barDuration) / secondsPerBeat;
+		const beatPosition = (this.position - barIndex * barDuration) / secondsPerBeat;
+		this.beat = Math.floor(beatPosition);
 
 		let bar = null;
 		for (let s = this.startSegment; s < this.startSegment + this.segmentCount; s++) {
@@ -467,28 +476,22 @@ class Tracker {
 
 		for (let c = 0; c < this.channelCount; c++) {
 			const events = bar?.[c] ?? [];
-			// Only compared against other candidates in THIS bar - a
-			// carried-over event's position is bar-relative to a different
-			// bar, so it can't be compared against this bar's positions.
 			let candidate = null;
 			for (const event of events) {
-				if (event.position <= this.beat && (candidate === null || event.position > candidate.position)) {
+				if (event.position <= beatPosition && (candidate === null || event.position > candidate.position)) {
 					candidate = event;
 				}
 			}
 			if (candidate !== null) {
 				this.active[c] = candidate;
 			}
-			this.audio.channels[this.channel + c] = this.active[c] ? this.active[c].render(offset) : 0.0;
+			this.audio.channels[Audio.CHANNELS - 1 - (this.channel + c)] = this.active[c] ? this.active[c].render() : 0.0;
 		}
 	}
 }
 
-// The one shared audio layer: one pool of channels, one LFO, one sample
-// table. It doesn't care what's in a given channel - a Sound is a Sound,
-// whether it came from a synth-style trigger or a sample-style one.
 class Audio extends AudioWorkletProcessor {
-	static SOUNDS = 10;
+	static CHANNELS = 10;
 
 	constructor() {
 		super();
@@ -498,47 +501,45 @@ class Audio extends AudioWorkletProcessor {
 
 		this.system = new System();
 		this.system.audio = this;
+		this.timestamp = 0.0;
 
-		this.sounds = new Array(Audio.SOUNDS).fill(null);
-		this.channels = new Float32Array(Audio.SOUNDS);
-		this.trackers = [];
-		this.tracks = {};
+		this.channels = new Float32Array(Audio.CHANNELS);
 		this.lfo = new LFO(this);
 		this.data = [];
 
-		// Pre-allocated once, reused every process() call - the render
-		// quantum is fixed at 128 frames, so allocating this fresh each
-		// call (~375 times/sec) would just be continuous GC pressure on
-		// the real-time audio thread for no reason.
 		this._samples = new Float32Array(128);
 	}
 
 	playSynth(waveform = null, frequency, duration = null, attack = null, decay = null, sustain = null, release = null,
 		lfoWaveform = null, lfoFrequency = null, lfoDestination = null, lfoAmount = null, lfoSync = null,
-		cutoff = null, resonance = null, patch = null, channel = null, offset = null) {
+		cutoff = null, resonance = null, patch = null, offset = null) {
 		const sound = new Sound(this);
 		sound.playSynth(waveform, frequency, duration, attack, decay, sustain, release, lfoWaveform, lfoFrequency, lfoDestination, lfoAmount, lfoSync, cutoff, resonance, patch, offset);
-		this.sounds[this._resolveIndex(channel)] = sound;
+		(this.system.game ?? this.system).sounds[this.freeChannel()] = sound;
 	}
 
 	playSample(id, note = null, rate = null, loop = false, duration = null, volume = 1.0,
 		lfoWaveform = null, lfoFrequency = null, lfoDestination = LFODestination.NONE, lfoAmount = 1.0, lfoSync = false,
-		cutoff = null, resonance = null, channel = null, offset = null) {
+		cutoff = null, resonance = null, offset = null) {
 		const sound = new Sound(this);
 		sound.playSample(id, note, rate, loop, duration, volume, lfoWaveform, lfoFrequency, lfoDestination, lfoAmount, lfoSync, cutoff, resonance, offset);
-		this.sounds[this._resolveIndex(channel)] = sound;
+		(this.system.game ?? this.system).sounds[this.freeChannel()] = sound;
 	}
 
-	_resolveIndex(channel) {
-		if (channel !== null) {
-			return Audio.SOUNDS - 1 - channel;
+	freeChannel() {
+		const sounds = (this.system.game ?? this.system).sounds;
+		const freeChannels = (this.system.game ?? this.system).freeChannels;
+		let index = -1;
+		for (let i = 0; i < freeChannels; i++) {
+			if (!sounds[i]) {
+				index = i;
+				break;
+			}
 		}
-
-		let index = this.sounds.findIndex((sound) => !sound);
 		if (index === -1) {
 			index = 0;
-			for (let i = 1; i < this.sounds.length; i++) {
-				if (this.sounds[i].timestamp < this.sounds[index].timestamp) {
+			for (let i = 1; i < freeChannels; i++) {
+				if (sounds[i].timestamp < sounds[index].timestamp) {
 					index = i;
 				}
 			}
@@ -546,50 +547,32 @@ class Audio extends AudioWorkletProcessor {
 		return index;
 	}
 
-	noteOff(channel = null) {
-		if (channel === null) {
-			for (const sound of this.sounds) {
-				if (sound) {
-					sound.noteOff();
-				}
+	noteOff() {
+		const sounds = (this.system.game ?? this.system).sounds;
+		for (const sound of sounds) {
+			if (sound) {
+				sound.noteOff();
 			}
-			return;
-		}
-
-		const index = Audio.SOUNDS - 1 - channel;
-		if (this.sounds[index]) {
-			this.sounds[index].noteOff();
 		}
 	}
 
-	stop(channel = null) {
-		if (channel === null) {
-			for (const sound of this.sounds) {
-				if (sound) {
-					sound.stop();
-				}
+	stop() {
+		const sounds = (this.system.game ?? this.system).sounds;
+		for (const sound of sounds) {
+			if (sound) {
+				sound.stop();
 			}
-			return;
-		}
-
-		const index = Audio.SOUNDS - 1 - channel;
-		if (this.sounds[index]) {
-			this.sounds[index].stop();
 		}
 	}
 
-	// this.channels is the single shared pool - a Sound fills its own slot
-	// here, a Tracker fills whichever slots its channels occupy. The mix
-	// is just summing that one array; it doesn't matter what wrote into
-	// each slot. Returns the sum directly, not an array, to avoid
-	// allocating 48000+ times a second on the real-time audio thread.
-	render(offset = 0.0) {
-		for (let i = 0; i < this.sounds.length; i++) {
-			this.channels[i] = this.sounds[i] ? this.sounds[i].render(offset) : 0.0;
+	render() {
+		const sounds = (this.system.game ?? this.system).sounds;
+		for (let i = 0; i < sounds.length; i++) {
+			this.channels[i] = sounds[i] ? sounds[i].render() : 0.0;
 		}
-		for (const tracker of this.trackers) {
+		for (const tracker of (this.system.game ?? this.system).trackers) {
 			if (tracker.playing) {
-				tracker.render(offset);
+				tracker.render();
 			}
 		}
 
@@ -597,6 +580,8 @@ class Audio extends AudioWorkletProcessor {
 		for (const value of this.channels) {
 			sum += value;
 		}
+
+		this.timestamp += 1 / sampleRate;
 		return sum;
 	}
 
@@ -611,45 +596,57 @@ class Audio extends AudioWorkletProcessor {
 			}
 
 			if (message.type === 'track') {
-				this.tracks[message.id] = reconstructTrack(message.data);
+				const tracker = new Tracker(this, reconstructTrack(message.data), message.channel);
+				tracker.id = message.id;
 				return;
 			}
 
 			if (message.action === 'playTrack') {
-				let tracker = this.trackers.find((t) => t.id === message.id);
-				if (!tracker) {
-					tracker = new Tracker(this, this.tracks[message.id], message.channel);
-					tracker.id = message.id;
-					this.trackers.push(tracker);
-				}
+				const tracker = (this.system.game ?? this.system).trackers.find((t) => t.id === message.id);
 				tracker.play(message.segment, message.segments, message.loop);
 				return;
 			}
 
 			if (message.action === 'stopTrack') {
-				const tracker = this.trackers.find((t) => t.id === message.id);
+				const tracker = (this.system.game ?? this.system).trackers.find((t) => t.id === message.id);
 				if (tracker) {
 					tracker.stop();
 				}
 				return;
 			}
 
+			if (message.action === 'pauseTrack') {
+				const tracker = (this.system.game ?? this.system).trackers.find((t) => t.id === message.id);
+				if (tracker) {
+					tracker.pause();
+				}
+				return;
+			}
+
+			if (message.action === 'resumeTrack') {
+				const tracker = (this.system.game ?? this.system).trackers.find((t) => t.id === message.id);
+				if (tracker) {
+					tracker.resume();
+				}
+				return;
+			}
+
 			if (message.action === 'start') {
 				this.enabled = true;
-			} else if (message.action === 'play') {
-				if (message.target === 'synth') {
-					this.playSynth(message.waveform, message.frequency, message.duration, message.attack, message.decay, message.sustain, message.release,
-						message.lfoWaveform, message.lfoFrequency, message.lfoDestination, message.lfoAmount, message.lfoSync,
-						message.cutoff, message.resonance, message.instrument, message.channel, message.offset);
-				} else {
-					this.playSample(message.id, message.note, message.rate, message.loop, message.duration, message.volume,
-						message.lfoWaveform, message.lfoFrequency, message.lfoDestination, message.lfoAmount, message.lfoSync,
-						message.cutoff, message.resonance, message.channel, message.offset);
-				}
+			} else if (message.action === 'loadGame') {
+				this.system.loadGame(message.id);
+			} else if (message.action === 'playSynth') {
+				this.playSynth(message.waveform, message.frequency, message.duration, message.attack, message.decay, message.sustain, message.release,
+					message.lfoWaveform, message.lfoFrequency, message.lfoDestination, message.lfoAmount, message.lfoSync,
+					message.cutoff, message.resonance, message.instrument, message.offset);
+			} else if (message.action === 'playSample') {
+				this.playSample(message.id, message.note, message.rate, message.loop, message.duration, message.volume,
+					message.lfoWaveform, message.lfoFrequency, message.lfoDestination, message.lfoAmount, message.lfoSync,
+					message.cutoff, message.resonance, message.offset);
 			} else if (message.action === 'noteOff') {
-				this.noteOff(message.channel);
+				this.noteOff();
 			} else if (message.action === 'stop') {
-				this.stop(message.channel);
+				this.stop();
 			}
 		} catch (error) {
 			console.error('handleMessage error:', error, JSON.stringify(event.data));
@@ -667,8 +664,7 @@ class Audio extends AudioWorkletProcessor {
 			const frameCount = (outputs[0] && outputs[0][0]) ? outputs[0][0].length : 0;
 			const samples = this._samples;
 			for (let i = 0; i < frameCount; i++) {
-				const offset = i / sampleRate;
-				samples[i] = this.render(offset);
+				samples[i] = this.render();
 			}
 
 			for (const output of outputs) {

@@ -2,19 +2,19 @@ import { Game, Colors, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 
 export class Sprint extends Game {
-	static SPEED_BOOST = 0.3; // resolution-fraction/sec per press
-	static MAX_SPEED = 1.6; // resolution-fraction/sec
-	static SPEED_DECAY = 0.7; // per sec
-	static BASE_PURSUER_SPEED = 0.55; // resolution-fraction/sec
+	static SPEED_BOOST = 0.3;
+	static MAX_SPEED = 1.6;
+	static SPEED_DECAY = 0.7;
+	static BASE_PURSUER_SPEED = 0.55;
 	static PURSUER_SPEED_PER_MIN = 0.05;
-	static MAX_GAP = 1.0; // resolution-fraction
+	static MAX_GAP = 1.0;
 	static START_GAP = 0.6;
-	static SPAWN_Z = 6.0; // resolution units
-	static HURDLE_APPROACH_SPEED = 2.0; // resolution units/sec
-	static JUMP_WINDOW_Z = 0.4; // resolution units
-	static JUMP_BUFFER = 0.25; // seconds
-	static STUMBLE_PENALTY = 0.25; // resolution-fraction of gap
-	static HURDLE_INTERVAL = 2.2; // seconds
+	static SPAWN_Z = 6.0;
+	static HURDLE_APPROACH_SPEED = 2.0;
+	static JUMP_WINDOW_Z = 0.4;
+	static JUMP_BUFFER = 0.25;
+	static STUMBLE_PENALTY = 0.25;
+	static HURDLE_INTERVAL = 2.2;
 	static MIN_HURDLE_SIZE = 1;
 	static MAX_HURDLE_SIZE = 4;
 

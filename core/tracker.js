@@ -7,28 +7,14 @@ export class SoundEvent {
 		this.position = position;
 		this.duration = duration;
 		this.volume = volume;
-		// Where inside the sound to start, in seconds - a sample's playback
-		// start point, or a synth waveform's starting phase. null means "the
-		// sound's own start" (sample frame 0, or phase 0).
 		this.offset = offset;
-		// Set once by the Tracker that owns this event's Track, at
-		// construction time - never per-render. Gives render() everything
-		// it needs (the tracker's own current position, its audio, its
-		// track's tempo) without any state of its own.
 		this.tracker = null;
-		// Where in a sample's data this event is currently reading -
-		// advanced each render() call by clock.delta, same as
-		// Sound._renderSample advances its own this.position.
 		this.samplePosition = offset ?? 0.0;
 	}
 
-	// Renders the past, like everything else in this engine - delta is the
-	// difference between now and this event's own start time (the
-	// tracker's one fixed timestamp, plus this event's own fixed
-	// position), derived fresh every call, never stored.
-	render(offset = 0.0) {
+	render() {
 		const secondsPerBeat = 60 / this.tracker.track.tempo;
-		const now = this.tracker.audio.system.clock.time + offset;
+		const now = this.tracker.audio.timestamp;
 		const delta = now - this.tracker.timestamp - (this.position * secondsPerBeat);
 
 		if (delta < 0) {

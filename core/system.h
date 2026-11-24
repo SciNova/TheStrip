@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define DEBOUNCE_DURATION 0.010
-#define HOLD_DURATION 1.0
+#define HOLD_DURATION 5.0
 #define STRIP_MAX_LEDS 120
 
 enum class Action : uint8_t {
@@ -142,9 +142,6 @@ enum class Sound {
 	SIMONSAYS4_ORIGINAL
 };
 
-// The CSS/X11 extended color keyword list (one spelling per gray/grey pair,
-// American spelling kept). Values are the official CSS hex values.
-// This must stay in sync with js/color.js — that file is the source of truth.
 enum class Color : uint32_t {
 	ALICE_BLUE = 0xF0F8FF,
 	ANTIQUE_WHITE = 0xFAEBD7,
@@ -288,7 +285,6 @@ enum class Color : uint32_t {
 	YELLOW = 0xFFFF00,
 	YELLOW_GREEN = 0x9ACD32,
 
-	// Aliases: not CSS names, but meaningful labels for an actual CSS color above.
 	OFF = 0x000000,
 	BANANA = 0xFFD700,
 	LEMON = 0xFFFF00,
@@ -296,9 +292,6 @@ enum class Color : uint32_t {
 	BLACKBERRY = 0x4B0082,
 	STRAWBERRY = 0xDC143C,
 
-	// Bogus, invented entries with no CSS equivalent. Kept only so the games
-	// still using them don't break outright; remove once those games are
-	// updated to reference a real color name above.
 	DARK_YELLOW = 0x999900,
 	DARK_WHITE = 0x7F7F7F,
 	DARK_PURPLE = 0x44007F,

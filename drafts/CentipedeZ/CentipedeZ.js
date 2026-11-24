@@ -2,18 +2,18 @@ import { Game, Colors, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 
 export class CentipedeZ extends Game {
-	static SPAWN_Z = 9.0; // resolution units
-	static CRASH_Z = 0.3; // resolution units
-	static Z_PER_S = 0.35; // resolution units lost per path-parameter unit
-	static BASE_CHAIN_SPEED = 0.9; // path-parameter units/sec
+	static SPAWN_Z = 9.0;
+	static CRASH_Z = 0.3;
+	static Z_PER_S = 0.35;
+	static BASE_CHAIN_SPEED = 0.9;
 	static SPEED_PER_WAVE = 0.05;
-	static SEGMENT_GAP = 0.55; // path-parameter units between segments
+	static SEGMENT_GAP = 0.55;
 	static BASE_LENGTH = 8;
 	static LENGTH_PER_WAVE = 1;
-	static AMPLITUDE = 0.32; // resolution-fraction either side of center
-	static FREQUENCY = 1.3; // radians per path-parameter unit
-	static AIM_SPEED = 0.9; // resolution-fraction/sec
-	static HIT_TOLERANCE = 5; // pixels
+	static AMPLITUDE = 0.32;
+	static FREQUENCY = 1.3;
+	static AIM_SPEED = 0.9;
+	static HIT_TOLERANCE = 5;
 	static FIRE_COOLDOWN = 0.15;
 	static MAX_LIVES = 3;
 	static MIN_SEGMENT_SIZE = 1;

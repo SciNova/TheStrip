@@ -7,27 +7,27 @@ const Stage = Object.freeze({ IDLE: 'IDLE', ROLLING: 'ROLLING' });
 const FACES = [
 	[Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE,
 	 Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE,
-	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE], // face 1
+	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE],
 
 	[Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE,
 	 0, Colors.WHITE, Colors.WHITE, Colors.WHITE, 0,
-	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE], // face 2
+	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE],
 
 	[Colors.WHITE, Colors.WHITE, Colors.WHITE, 0, Colors.WHITE,
 	 Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE,
-	 Colors.WHITE, 0, Colors.WHITE, Colors.WHITE, Colors.WHITE], // face 3
+	 Colors.WHITE, 0, Colors.WHITE, Colors.WHITE, Colors.WHITE],
 
 	[Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, 0,
 	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE,
-	 0, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE], // face 4
+	 0, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE],
 
 	[Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, 0,
 	 Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE,
-	 0, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE], // face 5
+	 0, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE],
 
 	[Colors.WHITE, 0, Colors.WHITE, 0, Colors.WHITE,
 	 0, Colors.WHITE, Colors.WHITE, Colors.WHITE, 0,
-	 Colors.WHITE, 0, Colors.WHITE, 0, Colors.WHITE], // face 6
+	 Colors.WHITE, 0, Colors.WHITE, 0, Colors.WHITE],
 ];
 
 class Dice extends Square {

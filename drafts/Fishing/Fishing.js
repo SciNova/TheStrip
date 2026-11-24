@@ -11,13 +11,13 @@ const FISH_TIERS = [
 
 export class Fishing extends Game {
 	static CAST_POS_FRACTION = 0.5;
-	static MIN_WAIT = 1.5; // seconds
-	static MAX_WAIT = 5.0; // seconds
-	static REACTION_WINDOW = 0.6; // seconds
-	static REEL_TIME_LIMIT = 8.0; // seconds
-	static REEL_RATE = 0.35; // progress/sec while reeling
-	static TENSION_RATE = 0.5; // tension/sec while reeling
-	static TENSION_RELEASE = 0.4; // tension/sec while not reeling
+	static MIN_WAIT = 1.5;
+	static MAX_WAIT = 5.0;
+	static REACTION_WINDOW = 0.6;
+	static REEL_TIME_LIMIT = 8.0;
+	static REEL_RATE = 0.35;
+	static TENSION_RATE = 0.5;
+	static TENSION_RELEASE = 0.4;
 
 	constructor(system) {
 		super('Fishing', system);

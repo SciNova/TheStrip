@@ -31,10 +31,10 @@ class Car(Square2D):
 		body = random.choice(Car.BODY_COLORS)
 		dark = Car._darken(body)
 		faces = [
-			Car._build_face(length, body, Colors.WHITE),  # front (headlights)
-			Car._solid_face(length, dark),				 # side
-			Car._build_face(length, body, Colors.RED),	 # rear (tail‑lights)
-			Car._solid_face(length, dark),				 # other side
+			Car._build_face(length, body, Colors.WHITE),
+			Car._solid_face(length, dark),
+			Car._build_face(length, body, Colors.RED),
+			Car._solid_face(length, dark),
 		]
 		super().__init__(game, faces, invert=True)
 		self.speed = 0.0
@@ -89,7 +89,7 @@ class Cars(Game):
 		super().__init__("Cars", system)
 		self.camera = Camera()
 		self.player = Player(self)
-		self.player.speed = 0.25  # 1/4
+		self.player.speed = 0.25
 		self.level = 2
 		self.turn_left_pressed = False
 		self.turn_right_pressed = False

@@ -2,75 +2,199 @@
 
 {% block content %}
 <button id="menuToggle">☰</button>
+<button id="panelSwapHome">+</button>
+<button id="panelSwapGuest">-</button>
+<button id="debugToggle">LOG</button>
 <nav id="nav">
 	<h3>Apps</h3>
-	<a onclick="loadGame('apps/ColorLight')">ColorLight</a>
-	<a onclick="loadGame('apps/DemoScene')">DemoScene</a>
-	<a onclick="loadGame('apps/Dices')">Dices</a>
-	<a onclick="loadGame('apps/Moodlight')">Moodlight</a>
-	<a onclick="loadGame('apps/StopWatch')">StopWatch</a>
-	<a onclick="loadGame('apps/WhiteLight')">WhiteLight</a>
+	<a onclick="loadGame(GameId.COLOR_LIGHT)">ColorLight</a>
+	<a onclick="loadGame(GameId.DEMO_SCENE)">DemoScene</a>
+	<a onclick="loadGame(GameId.DICES)">Dices</a>
+	<a onclick="loadGame(GameId.MOODLIGHT)">Moodlight</a>
+	<a onclick="loadGame(GameId.STOPWATCH)">StopWatch</a>
+	<a onclick="loadGame(GameId.WHITE_LIGHT)">WhiteLight</a>
 
 	<h3>Games</h3>
-	<a onclick="loadGame('apps/Darts')">Darts</a>
-	<a onclick="loadGame('apps/Dino')">Dino</a>
-	<a onclick="loadGame('apps/FlappyBird')">FlappyBird</a>
-	<a onclick="loadGame('apps/Pacman')">Pacman</a>
-	<a onclick="loadGame('apps/Race')">Race</a>
-	<a onclick="loadGame('apps/SimonSays')">SimonSays</a>
-	<a onclick="loadGame('apps/Slots')">Slots</a>
-	<a onclick="loadGame('apps/Stack')">Stack</a>
+	<a onclick="loadGame(GameId.DARTS)">Darts</a>
+	<a onclick="loadGame(GameId.DINO)">Dino</a>
+	<a onclick="loadGame(GameId.FLAPPY_BIRD)">FlappyBird</a>
+	<a onclick="loadGame(GameId.PACMAN)">Pacman</a>
+	<a onclick="loadGame(GameId.RACE)">Race</a>
+	<a onclick="loadGame(GameId.SIMON_SAYS)">SimonSays</a>
+	<a onclick="loadGame(GameId.SLOTS)">Slots</a>
+	<a onclick="loadGame(GameId.STACK)">Stack</a>
 
 	<h3>Devel</h3>
-	<a onclick="loadGame('drafts/Bomberman')">Bomberman</a>
-	<a onclick="loadGame('drafts/Breakout')">Breakout</a>
-	<a onclick="loadGame('drafts/Golf')">Golf</a>
-	<a onclick="loadGame('drafts/MemoryMatch')">MemoryMatch</a>
-	<a onclick="loadGame('apps/Shooters')">Shooters</a>
-	<a onclick="loadGame('apps/Test')">Test</a>
+	<a onclick="loadGame(GameId.DRAFT_BOMBERMAN)">Bomberman</a>
+	<a onclick="loadGame(GameId.DRAFT_BREAKOUT)">Breakout</a>
+	<a onclick="loadGame(GameId.DRAFT_GOLF)">Golf</a>
+	<a onclick="loadGame(GameId.DRAFT_MEMORY_MATCH)">MemoryMatch</a>
+	<a onclick="loadGame(GameId.DRAFT_SHOOTERS)">Shooters</a>
+	<a onclick="loadGame(GameId.DRAFT_TEST)">Test</a>
 
 	<h3>Drafts</h3>
-	<a onclick="loadGame('drafts/AsteroidsZ')">AsteroidsZ</a>
-	<a onclick="loadGame('drafts/Blackjack')">Blackjack</a>
-	<a onclick="loadGame('drafts/Cars')">Cars</a>
-	<a onclick="loadGame('drafts/CentipedeZ')">CentipedeZ</a>
-	<a onclick="loadGame('drafts/Drag')">Drag</a>
-	<a onclick="loadGame('drafts/Fishing')">Fishing</a>
-	<a onclick="loadGame('drafts/Frogger')">Frogger</a>
-	<a onclick="loadGame('drafts/LunarLander')">LunarLander</a>
-	<a onclick="loadGame('drafts/MissileCommand')">MissileCommand</a>
-	<a onclick="loadGame('drafts/Pachinko')">Pachinko</a>
-	<a onclick="loadGame('drafts/Pinball')">Pinball</a>
-	<a onclick="loadGame('drafts/Pong')">Pong</a>
-	<a onclick="loadGame('drafts/QuickDraw')">QuickDraw</a>
-	<a onclick="loadGame('drafts/RhythmTap')">RhythmTap</a>
-	<a onclick="loadGame('drafts/Shuffleboard')">Shuffleboard</a>
-	<a onclick="loadGame('drafts/Sprint')">Sprint</a>
-	<a onclick="loadGame('drafts/Submarine')">Submarine</a>
-	<a onclick="loadGame('drafts/TowerDefense')">TowerDefense</a>
-	<a onclick="loadGame('drafts/TreasureHunt')">TreasureHunt</a>
-	<a onclick="loadGame('drafts/TugOfWar')">TugOfWar</a>
-	<a onclick="loadGame('drafts/WhackAMole')">WhackAMole</a>
+	<a onclick="loadGame(GameId.DRAFT_ASTEROIDS_Z)">AsteroidsZ</a>
+	<a onclick="loadGame(GameId.DRAFT_BLACKJACK)">Blackjack</a>
+	<a onclick="loadGame(GameId.DRAFT_CARS)">Cars</a>
+	<a onclick="loadGame(GameId.DRAFT_CENTIPEDE_Z)">CentipedeZ</a>
+	<a onclick="loadGame(GameId.DRAFT_DRAG)">Drag</a>
+	<a onclick="loadGame(GameId.DRAFT_FISHING)">Fishing</a>
+	<a onclick="loadGame(GameId.DRAFT_FROGGER)">Frogger</a>
+	<a onclick="loadGame(GameId.DRAFT_LUNAR_LANDER)">LunarLander</a>
+	<a onclick="loadGame(GameId.DRAFT_MISSILE_COMMAND)">MissileCommand</a>
+	<a onclick="loadGame(GameId.DRAFT_PACHINKO)">Pachinko</a>
+	<a onclick="loadGame(GameId.DRAFT_PINBALL)">Pinball</a>
+	<a onclick="loadGame(GameId.DRAFT_PONG)">Pong</a>
+	<a onclick="loadGame(GameId.DRAFT_QUICK_DRAW)">QuickDraw</a>
+	<a onclick="loadGame(GameId.DRAFT_RHYTHM_TAP)">RhythmTap</a>
+	<a onclick="loadGame(GameId.DRAFT_SHUFFLEBOARD)">Shuffleboard</a>
+	<a onclick="loadGame(GameId.DRAFT_SPRINT)">Sprint</a>
+	<a onclick="loadGame(GameId.DRAFT_SUBMARINE)">Submarine</a>
+	<a onclick="loadGame(GameId.DRAFT_TOWER_DEFENSE)">TowerDefense</a>
+	<a onclick="loadGame(GameId.DRAFT_TREASURE_HUNT)">TreasureHunt</a>
+	<a onclick="loadGame(GameId.DRAFT_TUG_OF_WAR)">TugOfWar</a>
+	<a onclick="loadGame(GameId.DRAFT_WHACK_A_MOLE)">WhackAMole</a>
 
 	<h3>2D</h3>
-	<a onclick="loadGame('drafts/Highway2D')">Highway2D</a>
-	<a onclick="loadGame('drafts/Maze2D')">Maze2D</a>
-	<a onclick="loadGame('drafts/Shooter2D')">Shooter2D</a>
-	<a onclick="loadGame('drafts/Snake2D')">Snake2D</a>
-	<a onclick="loadGame('drafts/SpaceInvaders2D')">SpaceInvaders2D</a>
+	<a onclick="loadGame(GameId.DRAFT_HIGHWAY_2D)">Highway2D</a>
+	<a onclick="loadGame(GameId.DRAFT_MAZE_2D)">Maze2D</a>
+	<a onclick="loadGame(GameId.DRAFT_SHOOTER_2D)">Shooter2D</a>
+	<a onclick="loadGame(GameId.DRAFT_SNAKE_2D)">Snake2D</a>
+	<a onclick="loadGame(GameId.DRAFT_SPACE_INVADERS_2D)">SpaceInvaders2D</a>
 </nav>
 
 <div id="strip"></div>
 <div id="pads">
-	<div id="pad"></div>
-	<div id="pad2"></div>
+	<div class="padColumn">
+		<div class="systemRow" data-pad="0">
+			<button data-sys="0">PWR</button>
+			<button data-sys="1">M</button>
+			<button data-sys="2">P</button>
+			<button data-sys="3">BT</button>
+		</div>
+		<div id="pad"></div>
+	</div>
+	<div class="padColumn">
+		<div class="systemRow" data-pad="1">
+			<button data-sys="0">PWR</button>
+			<button data-sys="1">M</button>
+			<button data-sys="2">P</button>
+			<button data-sys="3">BT</button>
+		</div>
+		<div id="pad2"></div>
+	</div>
 </div>
-<div id="debug"></div>
+<div id="debug">
+	<div id="debugInfo"></div>
+	<div id="debugLog"></div>
+</div>
 
 <script type="module">
 	import { Console } from '/js/Console.js';
-	import { Strip } from '/core/system.js';
-	import { ControlPad } from '/js/hardware.js';
+	import { Strip, GameId } from '/core/system.js';
+	import { WiredPadView } from '/js/hardware.js';
+
+	// Every game, already linked in - same as every game header being
+	// #include-d into the MCU sketch. Nothing is ever loaded at runtime;
+	// System.load() just picks one of these already-resolved classes.
+	import { WhiteLight } from '/apps/WhiteLight/WhiteLight.js';
+	import { ColorLight } from '/apps/ColorLight/ColorLight.js';
+	import { Moodlight } from '/apps/Moodlight/Moodlight.js';
+	import { StopWatch } from '/apps/StopWatch/StopWatch.js';
+	import { Dices } from '/apps/Dices/Dices.js';
+	import { Slots } from '/apps/Slots/Slots.js';
+	import { Darts } from '/apps/Darts/Darts.js';
+	import { SimonSays } from '/apps/SimonSays/SimonSays.js';
+	import { Stack } from '/apps/Stack/Stack.js';
+	import { FlappyBird } from '/apps/FlappyBird/FlappyBird.js';
+	import { Dino } from '/apps/Dino/Dino.js';
+	import { Race } from '/apps/Race/Race.js';
+	import { Pacman } from '/apps/Pacman/Pacman.js';
+	import { DemoScene } from '/apps/DemoScene/DemoScene.js';
+
+	import { Bomberman } from '/drafts/Bomberman/Bomberman.js';
+	import { Breakout } from '/drafts/Breakout/Breakout.js';
+	import { Golf } from '/drafts/Golf/Golf.js';
+	import { MemoryMatch } from '/drafts/MemoryMatch/MemoryMatch.js';
+	import { Shooters } from '/drafts/Shooters/Shooters.js';
+	import { Test } from '/drafts/Test/Test.js';
+	import { AsteroidsZ } from '/drafts/AsteroidsZ/AsteroidsZ.js';
+	import { Blackjack } from '/drafts/Blackjack/Blackjack.js';
+	import { Cars } from '/drafts/Cars/Cars.js';
+	import { CentipedeZ } from '/drafts/CentipedeZ/CentipedeZ.js';
+	import { Drag } from '/drafts/Drag/Drag.js';
+	import { Fishing } from '/drafts/Fishing/Fishing.js';
+	import { Frogger } from '/drafts/Frogger/Frogger.js';
+	import { LunarLander } from '/drafts/LunarLander/LunarLander.js';
+	import { MissileCommand } from '/drafts/MissileCommand/MissileCommand.js';
+	import { Pachinko } from '/drafts/Pachinko/Pachinko.js';
+	import { Pinball } from '/drafts/Pinball/Pinball.js';
+	import { Pong } from '/drafts/Pong/Pong.js';
+	import { QuickDraw } from '/drafts/QuickDraw/QuickDraw.js';
+	import { RhythmTap } from '/drafts/RhythmTap/RhythmTap.js';
+	import { Shuffleboard } from '/drafts/Shuffleboard/Shuffleboard.js';
+	import { Sprint } from '/drafts/Sprint/Sprint.js';
+	import { Submarine } from '/drafts/Submarine/Submarine.js';
+	import { TowerDefense } from '/drafts/TowerDefense/TowerDefense.js';
+	import { TreasureHunt } from '/drafts/TreasureHunt/TreasureHunt.js';
+	import { TugOfWar } from '/drafts/TugOfWar/TugOfWar.js';
+	import { WhackAMole } from '/drafts/WhackAMole/WhackAMole.js';
+	import { Highway2D } from '/drafts/Highway2D/Highway2D.js';
+	import { Maze2D } from '/drafts/Maze2D/Maze2D.js';
+	import { Shooter2D } from '/drafts/Shooter2D/Shooter2D.js';
+	import { Snake2D } from '/drafts/Snake2D/Snake2D.js';
+	import { SpaceInvaders2D } from '/drafts/SpaceInvaders2D/SpaceInvaders2D.js';
+
+	const GAMES = {
+		[GameId.WHITE_LIGHT]: WhiteLight,
+		[GameId.COLOR_LIGHT]: ColorLight,
+		[GameId.MOODLIGHT]: Moodlight,
+		[GameId.STOPWATCH]: StopWatch,
+		[GameId.DICES]: Dices,
+		[GameId.SLOTS]: Slots,
+		[GameId.DARTS]: Darts,
+		[GameId.SIMON_SAYS]: SimonSays,
+		[GameId.STACK]: Stack,
+		[GameId.FLAPPY_BIRD]: FlappyBird,
+		[GameId.DINO]: Dino,
+		[GameId.RACE]: Race,
+		[GameId.PACMAN]: Pacman,
+		[GameId.DEMO_SCENE]: DemoScene,
+		[GameId.DRAFT_BOMBERMAN]: Bomberman,
+		[GameId.DRAFT_BREAKOUT]: Breakout,
+		[GameId.DRAFT_GOLF]: Golf,
+		[GameId.DRAFT_MEMORY_MATCH]: MemoryMatch,
+		[GameId.DRAFT_SHOOTERS]: Shooters,
+		[GameId.DRAFT_TEST]: Test,
+		[GameId.DRAFT_ASTEROIDS_Z]: AsteroidsZ,
+		[GameId.DRAFT_BLACKJACK]: Blackjack,
+		[GameId.DRAFT_CARS]: Cars,
+		[GameId.DRAFT_CENTIPEDE_Z]: CentipedeZ,
+		[GameId.DRAFT_DRAG]: Drag,
+		[GameId.DRAFT_FISHING]: Fishing,
+		[GameId.DRAFT_FROGGER]: Frogger,
+		[GameId.DRAFT_LUNAR_LANDER]: LunarLander,
+		[GameId.DRAFT_MISSILE_COMMAND]: MissileCommand,
+		[GameId.DRAFT_PACHINKO]: Pachinko,
+		[GameId.DRAFT_PINBALL]: Pinball,
+		[GameId.DRAFT_PONG]: Pong,
+		[GameId.DRAFT_QUICK_DRAW]: QuickDraw,
+		[GameId.DRAFT_RHYTHM_TAP]: RhythmTap,
+		[GameId.DRAFT_SHUFFLEBOARD]: Shuffleboard,
+		[GameId.DRAFT_SPRINT]: Sprint,
+		[GameId.DRAFT_SUBMARINE]: Submarine,
+		[GameId.DRAFT_TOWER_DEFENSE]: TowerDefense,
+		[GameId.DRAFT_TREASURE_HUNT]: TreasureHunt,
+		[GameId.DRAFT_TUG_OF_WAR]: TugOfWar,
+		[GameId.DRAFT_WHACK_A_MOLE]: WhackAMole,
+		[GameId.DRAFT_HIGHWAY_2D]: Highway2D,
+		[GameId.DRAFT_MAZE_2D]: Maze2D,
+		[GameId.DRAFT_SHOOTER_2D]: Shooter2D,
+		[GameId.DRAFT_SNAKE_2D]: Snake2D,
+		[GameId.DRAFT_SPACE_INVADERS_2D]: SpaceInvaders2D,
+	};
+
+	window.GameId = GameId;
 
 	let cnsl = null;
 
@@ -80,25 +204,44 @@
 		}
 
 		cnsl = new Console();
-		await cnsl.system.audio.init();
-		cnsl.system.audio.synth.start();
-		cnsl.system.audio.sampler.start();
+		cnsl.system.GAMES = GAMES;
 
 		cnsl.system.strip = new Strip(120);
 
-		const ctrl = new ControlPad(cnsl.system);
-		ctrl.id = 0;
+		// Audio only ever turns on in response to a real Power button
+		// press (System.handleCommand's POWER_SHORT_PRESS calling
+		// audio.on()) - never eagerly here, since the system itself
+		// starts powered off.
+
+		const ctrl = new WiredPadView(cnsl.system, 0);
 		ctrl.panel = null;
 		ctrl.update();
 		cnsl.pads[0] = ctrl;
 		await cnsl.renderPad(0);
 
-		const guestCtrl = new ControlPad(cnsl.system);
-		guestCtrl.id = 1;
+		const guestCtrl = new WiredPadView(cnsl.system, 1);
 		guestCtrl.panel = null;
 		guestCtrl.update();
 		cnsl.pads[1] = guestCtrl;
 		await cnsl.renderPad(1);
+
+		for (const row of document.querySelectorAll('.systemRow')) {
+			const padIndex = Number(row.dataset.pad);
+			const padCtrl = cnsl.pads[padIndex];
+			for (const el of row.querySelectorAll('[data-sys]')) {
+				const sysIndex = Number(el.dataset.sys);
+				el.addEventListener('mousedown', () => padCtrl.setSystemButtonPressed(sysIndex, true));
+				el.addEventListener('mouseup', () => padCtrl.setSystemButtonPressed(sysIndex, false));
+				el.addEventListener('touchstart', (e) => {
+					e.preventDefault();
+					padCtrl.setSystemButtonPressed(sysIndex, true);
+				});
+				el.addEventListener('touchend', (e) => {
+					e.preventDefault();
+					padCtrl.setSystemButtonPressed(sysIndex, false);
+				});
+			}
+		}
 
 		cnsl.setStripContainer(document.getElementById('strip'));
 
@@ -109,43 +252,80 @@
 		let lastViewUpdate = 0;
 		const viewUpdateInterval = 1000 / 15;
 
+		const debugPanel = document.getElementById('debug');
+		const debugInfo = document.getElementById('debugInfo');
+		const debugLog = document.getElementById('debugLog');
+		let lastLoggedLineCount = -1;
+
+		function updateDebug() {
+			if (!debugPanel.classList.contains('open')) {
+				return;
+			}
+			const game = cnsl.system.game;
+			let info =
+				`clock.timestamp: ${cnsl.system.clock.timestamp.toFixed(3)}\n` +
+				`system.uptime: ${cnsl.system.uptime.toFixed(3)}\n` +
+				`system.state: ${cnsl.system.state}\n` +
+				`game.state: ${game ? game.state : '-'}\n` +
+				`game.time: ${game ? game.time.toFixed(3) : '-'}\n` +
+				`game.level: ${game ? game.level : '-'}`;
+
+			if (game?.tracker) {
+				info +=
+					`\ntracker.position: ${game.tracker.position.toFixed(3)}\n` +
+					`tracker.segment: ${game.tracker.segment}\n` +
+					`tracker.bar: ${game.tracker.bar}\n` +
+					`tracker.beat: ${game.tracker.beat}`;
+			}
+			debugInfo.textContent = info;
+
+			const lines = cnsl.system.logLines;
+			if (lines.length !== lastLoggedLineCount) {
+				lastLoggedLineCount = lines.length;
+				debugLog.textContent = lines.join('\n');
+				debugLog.scrollTop = debugLog.scrollHeight;
+			}
+		}
+
 		function frame(timestamp) {
-			const now = cnsl.system.clock.time;
-			cnsl.poll(now);
+			for (const ctrl of cnsl.pads) {
+				if (ctrl) ctrl.loop();
+			}
 			cnsl.system.loop();
 			if (timestamp - lastViewUpdate >= viewUpdateInterval) {
 				lastViewUpdate = timestamp;
 				cnsl.updateView();
 			}
+			updateDebug();
 			requestAnimationFrame(frame);
 		}
 		requestAnimationFrame(frame);
 	}
 
-	async function importGame(path) {
-		const name = path.split('/').pop();
-		const module = await import(`/${path}/${name}.js?v=${Date.now()}`);
-		return module[name];
-	}
-
-	window.loadGame = async function (path) {
+	window.loadGame = async function (gameId) {
 		await bootstrap();
-		const GameClass = await importGame(path);
-		cnsl.system.game?.cleanup();
-		cnsl.system.game = new GameClass(cnsl.system);
-		cnsl.system.game.playLevel();
+		cnsl.system.loadGame(gameId);
 		document.getElementById('nav').classList.remove('open');
 	};
 
 	const menuToggle = document.getElementById('menuToggle');
+	const panelSwapHome = document.getElementById('panelSwapHome');
+	const panelSwapGuest = document.getElementById('panelSwapGuest');
+	const debugToggle = document.getElementById('debugToggle');
 	const nav = document.getElementById('nav');
 	let fadeTimer = null;
 
 	function resetFade() {
 		menuToggle.classList.remove('faded');
+		panelSwapHome.classList.remove('faded');
+		panelSwapGuest.classList.remove('faded');
+		debugToggle.classList.remove('faded');
 		clearTimeout(fadeTimer);
 		fadeTimer = setTimeout(() => {
 			menuToggle.classList.add('faded');
+			panelSwapHome.classList.add('faded');
+			panelSwapGuest.classList.add('faded');
+			debugToggle.classList.add('faded');
 		}, 4000);
 	}
 
@@ -154,6 +334,23 @@
 		resetFade();
 	});
 
+	panelSwapHome.addEventListener('click', () => {
+		cnsl.swapPanel(0);
+		resetFade();
+	});
+
+	panelSwapGuest.addEventListener('click', () => {
+		cnsl.swapPanel(1);
+		resetFade();
+	});
+
+	const debugPanelEl = document.getElementById('debug');
+	debugToggle.addEventListener('click', () => {
+		debugPanelEl.classList.toggle('open');
+		resetFade();
+	});
+
 	resetFade();
+	bootstrap();
 </script>
 {% endblock %}

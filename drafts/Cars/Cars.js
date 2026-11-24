@@ -22,10 +22,10 @@ class Car extends Square2D {
 		const body = Car.BODY_COLORS[Math.floor(Math.random() * Car.BODY_COLORS.length)];
 		const dark = Car._darken(body);
 		const faces = [
-			Car._buildFace(length, body, Colors.WHITE), // front (headlights)
-			Car._solidFace(length, dark), // side
-			Car._buildFace(length, body, Colors.RED), // rear (tail-lights)
-			Car._solidFace(length, dark), // other side
+			Car._buildFace(length, body, Colors.WHITE),
+			Car._solidFace(length, dark),
+			Car._buildFace(length, body, Colors.RED),
+			Car._solidFace(length, dark),
 		];
 		super(game, faces, true);
 		this.speed = 0.0;
@@ -85,7 +85,7 @@ export class Cars extends Game {
 		super('Cars', system);
 		this.camera = new Camera();
 		this.player = new Player(this);
-		this.player.speed = 0.25; // 1/4
+		this.player.speed = 0.25;
 		this.level = 2;
 		this.turnLeftPressed = false;
 		this.turnRightPressed = false;

@@ -23,9 +23,9 @@ class Wall extends Shape {
 export class Maze2D extends Game {
 	static MIN_GRID = 4;
 	static MAX_GRID = 9;
-	static CELL_SIZE = 2.5; // resolution units per cell
+	static CELL_SIZE = 2.5;
 	static FOCAL_LENGTH_FACTOR = 0.5;
-	static MAX_RENDER_DIST = 7.0; // cells
+	static MAX_RENDER_DIST = 7.0;
 	static MOVE_COOLDOWN = 0.12;
 
 	constructor(system) {

@@ -7,18 +7,18 @@ const HEALTH_COLORS = [null, Colors.YELLOW, Colors.ORANGE, Colors.RED];
 
 export class Breakout extends Game {
 	static MIN_BRICKS = 6;
-	static BRICK_PIXELS = 8; // target pixels per brick column
+	static BRICK_PIXELS = 8;
 	static MAX_HEALTH = 3;
 	static PADDLE_WIDTH = 9;
-	static PADDLE_SPEED = 1.1; // resolution-fraction/sec
-	static BALL_Z_SPEED = 0.6; // resolution-fraction/sec, same scale as x speeds (z spans 0..resolution-1, like x)
-	static BALL_BASE_VX = 0.3; // resolution-fraction/sec
-	static BALL_BOUNCE_VX = 0.6; // resolution-fraction/sec, paddle-reflected max
-	static BALL_PERTURB = 0.15; // resolution-fraction/sec, random nudge on brick hit
+	static PADDLE_SPEED = 1.1;
+	static BALL_Z_SPEED = 0.6;
+	static BALL_BASE_VX = 0.3;
+	static BALL_BOUNCE_VX = 0.6;
+	static BALL_PERTURB = 0.15;
 	static MIN_BALL_SIZE = 1;
-	static MAX_BALL_SIZE = 4; // true (world) ball diameter at z=0, before perspective scaling
+	static MAX_BALL_SIZE = 4;
 	static MAX_LIVES = 3;
-	static FAR_SCALE = 0.4; // perspective scale at the far wall (z=resolution-1); near wall (z=0) is always 1.0
+	static FAR_SCALE = 0.4;
 
 	constructor(system) {
 		super('Breakout', system);
@@ -149,10 +149,6 @@ export class Breakout extends Game {
 		this._render();
 	}
 
-	// Perspective scale factor for depth z (0 = player/near wall, resolution-1 = far wall).
-	// 1.0 at z=0 (full width in view), Breakout.FAR_SCALE at the far wall (view narrows toward
-	// a vanishing point at the strip's center). Used for both the brick row and the ball, so
-	// depth reads consistently across everything drawn at a given z.
 	_perspectiveScale(z) {
 		const t = z / (this.resolution - 1);
 		return 1.0 + (Breakout.FAR_SCALE - 1.0) * t;
@@ -164,16 +160,13 @@ export class Breakout extends Game {
 		const center = (this.resolution - 1) / 2;
 		const farScale = Breakout.FAR_SCALE;
 		for (let i = 0; i < this.resolution; i++) {
-			// Inverse-project this screen pixel back to the brick row's world x. Pixels outside
-			// the far wall's projected band have no corresponding brick and stay dark (the
-			// receding side walls of the tunnel).
 			const worldX = center + (i - center) / farScale;
 			if (worldX < 0 || worldX > this.resolution - 1) {
 				continue;
 			}
 			const posInBrick = worldX % this.brickWidth;
 			if (posInBrick < 1) {
-				continue; // gap between bricks
+				continue;
 			}
 			const col = Math.min(this.brickCols - 1, Math.floor(worldX / this.brickWidth));
 			const brick = this.bricks[col];

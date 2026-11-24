@@ -6,13 +6,13 @@ const LANE_COLORS = [Colors.RED, Colors.YELLOW, Colors.CYAN, Colors.MAGENTA];
 const LANE_COMMANDS = [Command.A_PRESS, Command.B_PRESS, Command.C_PRESS, Command.D_PRESS];
 
 export class RhythmTap extends Game {
-	static SPAWN_Z = 6.0; // resolution units
-	static BASE_BEAT_INTERVAL = 0.85; // seconds
+	static SPAWN_Z = 6.0;
+	static BASE_BEAT_INTERVAL = 0.85;
 	static MIN_BEAT_INTERVAL = 0.35;
 	static BEAT_INTERVAL_STEP = 0.01;
-	static PERFECT_WINDOW = 0.5; // resolution units
-	static GOOD_WINDOW = 1.1; // resolution units
-	static MISS_Z = -0.3; // resolution units, past this a note is gone
+	static PERFECT_WINDOW = 0.5;
+	static GOOD_WINDOW = 1.1;
+	static MISS_Z = -0.3;
 	static HIT_HEAL = 0.07;
 	static MISS_PENALTY = 0.16;
 	static MIN_NOTE_SIZE = 1;

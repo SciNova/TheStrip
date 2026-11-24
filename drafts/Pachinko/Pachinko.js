@@ -10,11 +10,11 @@ const SLOTS = [
 ];
 
 export class Pachinko extends Game {
-	static NEEDLE_SPEED = 2.2; // radians/sec
-	static DROP_SPEED = 0.6; // normalized z units/sec (z: 1 top -> 0 bottom)
-	static PEG_INTERVAL = 0.12; // z units between peg jitters
-	static PEG_KICK = 6; // pixels
-	static RESULT_FLASH = 1.0; // seconds
+	static NEEDLE_SPEED = 2.2;
+	static DROP_SPEED = 0.6;
+	static PEG_INTERVAL = 0.12;
+	static PEG_KICK = 6;
+	static RESULT_FLASH = 1.0;
 	static MIN_BALL_SIZE = 1;
 	static MAX_BALL_SIZE = 3;
 

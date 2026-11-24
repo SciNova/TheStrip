@@ -22,9 +22,6 @@ class Pointer {
 	}
 
 	_blockedRange(location, size, ignoring) {
-		// Edges and every other block act as fixed obstacles; returns the
-		// legal [min, max] range location can take so [location, location + size)
-		// stays clear of all of them.
 		let min = 0;
 		let max = this.game.resolution - size;
 		for (const block of this.game.blocks) {

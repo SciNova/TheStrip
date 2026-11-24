@@ -4,17 +4,17 @@ import { SystemSound } from '../../core/audio-common.js';
 const SubmarineStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
 export class Submarine extends Game {
-	static SUB_SPEED = 0.8; // resolution-fraction/sec
-	static SURFACE_ZONE = 0.12; // resolution-fraction from position 0
-	static OXYGEN_DRAIN_RATE = 0.045; // fraction/sec
-	static OXYGEN_REFILL_RATE = 0.22; // fraction/sec, while in the surface zone
-	static MINE_FUSE_TIME = 3.5; // seconds from spawn to detonation
+	static SUB_SPEED = 0.8;
+	static SURFACE_ZONE = 0.12;
+	static OXYGEN_DRAIN_RATE = 0.045;
+	static OXYGEN_REFILL_RATE = 0.22;
+	static MINE_FUSE_TIME = 3.5;
 	static MIN_FUSE_TIME = 1.6;
-	static FUSE_TIME_STEP = 0.06; // per mine survived, shrinks fuse time
+	static FUSE_TIME_STEP = 0.06;
 	static BASE_SPAWN_INTERVAL = 1.5;
 	static MIN_SPAWN_INTERVAL = 0.6;
 	static SPAWN_INTERVAL_STEP = 0.03;
-	static MINE_RADIUS = 4; // pixels, lateral tolerance for a detonation to catch the sub
+	static MINE_RADIUS = 4;
 	static MAX_LIVES = 3;
 	static MIN_MINE_SIZE = 1;
 	static MAX_MINE_SIZE = 5;

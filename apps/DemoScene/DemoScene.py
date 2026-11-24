@@ -71,8 +71,8 @@ class Firework:
 class BouncingBall:
 	def __init__(self, resolution):
 		self.position = resolution - 1.0
-		self.velocity = -random.uniform(1.0, 5.0) # negative = falling (toward pixel 0)
-		self.restitution = random.uniform(0.4, 0.85) # 1.0 = perfect bounce, <1 = damping
+		self.velocity = -random.uniform(1.0, 5.0)
+		self.restitution = random.uniform(0.4, 0.85)
 		self.color = random.choice([
 			Colors.RED, Colors.GREEN, Colors.BLUE,
 			Colors.YELLOW, Colors.MAGENTA, Colors.CYAN,
@@ -91,10 +91,6 @@ class BouncingBall:
 			if abs(self.velocity) < 1.0:
 				self.alive = False
 				self.position = 0.0
-		# optionally bounce off ceiling (resolution-1) – uncomment if desired
-		# if self.position >= resolution - 1:
-		# self.position = resolution - 1
-		# self.velocity = -abs(self.velocity) * self.restitution
 
 	@property
 	def brightness(self):
@@ -114,8 +110,8 @@ class DemoScene(Game):
 		self.next_firework = 2.0
 
 		self.balls = []
-		self.next_ball_time = 1.0 # spawn first ball after 1 sec
-		self.ball_gravity = 80.0 # pixels/s²
+		self.next_ball_time = 1.0
+		self.ball_gravity = 80.0
 
 	def _render_plasma(self, t):
 		for i in range(self.resolution):

@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Colors, Command, GameState } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
@@ -128,14 +128,6 @@ class Snake {
 	length() {
 		return this.dots.reduce((sum, dot) => sum + 1 + dot.gap, 0);
 	}
-
-	isAtStart() {
-		return this.position === this.game.resolution - this.length();
-	}
-
-	isAtEnd() {
-		return this.position <= 0;
-	}
 }
 
 export class Stack extends Game {
@@ -179,6 +171,16 @@ export class Stack extends Game {
 			return;
 		}
 
+		if (this.snake.position === 0) {
+			this.playLevel();
+			return;
+		}
+		if (this.snake.dots.length === 0) {
+			this.nextLevel();
+			this.playLevel();
+			return;
+		}
+
 		const dt = this.system.clock.delta;
 
 		const currentSpeed = Stack.START_SPEED + (Stack.END_SPEED - Stack.START_SPEED) * (this.level / this.snake.LEVELS);
@@ -199,9 +201,8 @@ export class Stack extends Game {
 			}
 		}
 
-		if (this.snake.isAtEnd()) {
+		if (this.snake.position === 0) {
 			this.audio.play(SystemSound.BOOING);
-			this.pause();
 			this.bullets = [];
 			this.delay(4.0);
 			return;
@@ -244,13 +245,10 @@ export class Stack extends Game {
 		}
 
 		if (this.snake.dots.length === 0) {
-			if (this.level >= this.snake.LEVELS) {
-				this.audio.play(SystemSound.CHEERING);
-				this.setLevel(0);
-				this.delay(30.0);
+			this.audio.play(SystemSound.CHEERING);
+			if (this.level === this.snake.LEVELS) {
+				this.state = GameState.COMPLETED;
 			} else {
-				this.audio.play(SystemSound.CHEERING);
-				this.nextLevel();
 				this.delay(4.0);
 			}
 			return;

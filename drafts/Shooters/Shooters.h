@@ -1,9 +1,6 @@
 #ifndef SHOOTERS_H
 #define SHOOTERS_H
 
-// Not yet ported — a placeholder mirroring Shooters.js's top-level shape
-// so the file exists alongside the other languages.
-// See Shooters.js for the actual, current implementation.
 
 #include "system.h"
 

@@ -6,8 +6,8 @@ const BASE_PAIRS = 3;
 const MAX_PAIRS = 8;
 
 export class MemoryMatch extends Game {
-	static MISMATCH_SHOW_TIME = 0.8; // seconds
-	static RESULT_FLASH = 1.5; // seconds
+	static MISMATCH_SHOW_TIME = 0.8;
+	static RESULT_FLASH = 1.5;
 
 	constructor(system) {
 		super('MemoryMatch', system);
@@ -54,7 +54,6 @@ export class MemoryMatch extends Game {
 				this.playLevel();
 			}
 		} else if (this.stage === 'GAME_COMPLETE') {
-			// terminal; nothing to advance
 		}
 
 		this._render();

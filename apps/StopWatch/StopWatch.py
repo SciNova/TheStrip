@@ -7,7 +7,6 @@ from graphics import Square
 from graphics import EdgeMode
 
 DIGIT_PATTERNS = [
-	# 0
 	[
 		Colors.GREEN,
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN,
@@ -17,7 +16,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 1
 	[
 		Colors.GREEN,
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN,
@@ -27,7 +25,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 2
 	[
 		Colors.GREEN,
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN, Colors.GREEN,
@@ -37,7 +34,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 3
 	[
 		Colors.GREEN,
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN, Colors.GREEN,
@@ -47,7 +43,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 4
 	[
 		Colors.GREEN,
 		Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN,
@@ -57,7 +52,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 5
 	[
 		Colors.GREEN,
 		Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN,
@@ -67,7 +61,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 6
 	[
 		Colors.GREEN,
 		0, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN,
@@ -77,7 +70,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 7
 	[
 		Colors.GREEN,
 		0, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, Colors.GREEN,
@@ -87,7 +79,6 @@ DIGIT_PATTERNS = [
 		Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN,
 		Colors.GREEN
 	],
-	# 8
 	[
 		Colors.GREEN,
 		0, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, 0,
@@ -97,7 +88,6 @@ DIGIT_PATTERNS = [
 		0, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, 0,
 		Colors.GREEN
 	],
-	# 9
 	[
 		Colors.GREEN,
 		0, Colors.GREEN, 0, Colors.GREEN, 0, Colors.GREEN, 0,

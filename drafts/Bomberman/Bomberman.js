@@ -6,11 +6,11 @@ function lerp(min, max, t) {
 }
 
 class Bomb {
-	static MIN_FUSE = 1.0; // seconds, timeout=0
-	static MAX_FUSE = 3.0; // seconds, timeout=1
-	static MIN_BLAST = 3; // pixels, size=0
-	static MAX_BLAST = 10; // pixels, size=1
-	static BLAST_DURATION = 0.4; // seconds
+	static MIN_FUSE = 1.0;
+	static MAX_FUSE = 3.0;
+	static MIN_BLAST = 3;
+	static MAX_BLAST = 10;
+	static BLAST_DURATION = 0.4;
 
 	constructor(game, location, size, timeout) {
 		this.game = game;
@@ -73,7 +73,7 @@ class Bomb {
 }
 
 class Player {
-	static SPEED = 0.8; // screens/sec
+	static SPEED = 0.8;
 	static SIZE = 0.5;
 	static TIMEOUT = 0.5;
 
@@ -116,8 +116,8 @@ class Player {
 }
 
 class Enemy {
-	static MIN_SPEED = 0.2; // screens/sec, rank=0
-	static MAX_SPEED = 0.5; // screens/sec, rank=1
+	static MIN_SPEED = 0.2;
+	static MAX_SPEED = 0.5;
 
 	constructor(game, rank = 0.5) {
 		this.game = game;

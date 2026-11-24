@@ -11,21 +11,21 @@ const TIER = Object.freeze({
 });
 
 export class AsteroidsZ extends Game {
-	static WORLD_SIZE = 8.0; // resolution units
-	static THRUST_ACCEL = 1.2; // resolution units/sec^2
-	static FRICTION = 0.3; // per sec
-	static TURN_RATE = 0.6; // rotations/sec
-	static MAX_SPEED = 2.5; // resolution units/sec
-	static BULLET_SPEED = 3.5; // resolution units/sec
-	static BULLET_LIFETIME = 1.8; // seconds
-	static FIRE_COOLDOWN = 0.25; // seconds
+	static WORLD_SIZE = 8.0;
+	static THRUST_ACCEL = 1.2;
+	static FRICTION = 0.3;
+	static TURN_RATE = 0.6;
+	static MAX_SPEED = 2.5;
+	static BULLET_SPEED = 3.5;
+	static BULLET_LIFETIME = 1.8;
+	static FIRE_COOLDOWN = 0.25;
 	static SPLIT_COUNT = 2;
 	static BASE_ASTEROID_COUNT = 3;
-	static SHIP_RADIUS = 0.18; // resolution units
-	static INVULN_TIME = 1.5; // seconds
+	static SHIP_RADIUS = 0.18;
+	static INVULN_TIME = 1.5;
 	static MAX_LIVES = 3;
 	static FOCAL_LENGTH_FACTOR = 0.5;
-	static MAX_RENDER_DIST = 6.0; // resolution units
+	static MAX_RENDER_DIST = 6.0;
 
 	constructor(system) {
 		super('AsteroidsZ', system);

@@ -2,13 +2,13 @@ import { Game, Colors, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 
 export class TugOfWar extends Game {
-	static PULL_IMPULSE = 0.35; // boost units per press
+	static PULL_IMPULSE = 0.35;
 	static MAX_BOOST = 1.2;
-	static BOOST_DECAY = 0.9; // per sec
-	static BASE_CPU_RATE = 0.4; // boost-equivalent units/sec
+	static BOOST_DECAY = 0.9;
+	static BASE_CPU_RATE = 0.4;
 	static CPU_RATE_PER_ROUND = 0.03;
-	static ROPE_SCALE = 0.35; // rope-position change per (boost diff) per sec
-	static RESULT_FLASH = 1.5; // seconds
+	static ROPE_SCALE = 0.35;
+	static RESULT_FLASH = 1.5;
 	static MAX_LIVES = 3;
 
 	constructor(system) {

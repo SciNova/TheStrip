@@ -1,4 +1,6 @@
 import { Game, Colors, hsvToRgb, Command } from '../../core/system.js';
+import { Audio, Tracker } from '../../core/audio.js';
+import { MODFormat } from '../../core/mod.js';
 
 const Stage = Object.freeze({
 	FRACTAL_MOUNTAIN: 0,
@@ -15,13 +17,17 @@ const Stage = Object.freeze({
 const STAGE_COUNT = 10;
 const STAGE_DURATIONS = [16.0, 15.0, 13.0, 13.0, 14.0, 13.0, 11.0, 10.0, 14.0, 16.0];
 
-// ---------- Fractal Mountain ----------
-// A 1D slice through the Mandelbrot set is punctate, not landscape-like: the
-// line crosses the boundary at a few isolated points, with solid black
-// (interior) or flat fast-escaping color on either side. The "hills and
-// valleys" look of Mandelbrot renders comes from the 2D neighborhood around
-// the boundary, which a single scanline never sees. Fractal (Perlin-style)
-// noise gives an actual continuous, self-similar height field instead.
+const ACTIVE_STAGES = [
+	Stage.FIREWORKS,
+	Stage.AURORA_BOREALIS,
+	Stage.COPPER_BARS,
+	Stage.SCANNER,
+	Stage.REACTIVE_BURST,
+	Stage.BOUNCING_BALLS,
+];
+const BARS_PER_SLOT = 2;
+const TRACK_SEGMENT_COUNT = 24;
+
 
 function fractalHash(n) {
 	const s = Math.sin(n) * 43758.5453123;
@@ -41,9 +47,6 @@ const MOUNTAIN_OCTAVES = 5;
 const MOUNTAIN_PERSISTENCE = 0.52;
 const MOUNTAIN_LACUNARITY = 2.05;
 
-// Fractional Brownian motion: layered octaves of the same noise at doubling
-// frequency and halving amplitude, so detail keeps appearing at every zoom
-// level by construction, with no need to steer around anything.
 function mountainHeight(x, seed) {
 	let total = 0, amplitude = 1, frequency = 1, maxValue = 0;
 	for (let o = 0; o < MOUNTAIN_OCTAVES; o++) {
@@ -52,8 +55,6 @@ function mountainHeight(x, seed) {
 		amplitude *= MOUNTAIN_PERSISTENCE;
 		frequency *= MOUNTAIN_LACUNARITY;
 	}
-	// Summed octaves regress toward the middle; stretch contrast back out so
-	// the palette actually reaches deep valleys and bright peaks.
 	const e = (total / maxValue - 0.5) * 1.6 + 0.5;
 	return Math.max(0, Math.min(1, e));
 }
@@ -83,14 +84,7 @@ function terrainColor(e) {
 	return 0xFFFFFF;
 }
 
-// ---------- Starfield Warp ----------
 
-// STAR_Z_NEAR is a numeric floor, not a "passed the camera" threshold: with
-// screen position going as x/z, only stars with |x| near 1 would ever reach
-// the strip edge before z hit 1.0, so most stars would just vanish mid-strip
-// instead of streaking off past the edge. Keeping it tiny lets x/z diverge
-// enough for every star, regardless of its direction, to actually reach the
-// edge and produce a visible streak before respawning.
 const STAR_Z_NEAR = 0.08;
 const STAR_Z_FAR = 60.0;
 const STAR_BASE_SPEED = 12.0;
@@ -111,7 +105,6 @@ class Star {
 	}
 }
 
-// ---------- Fireworks ----------
 
 class Particle {
 	constructor(position, velocity, color, lifetime, gravity) {
@@ -185,7 +178,6 @@ class Firework {
 	}
 }
 
-// ---------- Aurora Borealis ----------
 
 const AURORA_BANDS = [
 	{ hue: 0.36, wavelength: 0.55, speedMul: 1.0 },
@@ -194,7 +186,6 @@ const AURORA_BANDS = [
 	{ hue: 0.58, wavelength: 0.65, speedMul: 0.85 },
 ];
 
-// ---------- Digital Rain ----------
 
 class RainDrop {
 	constructor(resolution) {
@@ -217,7 +208,6 @@ class RainDrop {
 	}
 }
 
-// ---------- Reactive Burst ----------
 
 class ReactionDot {
 	constructor(position, velocity, hue, life, drag, canSpawnChild) {
@@ -252,7 +242,6 @@ class ReactionDot {
 	}
 }
 
-// ---------- Bouncing Balls ----------
 
 const BOUNCE_BALL_COUNT = 5;
 const BOUNCE_GRAVITY = 55;
@@ -327,8 +316,16 @@ class BouncingBall {
 export class DemoScene extends Game {
 	constructor(system) {
 		super('DemoScene', system);
-		this.stage = Stage.FRACTAL_MOUNTAIN;
+		this.stage = ACTIVE_STAGES[0];
 		this.stageStart = 0.0;
+		this.activeSlot = 0;
+
+		this.tracker = new Tracker(this.audio, Audio.CHANNELS - this.freeChannels);
+		this.freeChannels -= 4;
+		MODFormat.load('../modplayer/mods/faggots_universe.mod').then((track) => {
+			this.tracker.load(track);
+			this.tracker.play(0, TRACK_SEGMENT_COUNT, true);
+		});
 
 		this.fractalSeed = 0.0;
 
@@ -354,6 +351,8 @@ export class DemoScene extends Game {
 		this.copperAccumR = new Float32Array(this.resolution);
 		this.copperAccumG = new Float32Array(this.resolution);
 		this.copperAccumB = new Float32Array(this.resolution);
+
+		this._enterStage(this.stage);
 	}
 
 	_enterStage(stage) {
@@ -468,16 +467,12 @@ export class DemoScene extends Game {
 			const sat = Math.max(0.15, 0.9 - warp * 0.75);
 			const color = hsvToRgb(star.hue, sat, brightness);
 
-			// dpos/dt = x * halfWidth * speed / z^2 (magnitude), so streaks
-			// grow naturally as the star closes in on z = 0.
 			const dposdt = Math.abs(star.x) * halfWidth * speed / (star.z * star.z);
 			const streak = Math.min(10, dposdt * dt * 4);
 
 			const basePos = Math.floor(pos);
 			this._blendMax(basePos, color);
 
-			// The tail trails back toward the center, opposite the direction
-			// of outward travel.
 			const trailDir = star.x >= 0 ? -1 : 1;
 			const steps = Math.ceil(streak);
 			for (let s = 1; s <= steps; s++) {
@@ -739,9 +734,12 @@ export class DemoScene extends Game {
 		const now = this.time;
 		const dt = this.system.clock.delta;
 
-		const duration = STAGE_DURATIONS[this.stage];
-		if (now - this.stageStart >= duration) {
-			this.stage = (this.stage + 1) % STAGE_COUNT;
+		const slot = this.tracker.track
+			? Math.floor(this.tracker.segment / BARS_PER_SLOT) % ACTIVE_STAGES.length
+			: 0;
+		if (slot !== this.activeSlot) {
+			this.activeSlot = slot;
+			this.stage = ACTIVE_STAGES[slot];
 			this.stageStart = now;
 			this._enterStage(this.stage);
 		}

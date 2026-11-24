@@ -2,12 +2,12 @@ import { Game, Colors, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 
 export class TreasureHunt extends Game {
-	static CURSOR_SPEED = 0.8; // resolution-fraction/sec
-	static BASE_TOLERANCE = 0.08; // resolution-fraction
+	static CURSOR_SPEED = 0.8;
+	static BASE_TOLERANCE = 0.08;
 	static MIN_TOLERANCE = 0.02;
 	static TOLERANCE_STEP = 0.006;
-	static SENSE_RANGE = 0.5; // resolution-fraction, heat falloff distance
-	static DIG_COOLDOWN = 0.3; // seconds
+	static SENSE_RANGE = 0.5;
+	static DIG_COOLDOWN = 0.3;
 
 	constructor(system) {
 		super('TreasureHunt', system);

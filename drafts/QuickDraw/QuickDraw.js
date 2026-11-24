@@ -2,11 +2,11 @@ import { Game, Colors, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 
 export class QuickDraw extends Game {
-	static MIN_WAIT = 1.0; // seconds
-	static MAX_WAIT = 4.0; // seconds
-	static CPU_REACTION_MIN = 0.3; // seconds
-	static CPU_REACTION_MAX = 0.6; // seconds
-	static RESULT_FLASH = 1.5; // seconds
+	static MIN_WAIT = 1.0;
+	static MAX_WAIT = 4.0;
+	static CPU_REACTION_MIN = 0.3;
+	static CPU_REACTION_MAX = 0.6;
+	static RESULT_FLASH = 1.5;
 	static LIGHTNING_TIME = 0.25;
 	static FAST_TIME = 0.4;
 	static OK_TIME = 0.6;

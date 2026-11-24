@@ -18,15 +18,15 @@ function zoneScore(fraction) {
 }
 
 export class Shuffleboard extends Game {
-	static POWER_FREQUENCY = 1.1; // oscillation cycles/sec
-	static MAX_SHOT_SPEED = 1.6; // resolution-fraction/sec
-	static FRICTION = 0.55; // per sec
-	static STOP_THRESHOLD = 0.02; // resolution-fraction/sec
-	static KNOCK_RADIUS = 5; // pixels
-	static KNOCK_IMPULSE = 0.5; // resolution-fraction/sec added to resting puck
+	static POWER_FREQUENCY = 1.1;
+	static MAX_SHOT_SPEED = 1.6;
+	static FRICTION = 0.55;
+	static STOP_THRESHOLD = 0.02;
+	static KNOCK_RADIUS = 5;
+	static KNOCK_IMPULSE = 0.5;
 	static THROWS_PER_PLAYER = 2;
-	static CPU_THROW_DELAY = 1.0; // seconds
-	static RESULT_FLASH = 2.5; // seconds
+	static CPU_THROW_DELAY = 1.0;
+	static RESULT_FLASH = 2.5;
 
 	constructor(system) {
 		super('Shuffleboard', system);

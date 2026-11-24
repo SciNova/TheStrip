@@ -7,9 +7,6 @@ export class JSONFormat {
 		return JSONFormat.parse(text);
 	}
 
-	// path is resolved relative to this file, same in Node (reads the real
-	// file) and in a browser (fetches it) - branching on the resolved URL's
-	// own protocol rather than checking which environment this is.
 	static async _readText(path) {
 		const url = new URL(path, import.meta.url);
 		if (url.protocol === 'file:') {
@@ -29,10 +26,6 @@ export class JSONFormat {
 		return JSON.stringify(JSONFormat.toObject(track));
 	}
 
-	// Plain, structured-clone/JSON-safe object - this is the thing that
-	// actually crosses a postMessage boundary or gets written to a file.
-	// Each event's sound is stored as a key name (looked up against the
-	// shared SystemSound dictionary by identity), never as an embedded patch.
 	static toObject(track) {
 		return {
 			tempo: track.tempo,

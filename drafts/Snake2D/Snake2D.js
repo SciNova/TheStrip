@@ -5,18 +5,18 @@ import { BasePlayer2D, World2D } from '../../core/graphics.js';
 const SnakeStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
 export class Snake2D extends Game {
-	static WORLD_SIZE = 7.0; // resolution units
-	static FORWARD_SPEED = 0.9; // resolution units/sec
-	static TURN_RATE = 0.5; // rotations/sec
-	static SEGMENT_SPACING = 0.12; // resolution units
+	static WORLD_SIZE = 7.0;
+	static FORWARD_SPEED = 0.9;
+	static TURN_RATE = 0.5;
+	static SEGMENT_SPACING = 0.12;
 	static INITIAL_LENGTH = 5;
 	static GROWTH_PER_FOOD = 3;
 	static NECK_IGNORE_COUNT = 6;
-	static COLLISION_RADIUS = 0.12; // resolution units
-	static EAT_RADIUS = 0.2; // resolution units
+	static COLLISION_RADIUS = 0.12;
+	static EAT_RADIUS = 0.2;
 	static FOCAL_LENGTH_FACTOR = 0.5;
-	static MAX_RENDER_DIST = 6.0; // resolution units
-	static SPEED_STEP = 0.015; // resolution units/sec, per food eaten
+	static MAX_RENDER_DIST = 6.0;
+	static SPEED_STEP = 0.015;
 	static MIN_SEGMENT_SIZE = 1;
 	static MAX_SEGMENT_SIZE = 4;
 

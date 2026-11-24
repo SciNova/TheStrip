@@ -4,12 +4,12 @@ import { SystemSound } from '../../core/audio-common.js';
 const LanderStage = Object.freeze({ PLAYING: 'PLAYING', RESULT: 'RESULT' });
 
 export class LunarLander extends Game {
-	static BASE_GRAVITY = 0.35; // resolution-fraction/sec^2
+	static BASE_GRAVITY = 0.35;
 	static GRAVITY_PER_LEVEL = 0.04;
-	static THRUST_ACCEL = 0.9; // resolution-fraction/sec^2
-	static BASE_FUEL_DRAIN = 0.18; // fraction/sec while thrusting
-	static SAFE_LANDING_SPEED = 0.18; // resolution-fraction/sec
-	static GROUND_BAND = 3; // pixels
+	static THRUST_ACCEL = 0.9;
+	static BASE_FUEL_DRAIN = 0.18;
+	static SAFE_LANDING_SPEED = 0.18;
+	static GROUND_BAND = 3;
 	static MAX_LIVES = 3;
 
 	constructor(system) {

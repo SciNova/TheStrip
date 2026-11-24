@@ -6,7 +6,7 @@
 #include "system.h"
 #include "graphics.h"
 
-class Stack; // forward for Bullet constructor
+class Stack;
 
 class Dot : public Shape {
 public:

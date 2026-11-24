@@ -4,8 +4,8 @@ import { SystemSound } from '../../core/audio-common.js';
 export class Blackjack extends Game {
 	static INITIAL_CARDS = 2;
 	static DEALER_STAND = 17;
-	static DEALER_DRAW_DELAY = 0.8; // seconds
-	static RESULT_FLASH = 2.0; // seconds
+	static DEALER_DRAW_DELAY = 0.8;
+	static RESULT_FLASH = 2.0;
 
 	constructor(system) {
 		super('Blackjack', system);

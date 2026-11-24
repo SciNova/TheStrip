@@ -1,28 +1,22 @@
 import { Game, Command } from '../../core/system.js';
 
-// Tunable plasma parameters
-const PLASMA_SPEED = 1.8; // how fast the plasma field evolves over time
-const PLASMA_WARP = 0.35; // domain-warp strength; keeps blobs swirling instead of scrolling
-const THEME_FADE_DURATION = 1.5; // seconds to cross-fade from one theme to the next
+const PLASMA_SPEED = 1.8;
+const PLASMA_WARP = 0.35;
+const THEME_FADE_DURATION = 1.5;
 const SPEED_MIN = 0.0;
 const SPEED_MAX = 2.0;
 const SPEED_STEP = 0.1;
 const SPEED_RAMP_SPEED = 2.0;
 
-// Spatial frequency per theme; higher = smaller/more numerous blobs
 const THEME_SCALES = [
-	1.2, // sky: large, slow-rolling waves/clouds
-	2.4, // nature: medium patches of green/sand
-	5.5, // fireplace: tiny flickering sparkles
+	1.2,
+	2.4,
+	5.5,
 ];
 
-// Each theme is a list of color stops (deep -> light) the plasma value is mapped across
 const THEME_COLORS = [
-	// sky: deep blue -> light blue -> white
 	[[0, 10, 60], [20, 70, 160], [110, 170, 230], [255, 255, 255]],
-	// nature: deep vegetation green -> green -> olive -> light sand/desert brown (no yellow)
 	[[8, 45, 18], [30, 115, 55], [110, 125, 80], [196, 155, 110]],
-	// fireplace: deep red -> orange -> yellow
 	[[60, 0, 0], [180, 30, 0], [255, 120, 0], [255, 200, 40]],
 ];
 
@@ -45,10 +39,6 @@ function sampleGradient(stops, t) {
 	return [lerp(a[0], b[0], frac), lerp(a[1], b[1], frac), lerp(a[2], b[2], frac)];
 }
 
-// Sum of sine waves at unrelated spatial/temporal frequencies, some running
-// forward and some backward in time, plus a domain warp. The interference
-// between them forms blobs that grow, merge and dissolve in place rather
-// than a single wave marching across the strip.
 function plasmaValue(pos, t, scale) {
 	const twoPi = Math.PI * 2;
 	const x = pos * scale * twoPi;
@@ -80,9 +70,6 @@ export class Moodlight extends Game {
 	_plasmaRender(dt) {
 		this.phase[this.activeTheme] += dt * this.speed * PLASMA_SPEED;
 
-		// Snapshot the fade-from theme for this frame's render: this.fadeFromTheme
-		// may be cleared below once the fade completes, but the loop still needs
-		// a valid theme index to blend from for the frame that crosses the finish line.
 		const fadeFromTheme = this.fadeFromTheme;
 		const fading = fadeFromTheme !== null;
 		let mix = 1.0;

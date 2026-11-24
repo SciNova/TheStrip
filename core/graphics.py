@@ -62,7 +62,7 @@ class Shape:
 				while pixel_pos >= self.game.resolution:
 					pixel_pos = 2 * (self.game.resolution - 1) - pixel_pos
 				self.game.pixels[pixel_pos] = px
-			else:  # WRAP
+			else:
 				pixel_pos = pixel_pos % self.game.resolution
 				self.game.pixels[pixel_pos] = px
 

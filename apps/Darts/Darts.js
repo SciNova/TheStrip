@@ -3,8 +3,8 @@ import { Game, Colors, Command } from '../../core/system.js';
 const Phase = Object.freeze({ IDLE: 'IDLE', PLAY: 'PLAY', COMPLETE: 'COMPLETE' });
 
 class Target {
-	static SIZE = 0.5; // fraction of resolution, diameter of the outer ring at scale 1
-	static RADII = [0.1, 0.3, 0.6, 1.0]; // fraction of half-width, ascending
+	static SIZE = 0.5;
+	static RADII = [0.1, 0.3, 0.6, 1.0];
 	static SCORES = [50, 25, 10, 5];
 	static COLORS = [Colors.RED, Colors.DARK_YELLOW, Colors.DARK_GREEN, Colors.BLUE];
 	static START_SCALE = 1.0;
@@ -55,11 +55,11 @@ class Target {
 }
 
 class Score {
-	static SIZE = 0.2; // fraction of resolution, each side, marker pixel included
+	static SIZE = 0.2;
 
 	constructor(game, maxValue) {
 		this.game = game;
-		this.value = 0; // cumulative score for the whole game, never reset
+		this.value = 0;
 		this.maxValue = maxValue;
 	}
 
@@ -94,12 +94,12 @@ class Score {
 }
 
 class Progress {
-	static SIZE = 0.2; // fraction of resolution, marker pixel included
+	static SIZE = 0.2;
 	static COLOR = Colors.YELLOW;
 
 	constructor(game, maxValue) {
 		this.game = game;
-		this.value = 0; // darts thrown so far, regardless of score
+		this.value = 0;
 		this.maxValue = maxValue;
 	}
 
@@ -130,7 +130,7 @@ class Progress {
 }
 
 class Needle {
-	static START_SPEED = 1.8; // radians/sec
+	static START_SPEED = 1.8;
 	static END_SPEED = 3.5;
 	static EASE_POWER = 2.5;
 

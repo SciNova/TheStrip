@@ -1,4 +1,4 @@
-import { Command, InputEvent, Button, ButtonEvent } from '../core/system.js';
+import { Command, WiredPad, InputEvent, ButtonEvent } from '../core/system.js';
 
 export const PcbPanelModel = Object.freeze({
 	NONE: 'NONE',
@@ -81,75 +81,87 @@ export const PANEL_CLASSES = Object.freeze({
 	LRUDFF: PcbPanelLRUDFF,
 });
 
-const DIRECTION_COMMANDS = [
-	Command.UP_PRESS, Command.DOWN_PRESS, Command.LEFT_PRESS, Command.RIGHT_PRESS,
-	Command.FIRE_PRESS, Command.FIRE2_PRESS,
-];
+export class WiredPadView {
+	static COMMANDS = {
+		UP: { press: Command.UP_PRESS, release: Command.UP_RELEASE },
+		DOWN: { press: Command.DOWN_PRESS, release: Command.DOWN_RELEASE },
+		LEFT: { press: Command.LEFT_PRESS, release: Command.LEFT_RELEASE },
+		RIGHT: { press: Command.RIGHT_PRESS, release: Command.RIGHT_RELEASE },
+		FIRE: { press: Command.FIRE_PRESS, release: Command.FIRE_RELEASE },
+		FIRE2: { press: Command.FIRE2_PRESS, release: Command.FIRE2_RELEASE },
+		A: { press: Command.A_PRESS, release: Command.A_RELEASE },
+		B: { press: Command.B_PRESS, release: Command.B_RELEASE },
+		C: { press: Command.C_PRESS, release: Command.C_RELEASE },
+		D: { press: Command.D_PRESS, release: Command.D_RELEASE },
+		POWER: { release: Command.POWER_SHORT_PRESS, hold: Command.POWER_LONG_PRESS },
+		MENU: { release: Command.MENU_SHORT_PRESS, hold: Command.MENU_LONG_PRESS },
+		PAUSE: { release: Command.PAUSE_SHORT_PRESS, hold: Command.PAUSE_LONG_PRESS },
+		BT: { release: Command.BT_SHORT_PRESS, hold: Command.BT_LONG_PRESS },
+	};
 
-// Always available regardless of which panel (if any) is selected — a
-// keyboard shortcut just injects a raw press/release, the same as clicking
-// a panel's own on-screen button. Neither path knows about the other.
-const NAMED_COMMANDS = [
-	Command.A_PRESS, Command.B_PRESS, Command.C_PRESS, Command.D_PRESS,
-];
+	static DIRECTION_NAMES = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'FIRE', 'FIRE2'];
+	static NAMED_NAMES = ['A', 'B', 'C', 'D'];
+	static SYSTEM_NAMES = ['POWER', 'MENU', 'PAUSE', 'BT'];
 
-export class ControlPad {
-	constructor(system) {
+	static PANEL_BUTTON_NAMES = {
+		[Command.A_PRESS]: 'A',
+		[Command.B_PRESS]: 'B',
+		[Command.C_PRESS]: 'C',
+		[Command.D_PRESS]: 'D',
+		[Command.FIRE_PRESS]: 'FIRE',
+		[Command.FIRE2_PRESS]: 'FIRE2',
+		[Command.UP_PRESS]: 'UP',
+		[Command.DOWN_PRESS]: 'DOWN',
+		[Command.LEFT_PRESS]: 'LEFT',
+		[Command.RIGHT_PRESS]: 'RIGHT',
+	};
+
+	constructor(system, id) {
 		this.system = system;
-		this.id = 0;
+		this.id = id;
 		this.panel = null;
-		this.buttons = [];
-		this.pressedState = [];
-		this.directionButtons = DIRECTION_COMMANDS.map(() => new Button());
-		this.directionPressedState = new Array(DIRECTION_COMMANDS.length).fill(false);
-		this.namedButtons = NAMED_COMMANDS.map(() => new Button());
-		this.namedPressedState = new Array(NAMED_COMMANDS.length).fill(false);
+		this.pad = new WiredPad(system, id);
+		this.pressed = {};
 	}
 
 	update() {
-		this.buttons = this.panel ? this.panel.pressCommands.map(() => new Button()) : [];
-		this.pressedState = new Array(this.buttons.length).fill(false);
 	}
 
 	setButtonPressed(index, pressed) {
-		this.pressedState[index] = pressed;
+		if (!this.panel) {
+			return;
+		}
+		this.pressed[WiredPadView.PANEL_BUTTON_NAMES[this.panel.pressCommands[index]]] = pressed;
 	}
 
 	setDirectionPressed(index, pressed) {
-		this.directionPressedState[index] = pressed;
+		this.pressed[WiredPadView.DIRECTION_NAMES[index]] = pressed;
 	}
 
 	setNamedButtonPressed(index, pressed) {
-		this.namedPressedState[index] = pressed;
+		this.pressed[WiredPadView.NAMED_NAMES[index]] = pressed;
 	}
 
-	poll(now) {
-		if (this.panel) {
-			for (let i = 0; i < this.buttons.length; i++) {
-				const event = this.buttons[i].process(this.pressedState[i], now);
-				if (event === ButtonEvent.PRESS) {
-					this.system.handleCommand(this.id, new InputEvent(this.panel.pressCommands[i]));
-				} else if (event === ButtonEvent.RELEASE || event === ButtonEvent.HOLDRELEASE) {
-					this.system.handleCommand(this.id, new InputEvent(this.panel.pressCommands[i] + 1));
-				}
-			}
-		}
+	setSystemButtonPressed(index, pressed) {
+		this.pressed[WiredPadView.SYSTEM_NAMES[index]] = pressed;
+	}
 
-		for (let i = 0; i < this.directionButtons.length; i++) {
-			const event = this.directionButtons[i].process(this.directionPressedState[i], now);
-			if (event === ButtonEvent.PRESS) {
-				this.system.handleCommand(this.id, new InputEvent(DIRECTION_COMMANDS[i]));
-			} else if (event === ButtonEvent.RELEASE || event === ButtonEvent.HOLDRELEASE) {
-				this.system.handleCommand(this.id, new InputEvent(DIRECTION_COMMANDS[i] + 1));
+	loop() {
+		for (const name in this.pad.buttons) {
+			const commands = WiredPadView.COMMANDS[name];
+			const event = this.pad.buttons[name].process(this.pressed[name] ?? false);
+			if (!event) {
+				continue;
 			}
-		}
-
-		for (let i = 0; i < this.namedButtons.length; i++) {
-			const event = this.namedButtons[i].process(this.namedPressedState[i], now);
-			if (event === ButtonEvent.PRESS) {
-				this.system.handleCommand(this.id, new InputEvent(NAMED_COMMANDS[i]));
-			} else if (event === ButtonEvent.RELEASE || event === ButtonEvent.HOLDRELEASE) {
-				this.system.handleCommand(this.id, new InputEvent(NAMED_COMMANDS[i] + 1));
+			this.system.log(`pad ${this.id}: ${name} ${event}`);
+			if (event === ButtonEvent.PRESS && commands.press) {
+				this.system.handleCommand(this.id, new InputEvent(commands.press));
+			} else if (event === ButtonEvent.RELEASE && commands.release) {
+				this.system.handleCommand(this.id, new InputEvent(commands.release));
+			} else if (event === ButtonEvent.HOLDRELEASE && commands.release && !commands.hold) {
+				this.system.handleCommand(this.id, new InputEvent(commands.release));
+			} else if (event === ButtonEvent.HOLD && commands.hold) {
+				this.system.handleCommand(this.id, new InputEvent(commands.hold));
 			}
 		}
 	}

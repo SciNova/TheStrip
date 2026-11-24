@@ -2,7 +2,7 @@ import { Game, Colors, Command } from '../../core/system.js';
 
 class Hole {
 	static BACKGROUND_COLOR = Colors.DARK_GREEN;
-	static RIM_COLOR = 0x003300; // darker than the field, so the hole stays visible to its edge
+	static RIM_COLOR = 0x003300;
 
 	constructor(game, location, radius) {
 		this.game = game;
@@ -29,7 +29,7 @@ class Hole {
 }
 
 class Obstacle {
-	static SPEED_FACTOR = 1.0; // walking speed multiplier
+	static SPEED_FACTOR = 1.0;
 
 	constructor(game, location, size) {
 		this.game = game;
@@ -59,7 +59,7 @@ class Lake extends Obstacle {
 }
 
 class Sand extends Obstacle {
-	static COLOR = 0x998033; // muted brown
+	static COLOR = 0x998033;
 	static SPEED_FACTOR = 0.5;
 }
 
@@ -68,11 +68,11 @@ class Concrete extends Obstacle {
 }
 
 class Ball {
-	static GRAVITY = 10.0; // pixels/sec^2, tuning constant, not physically real
-	static MAX_ANGLE = Math.PI / 4; // 45 degrees, reached at the farthest possible hole
-	static DRAG = 1.5; // per sec, at ground level; fades to 0 at this shot's apex
-	static HEIGHT_MARGIN = 1.2; // height=1.0 sits this far above the optimal 45-degree apex
-	static MAX_SHADOW = 30; // pixels, shadow distance at height=1.0 at the screen extremes
+	static GRAVITY = 10.0;
+	static MAX_ANGLE = Math.PI / 4;
+	static DRAG = 1.5;
+	static HEIGHT_MARGIN = 1.2;
+	static MAX_SHADOW = 30;
 	static SHADOW_COLOR = 0x333333;
 
 	constructor(game, location) {
@@ -156,18 +156,18 @@ class Ball {
 const PlayerState = Object.freeze({ AIMING: 'AIMING', WALKING: 'WALKING', ADVANCING: 'ADVANCING' });
 
 class Player {
-	static POWER_FREQUENCY = 0.6; // oscillation cycles/sec while charging
-	static BAR_LENGTH = 10; // pixels
+	static POWER_FREQUENCY = 0.6;
+	static BAR_LENGTH = 10;
 	static BAR_FILL = Colors.LIGHT_GRAY;
 	static COLOR = Colors.BLUE;
 	static WALK_SECONDS_PER_SCREEN = 4.0;
-	static TEE_OFFSET_FRACTION = 1 / 6; // distance past a sunk hole where the next ball tees up
+	static TEE_OFFSET_FRACTION = 1 / 6;
 
 	constructor(game, location) {
 		this.game = game;
 		this.location = location;
 		this.ball = new Ball(game, location);
-		this.speed = game.resolution / Player.WALK_SECONDS_PER_SCREEN; // px/sec
+		this.speed = game.resolution / Player.WALK_SECONDS_PER_SCREEN;
 		this.power = 0.0;
 		this.charging = false;
 		this.chargeTime = 0.0;
@@ -280,10 +280,10 @@ export class Golf extends Game {
 	static HOLE_COUNT = 18;
 	static START_RADIUS_FRACTION = 1 / 10;
 	static END_RADIUS_FRACTION = 1 / 60;
-	static SCROLL_SECONDS = 10.0; // time to scroll across the entire field
+	static SCROLL_SECONDS = 10.0;
 	static MAX_OBSTACLES_PER_GAP = 3;
 	static BASE_OBSTACLE_SIZE_FRACTION = 1 / 6;
-	static CONCRETE_CLEARANCE_FRACTION = 1 / 8; // grass buffer concrete needs from any neighbor
+	static CONCRETE_CLEARANCE_FRACTION = 1 / 8;
 
 	constructor(system) {
 		super('Golf', system);
@@ -298,7 +298,7 @@ export class Golf extends Game {
 		this.scrollDirection = 0;
 
 		const playerStart = this.resolution / 5;
-		const gap = (this.resolution * 4 / 5) - playerStart; // same distance as the first hole, every hole
+		const gap = (this.resolution * 4 / 5) - playerStart;
 
 		this.field = [];
 		for (let i = 0; i < Golf.HOLE_COUNT; i++) {
@@ -334,7 +334,7 @@ export class Golf extends Game {
 		for (let i = 0; i < this.field.length - 1; i++) {
 			const from = this.field[i].location;
 			const to = this.field[i + 1].location;
-			const t = i / (this.field.length - 2); // 0 right after hole 1, 1 at the last gap
+			const t = i / (this.field.length - 2);
 
 			const count = Math.round(t * Golf.MAX_OBSTACLES_PER_GAP);
 			const types = [Sand];
@@ -348,7 +348,7 @@ export class Golf extends Game {
 			const placed = [];
 			for (let j = 0; j < count; j++) {
 				const ObstacleType = types[Math.floor(Math.random() * types.length)];
-				const sizeScale = 0.6 + t * 0.8; // obstacles grow as the course progresses
+				const sizeScale = 0.6 + t * 0.8;
 				const size = this.resolution * Golf.BASE_OBSTACLE_SIZE_FRACTION * sizeScale * (0.7 + Math.random() * 0.6);
 
 				for (let attempt = 0; attempt < 20; attempt++) {

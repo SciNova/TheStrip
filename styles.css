@@ -39,9 +39,37 @@ html, body {
 	flex-shrink: 0;
 }
 
+.padColumn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
 #pad, #pad2 {
 	display: none;
 	margin: 5px 4px;
+}
+
+.systemRow {
+	display: none;
+	flex-direction: row;
+	justify-content: space-between;
+	margin: 0 4px;
+}
+
+.systemRow button {
+	flex: 1 1 auto;
+	height: 18px;
+	border-radius: 4px;
+	border: none;
+	background: #444;
+	color: white;
+	font-size: 11px;
+	line-height: 18px;
+	padding: 0;
+	margin: 0 1px;
+	cursor: pointer;
+	user-select: none;
 }
 
 #pad svg, #pad2 svg {
@@ -79,6 +107,59 @@ html, body {
 	opacity: 0.15;
 }
 
+#panelSwapHome, #panelSwapGuest {
+	position: fixed;
+	top: 10px;
+	z-index: 10;
+	width: 36px;
+	height: 36px;
+	border-radius: 6px;
+	border: none;
+	background: #444;
+	color: white;
+	font-size: 20px;
+	line-height: 36px;
+	padding: 0;
+	cursor: pointer;
+	transition: opacity 1s;
+	opacity: 1;
+}
+
+#panelSwapHome {
+	right: 56px;
+}
+
+#panelSwapGuest {
+	right: 10px;
+}
+
+#panelSwapHome.faded, #panelSwapGuest.faded {
+	opacity: 0.15;
+}
+
+#debugToggle {
+	position: fixed;
+	top: 56px;
+	right: 10px;
+	z-index: 10;
+	width: 36px;
+	height: 36px;
+	border-radius: 6px;
+	border: none;
+	background: #444;
+	color: white;
+	font-size: 12px;
+	line-height: 36px;
+	padding: 0;
+	cursor: pointer;
+	transition: opacity 1s;
+	opacity: 1;
+}
+
+#debugToggle.faded {
+	opacity: 0.15;
+}
+
 nav {
 	position: fixed;
 	top: 55px;
@@ -106,12 +187,38 @@ nav a {
 }
 
 #debug {
+	display: none;
 	position: fixed;
-	top: 10px;
-	left: 10px;
+	top: 102px;
+	right: 10px;
+	z-index: 10;
+	width: 140px;
+	max-height: 50vh;
 	text-align: left;
 	font-size: 70%;
-	margin: 0 auto;
 	color: #fff;
 	font-family: monospace;
+	background: rgba(0, 0, 0, 0.5);
+	border-radius: 12px;
+	padding: 8px;
+	flex-direction: column;
+	gap: 6px;
+	overflow-x: hidden;
+}
+
+#debug.open {
+	display: flex;
+}
+
+#debugInfo {
+	white-space: pre-wrap;
+	word-break: break-all;
+	border-bottom: 1px solid #555;
+	padding-bottom: 6px;
+}
+
+#debugLog {
+	overflow-y: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
 }

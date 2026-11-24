@@ -2,16 +2,16 @@ import { Game, Colors, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 
 export class TowerDefense extends Game {
-	static SPAWN_Z = 9.0; // resolution units
+	static SPAWN_Z = 9.0;
 	static BASE_SPAWN_INTERVAL = 1.6;
 	static MIN_SPAWN_INTERVAL = 0.5;
 	static SPAWN_INTERVAL_STEP = 0.01;
-	static BASE_ENEMY_SPEED = 0.5; // resolution units/sec
+	static BASE_ENEMY_SPEED = 0.5;
 	static SPEED_PER_MINUTE = 0.08;
 	static BASE_ENEMY_HEALTH = 2;
 	static HEALTH_PER_MINUTE = 0.4;
-	static BASE_RANGE = 3.0; // resolution units
-	static BASE_FIRE_RATE = 1.5; // shots/sec
+	static BASE_RANGE = 3.0;
+	static BASE_FIRE_RATE = 1.5;
 	static BASE_DAMAGE = 1;
 	static RANGE_STEP = 0.6;
 	static FIRE_RATE_STEP = 0.4;

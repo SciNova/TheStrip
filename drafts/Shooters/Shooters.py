@@ -1,6 +1,3 @@
-# Not yet ported — a placeholder mirroring js/../Shooters/Shooters.js's
-# top-level shape so the file exists alongside the other languages.
-# See Shooters.js for the actual, current implementation.
 
 from system import Game
 

@@ -141,7 +141,6 @@ public:
 	}
 
 	void buildStage() override {
-		// no levels
 	}
 
 	void handleInput(int padId, InputEvent* event) override {

@@ -4,12 +4,12 @@ import { SystemSound } from '../../core/audio-common.js';
 const ShooterStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
 export class Shooter2D extends Game {
-	static LANE_HALF_WIDTH = 1.0; // resolution units
-	static AIM_SPEED = 0.9; // resolution-fraction/sec
-	static HIT_TOLERANCE = 0.06; // resolution-fraction
-	static SPAWN_Z = 9.0; // resolution units
-	static CRASH_Z = 0.3; // resolution units
-	static BASE_TARGET_SPEED = 1.3; // resolution units/sec
+	static LANE_HALF_WIDTH = 1.0;
+	static AIM_SPEED = 0.9;
+	static HIT_TOLERANCE = 0.06;
+	static SPAWN_Z = 9.0;
+	static CRASH_Z = 0.3;
+	static BASE_TARGET_SPEED = 1.3;
 	static SPEED_STEP = 0.05;
 	static BASE_SPAWN_INTERVAL = 1.1;
 	static MIN_SPAWN_INTERVAL = 0.45;
