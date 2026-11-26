@@ -138,7 +138,7 @@ class Firework {
 	constructor(resolution) {
 		this.peakPosition = 8 + Math.floor(Math.random() * (resolution - 16));
 		this.riseTime = 0.4 + Math.random() * 0.7;
-		this.burstRadius = 12 + Math.random() * 40;
+		this.burstRadius = resolution * (0.1 + Math.random() * 0.333);
 		this.burstLife = 0.8 + Math.random() * 1.0;
 		this.gravity = 16 + Math.random() * 10;
 		this.hue = Math.random();
@@ -245,7 +245,8 @@ class ReactionDot {
 
 const BOUNCE_BALL_COUNT = 5;
 const BOUNCE_GRAVITY = 55;
-const BOUNCE_MAX_RADIUS = 5.0;
+const BOUNCE_MAX_RADIUS_RATIO = 5.0 / 120;
+const BOUNCE_MIN_RADIUS_RATIO = 1.4 / 120;
 const BOUNCE_SETTLE_SPEED = 3.5;
 
 class BouncingBall {
@@ -254,9 +255,11 @@ class BouncingBall {
 	}
 
 	respawn(resolution, initial) {
-		this.radius = 1.4 + Math.random() * (BOUNCE_MAX_RADIUS - 1.4);
+		const maxRadius = BOUNCE_MAX_RADIUS_RATIO * resolution;
+		const minRadius = BOUNCE_MIN_RADIUS_RATIO * resolution;
+		this.radius = minRadius + Math.random() * (maxRadius - minRadius);
 		this.hue = Math.random();
-		const sizeT = this.radius / BOUNCE_MAX_RADIUS;
+		const sizeT = this.radius / maxRadius;
 		this.gravity = BOUNCE_GRAVITY * (0.55 + sizeT * 0.9);
 		this.restitution = 0.88 - sizeT * 0.34;
 		this.omega = Math.max(4.0, 16.0 - this.radius * 2.0);

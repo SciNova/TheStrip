@@ -1,5 +1,5 @@
 import { Game, Colors } from '../../core/system.js';
-import { isGameButtonPress } from '../../core/system.js';
+import { isGameCommand } from '../../core/system.js';
 
 class Bird {
 	constructor(position) {
@@ -110,7 +110,7 @@ export class FlappyBird extends Game {
 	}
 
 	handleInput(padId, event) {
-		if (isGameButtonPress(event.command)) {
+		if (isGameCommand(event.command)) {
 			FlappyBird._birdBoost(this.bird);
 		}
 	}

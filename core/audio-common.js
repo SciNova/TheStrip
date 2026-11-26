@@ -113,6 +113,18 @@ export class Note {
 	}
 }
 
+export const Scale = Object.freeze({
+	MAJOR: [Note.C4, Note.D4, Note.E4, Note.F4, Note.G4, Note.A4, Note.B4,
+		Note.C5, Note.D5, Note.E5, Note.F5, Note.G5, Note.A5, Note.B5, Note.C6],
+	MINOR: [Note.C4, Note.D4, Note.D_4, Note.F4, Note.G4, Note.G_4, Note.A_4,
+		Note.C5, Note.D5, Note.D_5, Note.F5, Note.G5, Note.G_5, Note.A_5, Note.C6],
+	ARABIC: [Note.C4, Note.C_4, Note.E4, Note.F4, Note.G4, Note.G_4, Note.B4,
+		Note.C5, Note.C_5, Note.E5, Note.F5, Note.G5, Note.G_5, Note.B5, Note.C6],
+	CHINESE: [Note.C4, Note.D4, Note.E4, Note.G4, Note.A4,
+		Note.C5, Note.D5, Note.E5, Note.G5, Note.A5, Note.C6],
+	SCARY: [Note.C4, Note.E4, Note.G_4, Note.C5, Note.E5, Note.G_5, Note.C6],
+});
+
 export const Waveform = Object.freeze({
 	SINUS: 'SINUS',
 	SQUARE: 'SQUARE',

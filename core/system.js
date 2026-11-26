@@ -77,8 +77,15 @@ export const Command = Object.freeze({
 	BT_LONG_PRESS: 0xF9,
 });
 
-export function isGameButtonPress(command) {
-	return command >= Command.A_PRESS && command <= Command.RIGHT_PRESS && (command & 1) === 1;
+const GAME_COMMANDS = [
+	Command.A_PRESS, Command.B_PRESS, Command.C_PRESS, Command.D_PRESS,
+	Command.X_PRESS, Command.Y_PRESS, Command.Z_PRESS, Command.W_PRESS,
+	Command.FIRE_PRESS, Command.FIRE2_PRESS,
+	Command.UP_PRESS, Command.DOWN_PRESS, Command.LEFT_PRESS, Command.RIGHT_PRESS,
+];
+
+export function isGameCommand(command) {
+	return GAME_COMMANDS.includes(command);
 }
 
 export const GameId = Object.freeze({
@@ -484,43 +491,57 @@ export class Menu {
 	loop() {
 		const pixels = this.system.strip.pixels;
 		const resolution = this.system.strip.length;
-		const slotCount = this.games.length + 1;
-		const section = Math.floor(resolution / slotCount);
-		const center = Math.floor(section / 2);
+		const numEntries = this.games.length;
+		const numSmallGaps = numEntries - 2;
+		const numUnits = numEntries + 1;
 
-		for (let slot = 0; slot < slotCount; slot++) {
-			const g = slot < Menu.APPS_BEFORE_GAP ? slot
-				: slot === Menu.APPS_BEFORE_GAP ? null
-				: slot - 1;
-			const color = g === null ? Colors.BLACK : this.games[g].color;
+		const remaining = resolution - numSmallGaps;
+		const unitWidth = Math.floor(remaining / numUnits);
+		const bigGapWidth = unitWidth + (remaining - unitWidth * numUnits);
+		const center = Math.floor(unitWidth / 2);
 
-			for (let i = 0; i < section; i++) {
-				pixels[slot * section + i] = color;
+		let pos = 0;
+		for (let g = 0; g < numEntries; g++) {
+			for (let i = 0; i < unitWidth; i++) {
+				pixels[pos + i] = this.games[g].color;
 			}
 			if (g === this.selected) {
-				pixels[slot * section + center] = Colors.WHITE;
+				pixels[pos + center] = Colors.WHITE;
+			}
+			pos += unitWidth;
+
+			if (g === Menu.APPS_BEFORE_GAP - 1) {
+				for (let i = 0; i < bigGapWidth; i++) {
+					pixels[pos + i] = Colors.BLACK;
+				}
+				pos += bigGapWidth;
+			} else if (g < numEntries - 1) {
+				pixels[pos] = Colors.BLACK;
+				pos += 1;
 			}
 		}
 	}
 
 	handleInput(padId, event) {
-		if (event.command === Command.LEFT_PRESS) {
+		if (event.command === Command.LEFT_PRESS || event.command === Command.A_PRESS || event.command === Command.UP_PRESS) {
 			if (this.selected > 0) {
 				this.selected -= 1;
+				this.system.audio.synth.play2('SINUS', 1000, 0.05, 0.0, 0.03, 0.0, 0.02);
 			}
-		} else if (event.command === Command.RIGHT_PRESS) {
+		} else if (event.command === Command.RIGHT_PRESS || event.command === Command.B_PRESS || event.command === Command.DOWN_PRESS) {
 			if (this.selected < this.games.length - 1) {
 				this.selected += 1;
+				this.system.audio.synth.play2('SINUS', 1000, 0.05, 0.0, 0.03, 0.0, 0.02);
 			}
 		}
 	}
 }
 
 export class System {
-	constructor() {
+	constructor(resolution = 120) {
 		this.clock = new Clock();
 		this.audio = new Audio(this);
-		this.strip = new Strip(60);
+		this.strip = new Strip(resolution);
 		this.game = null;
 		this.GAMES = null;
 		this.sounds = [];
@@ -626,6 +647,9 @@ export class System {
 				break;
 
 			case Command.FIRE_PRESS:
+			case Command.FIRE2_PRESS:
+			case Command.C_PRESS:
+			case Command.D_PRESS:
 				if (this.state === SystemState.MENU) {
 					this.loadGame(this.menu.selected + 1);
 				} else if (this.game !== null && this.state === SystemState.GAME) {
@@ -702,6 +726,14 @@ export class Game {
 		for (let i = 0; i < this.resolution; i++) {
 			this.pixels[i] = 0;
 		}
+	}
+
+	blend(index, value, alpha) {
+		const a = this.pixels[index];
+		const r = Math.round(((a >> 16) & 0xFF) + (((value >> 16) & 0xFF) - ((a >> 16) & 0xFF)) * alpha);
+		const g = Math.round(((a >> 8) & 0xFF) + (((value >> 8) & 0xFF) - ((a >> 8) & 0xFF)) * alpha);
+		const b = Math.round((a & 0xFF) + ((value & 0xFF) - (a & 0xFF)) * alpha);
+		this.pixels[index] = (r << 16) | (g << 8) | b;
 	}
 
 	setLevel(n) {

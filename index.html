@@ -2,9 +2,14 @@
 
 {% block content %}
 <button id="menuToggle">☰</button>
+<button id="res120" onclick="init(120)">120</button>
+<button id="res60" onclick="init(60)">60</button>
+<button id="res40" onclick="init(40)">40</button>
+<button id="res30" onclick="init(30)">30</button>
 <button id="panelSwapHome">+</button>
 <button id="panelSwapGuest">-</button>
 <button id="debugToggle">LOG</button>
+<button id="hideToggle">👁</button>
 <nav id="nav">
 	<h3>Apps</h3>
 	<a onclick="loadGame(GameId.COLOR_LIGHT)">ColorLight</a>
@@ -91,7 +96,7 @@
 
 <script type="module">
 	import { Console } from '/js/Console.js';
-	import { Strip, GameId } from '/core/system.js';
+	import { SystemState, GameId } from '/core/system.js';
 	import { WiredPadView } from '/js/hardware.js';
 
 	// Every game, already linked in - same as every game header being
@@ -198,15 +203,17 @@
 
 	let cnsl = null;
 
-	async function bootstrap() {
-		if (cnsl) {
+	async function init(resolution) {
+		if (cnsl && cnsl.system.state !== SystemState.OFF) {
 			return;
 		}
 
-		cnsl = new Console();
-		cnsl.system.GAMES = GAMES;
+		if (cnsl) {
+			cnsl.deregisterHandlers();
+		}
 
-		cnsl.system.strip = new Strip(120);
+		cnsl = new Console(resolution);
+		cnsl.system.GAMES = GAMES;
 
 		// Audio only ever turns on in response to a real Power button
 		// press (System.handleCommand's POWER_SHORT_PRESS calling
@@ -302,55 +309,48 @@
 		requestAnimationFrame(frame);
 	}
 
+	window.init = init;
+
 	window.loadGame = async function (gameId) {
-		await bootstrap();
+		if (!cnsl) {
+			await init(120);
+		}
 		cnsl.system.loadGame(gameId);
 		document.getElementById('nav').classList.remove('open');
 	};
 
 	const menuToggle = document.getElementById('menuToggle');
+	const res120 = document.getElementById('res120');
+	const res60 = document.getElementById('res60');
+	const res40 = document.getElementById('res40');
+	const res30 = document.getElementById('res30');
 	const panelSwapHome = document.getElementById('panelSwapHome');
 	const panelSwapGuest = document.getElementById('panelSwapGuest');
 	const debugToggle = document.getElementById('debugToggle');
+	const hideToggle = document.getElementById('hideToggle');
 	const nav = document.getElementById('nav');
-	let fadeTimer = null;
-
-	function resetFade() {
-		menuToggle.classList.remove('faded');
-		panelSwapHome.classList.remove('faded');
-		panelSwapGuest.classList.remove('faded');
-		debugToggle.classList.remove('faded');
-		clearTimeout(fadeTimer);
-		fadeTimer = setTimeout(() => {
-			menuToggle.classList.add('faded');
-			panelSwapHome.classList.add('faded');
-			panelSwapGuest.classList.add('faded');
-			debugToggle.classList.add('faded');
-		}, 4000);
-	}
 
 	menuToggle.addEventListener('click', () => {
 		nav.classList.toggle('open');
-		resetFade();
 	});
 
 	panelSwapHome.addEventListener('click', () => {
 		cnsl.swapPanel(0);
-		resetFade();
 	});
 
 	panelSwapGuest.addEventListener('click', () => {
 		cnsl.swapPanel(1);
-		resetFade();
 	});
 
 	const debugPanelEl = document.getElementById('debug');
 	debugToggle.addEventListener('click', () => {
 		debugPanelEl.classList.toggle('open');
-		resetFade();
 	});
 
-	resetFade();
-	bootstrap();
+	hideToggle.addEventListener('click', () => {
+		document.body.classList.toggle('hiddenUI');
+	});
+
+	init(120);
 </script>
 {% endblock %}

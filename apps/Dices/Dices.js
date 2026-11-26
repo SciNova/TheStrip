@@ -1,4 +1,4 @@
-import { Game, Colors, isGameButtonPress } from '../../core/system.js';
+import { Game, Colors, isGameCommand } from '../../core/system.js';
 import { SystemSound } from '../../core/audio-common.js';
 import { Square, EdgeMode } from '../../core/graphics.js';
 
@@ -42,6 +42,7 @@ export class Dices extends Game {
 	static MIN_DURATION = 0.5;
 	static MAX_DURATION = 2.0;
 	static DECELERATION = 6.0;
+	static DICE_FACE_SIZE = 15;
 
 	constructor(system) {
 		super('Dices', system);
@@ -110,12 +111,25 @@ export class Dices extends Game {
 
 		this.dice1.update();
 		this.dice2.update();
-		this.dice1.render(Math.floor(this.resolution / 3), EdgeMode.MIRROR);
-		this.dice2.render(Math.floor(2 * this.resolution / 3), EdgeMode.MIRROR);
+		const available = Math.max(0, this.resolution - 2 * Dices.DICE_FACE_SIZE);
+		const gap = available / 3;
+		const halfFace = (Dices.DICE_FACE_SIZE - 1) / 2;
+		const position1 = Math.round(gap + halfFace);
+		const position2 = Math.round(this.resolution - 1 - gap - halfFace);
+
+		const stopped1 = this.speed1 === 0 && this.remaining1 <= 0;
+		const stopped2 = this.speed2 === 0 && this.remaining2 <= 0;
+		if (stopped1 && !stopped2) {
+			this.dice2.render(position2, EdgeMode.MIRROR);
+			this.dice1.render(position1, EdgeMode.MIRROR);
+		} else {
+			this.dice1.render(position1, EdgeMode.MIRROR);
+			this.dice2.render(position2, EdgeMode.MIRROR);
+		}
 	}
 
 	handleInput(padId, event) {
-		if (this.stage === Stage.IDLE && isGameButtonPress(event.command)) {
+		if (this.stage === Stage.IDLE && isGameCommand(event.command)) {
 			this.speed1 = Dices.MIN_SPEED + Math.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
 			this.speed2 = Dices.MIN_SPEED + Math.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
 			this.remaining1 = Dices.MIN_DURATION + Math.random() * (Dices.MAX_DURATION - Dices.MIN_DURATION);

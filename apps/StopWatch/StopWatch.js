@@ -3,7 +3,7 @@ import { SystemSound } from '../../core/audio-common.js';
 import { Square, EdgeMode } from '../../core/graphics.js';
 
 function digitPattern(zeroIndices) {
-	const pattern = new Array(21).fill(Colors.GREEN);
+	const pattern = new Array(21).fill(Colors.WHITE);
 	for (const i of zeroIndices) {
 		pattern[i] = 0;
 	}
@@ -24,9 +24,15 @@ const DIGIT_PATTERNS = [
 ];
 
 export class StopWatch extends Game {
+	static DIGIT_FACE_SIZE = 21;
+	static DIGIT_COUNT = 4;
+
 	constructor(system) {
 		super('StopWatch', system);
-		this.cubes = [new Square(this, DIGIT_PATTERNS), new Square(this, DIGIT_PATTERNS), new Square(this, DIGIT_PATTERNS)];
+		this.cubes = [];
+		for (let i = 0; i < StopWatch.DIGIT_COUNT; i++) {
+			this.cubes.push(new Square(this, DIGIT_PATTERNS));
+		}
 		this.lastSecond = -1;
 		this.showColon = true;
 		this.updateDisplay();
@@ -39,13 +45,12 @@ export class StopWatch extends Game {
 
 	updateDisplay() {
 		const totalSeconds = Math.floor(this.time);
-		const minutes = Math.floor(totalSeconds / 60) % 10;
+		const minutes = Math.floor(totalSeconds / 60) % 100;
 		const seconds = totalSeconds % 60;
-		const tens = Math.floor(seconds / 10);
-		const ones = seconds % 10;
-		this.setDigit(0, minutes);
-		this.setDigit(1, tens);
-		this.setDigit(2, ones);
+		this.setDigit(0, Math.floor(minutes / 10));
+		this.setDigit(1, minutes % 10);
+		this.setDigit(2, Math.floor(seconds / 10));
+		this.setDigit(3, seconds % 10);
 	}
 
 	loop() {
@@ -60,26 +65,27 @@ export class StopWatch extends Game {
 		}
 
 		for (let i = 0; i < this.resolution; i++) {
-			this.pixels[i] = 0;
+			this.pixels[i] = Colors.DARK_BLUE;
 		}
 
-		const cubeW = this.cubes[0].pixels.length;
-		const spacing = 1;
-		const colonGap = 3;
-		const groupW = (3 * cubeW) + spacing + colonGap;
-		const leftEdge = Math.floor((this.resolution - groupW) / 2);
+		const faceSize = StopWatch.DIGIT_FACE_SIZE;
+		const n = StopWatch.DIGIT_COUNT;
+		const available = Math.max(0, this.resolution - n * faceSize);
+		const gap = available / (n + 1);
+		const halfFace = (faceSize - 1) / 2;
 
-		let pos = leftEdge + Math.floor(cubeW / 2);
-		this.cubes[0].render(pos, EdgeMode.CLIP);
-
-		pos += cubeW + colonGap;
-		this.cubes[1].render(pos, EdgeMode.CLIP);
-
-		pos += cubeW + spacing;
-		this.cubes[2].render(pos, EdgeMode.CLIP);
+		const positions = [];
+		for (let k = 0; k < n; k++) {
+			positions.push(Math.round(gap * (k + 1) + k * faceSize + halfFace));
+		}
+		for (let k = 0; k < n; k++) {
+			this.cubes[k].render(positions[k], EdgeMode.CLIP);
+		}
 
 		if (this.showColon) {
-			const colonX = leftEdge + cubeW + Math.floor(colonGap / 2);
+			const gapStart = positions[1] + halfFace + 1;
+			const gapEnd = positions[2] - halfFace - 1;
+			const colonX = gapStart + Math.floor((gapEnd - gapStart - 1) / 2);
 			if (colonX >= 0 && colonX < this.resolution) {
 				this.pixels[colonX] = Colors.WHITE;
 			}

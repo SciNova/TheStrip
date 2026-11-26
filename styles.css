@@ -89,75 +89,125 @@ html, body {
 	top: 10px;
 	left: 10px;
 	z-index: 10;
-	width: 36px;
-	height: 36px;
-	border-radius: 6px;
-	border: none;
-	background: #444;
-	color: white;
-	font-size: 20px;
-	line-height: 36px;
-	padding: 0;
-	cursor: pointer;
-	transition: opacity 1s;
-	opacity: 1;
-}
-
-#menuToggle.faded {
-	opacity: 0.15;
-}
-
-#panelSwapHome, #panelSwapGuest {
-	position: fixed;
-	top: 10px;
-	z-index: 10;
-	width: 36px;
-	height: 36px;
-	border-radius: 6px;
-	border: none;
-	background: #444;
-	color: white;
-	font-size: 20px;
-	line-height: 36px;
-	padding: 0;
-	cursor: pointer;
-	transition: opacity 1s;
-	opacity: 1;
-}
-
-#panelSwapHome {
-	right: 56px;
-}
-
-#panelSwapGuest {
-	right: 10px;
-}
-
-#panelSwapHome.faded, #panelSwapGuest.faded {
-	opacity: 0.15;
-}
-
-#debugToggle {
-	position: fixed;
-	top: 56px;
-	right: 10px;
-	z-index: 10;
-	width: 36px;
-	height: 36px;
+	box-sizing: border-box;
+	width: 30px;
+	height: 30px;
 	border-radius: 6px;
 	border: none;
 	background: #444;
 	color: white;
 	font-size: 12px;
-	line-height: 36px;
-	padding: 0;
+	line-height: 30px;
+	padding: 2px;
+	appearance: none;
 	cursor: pointer;
 	transition: opacity 1s;
 	opacity: 1;
 }
 
-#debugToggle.faded {
-	opacity: 0.15;
+#res120, #res60, #res40, #res30, #panelSwapHome, #panelSwapGuest {
+	position: fixed;
+	top: 10px;
+	z-index: 10;
+	box-sizing: border-box;
+	width: 30px;
+	height: 30px;
+	border-radius: 6px;
+	border: none;
+	background: #444;
+	color: white;
+	font-size: 12px;
+	line-height: 30px;
+	padding: 2px;
+	appearance: none;
+	cursor: pointer;
+	transition: opacity 1s;
+	opacity: 1;
+}
+
+#res120 {
+	right: 130px;
+}
+
+#res60 {
+	right: 90px;
+}
+
+#res40 {
+	right: 50px;
+}
+
+#res30 {
+	right: 10px;
+}
+
+#panelSwapHome {
+	right: 50px;
+	top: 50px;
+}
+
+#panelSwapGuest {
+	right: 10px;
+	top: 50px;
+}
+
+#debugToggle {
+	position: fixed;
+	top: 90px;
+	right: 10px;
+	z-index: 10;
+	box-sizing: border-box;
+	width: 30px;
+	height: 30px;
+	border-radius: 6px;
+	border: none;
+	background: #444;
+	color: white;
+	font-size: 12px;
+	line-height: 30px;
+	padding: 2px;
+	appearance: none;
+	cursor: pointer;
+	transition: opacity 1s;
+	opacity: 1;
+}
+
+#hideToggle {
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	z-index: 10;
+	box-sizing: border-box;
+	width: 30px;
+	height: 30px;
+	border-radius: 6px;
+	border: none;
+	background: #444;
+	color: white;
+	font-size: 12px;
+	line-height: 30px;
+	padding: 2px;
+	appearance: none;
+	cursor: pointer;
+	transition: opacity 1s;
+	opacity: 1;
+}
+
+body.hiddenUI #menuToggle,
+body.hiddenUI #res120,
+body.hiddenUI #res60,
+body.hiddenUI #res40,
+body.hiddenUI #res30,
+body.hiddenUI #panelSwapHome,
+body.hiddenUI #panelSwapGuest,
+body.hiddenUI #debugToggle,
+body.hiddenUI #nav {
+	opacity: 0;
+	pointer-events: none;
+}
+
+body.hiddenUI #hideToggle {
+	opacity: 0.03;
 }
 
 nav {
@@ -172,6 +222,8 @@ nav {
 	background: rgba(0, 0, 0, 0.6);
 	padding: 10px;
 	border-radius: 6px;
+	transition: opacity 1s;
+	opacity: 1;
 }
 
 nav.open {
@@ -189,7 +241,7 @@ nav a {
 #debug {
 	display: none;
 	position: fixed;
-	top: 102px;
+	top: 130px;
 	right: 10px;
 	z-index: 10;
 	width: 140px;

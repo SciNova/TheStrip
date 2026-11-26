@@ -1,5 +1,5 @@
-import { Game, Colors, isGameButtonPress } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { Game, Colors, Command, isGameCommand } from '../../core/system.js';
+import { SystemSound, Note, Scale } from '../../core/audio-common.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
 const Fruit = Object.freeze({
@@ -20,6 +20,20 @@ const FRUIT_COLOR = {
 	[Fruit.BLACKBERRY]: Colors.BLACKBERRY,
 	[Fruit.STRAWBERRY]: Colors.STRAWBERRY,
 };
+
+const FRUIT_SCALE_POSITION = {
+	[Fruit.BANANA]: 0,
+	[Fruit.ORANGE]: 1,
+	[Fruit.CHERRY]: 2,
+	[Fruit.LEMON]: 3,
+	[Fruit.WATERMELON]: 4,
+	[Fruit.APPLE]: 5,
+	[Fruit.GRAPE]: 6,
+	[Fruit.BLACKBERRY]: 7,
+	[Fruit.STRAWBERRY]: 8,
+};
+
+const Scales = [Scale.MAJOR, Scale.MINOR, Scale.ARABIC, Scale.CHINESE, Scale.SCARY];
 
 class Wheel extends Shape {
 	static NUM_SYMBOLS = 8;
@@ -42,6 +56,10 @@ class Wheel extends Shape {
 				if (this.speed <= 0) {
 					this.speed = 0;
 					this.rotation = Math.round(this.rotation);
+					const fruit = this.symbols[this.rotation % Wheel.NUM_SYMBOLS];
+					const scale = Scales[this.game.scaleIndex];
+					const note = scale[FRUIT_SCALE_POSITION[fruit]];
+					this.game.audio.synth.play2('SAWTOOTH', Note.frequency(note), 0.3, 0.0, 0.18, 0.0, 0.08);
 				}
 			}
 
@@ -132,6 +150,7 @@ export class Slots extends Game {
 		}
 
 		this.stage = Slots.STAGE_IDLE;
+		this.scaleIndex = 0;
 	}
 
 	spin() {
@@ -171,8 +190,6 @@ export class Slots extends Game {
 
 		if (centreFruits[0] === centreFruits[1] && centreFruits[1] === centreFruits[2]) {
 			this.audio.play(SystemSound.CHEERING);
-		} else {
-			this.audio.play(SystemSound.BOOING);
 		}
 
 		this.delay(4.0);
@@ -190,7 +207,16 @@ export class Slots extends Game {
 	}
 
 	handleInput(padId, event) {
-		if (this.stage === Slots.STAGE_IDLE && isGameButtonPress(event.command)) {
+		if (event.command === Command.LEFT_PRESS) {
+			this.scaleIndex = (this.scaleIndex + Scales.length - 1) % Scales.length;
+			return;
+		}
+		if (event.command === Command.RIGHT_PRESS) {
+			this.scaleIndex = (this.scaleIndex + 1) % Scales.length;
+			return;
+		}
+
+		if (this.stage === Slots.STAGE_IDLE && isGameCommand(event.command)) {
 			this.spin();
 		}
 	}
