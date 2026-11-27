@@ -1,6 +1,6 @@
 import { Game, Command, Colors, hsvToRgb } from '../../core/system.js';
 import { Audio, Tracker } from '../../browser/audio.js';
-import { MODFormat } from '../../core/mod.js';
+import { MODFormat } from '../../core/audio.js';
 
 const SEGMENT_COUNT = 4;
 const SEGMENT_SPAN = (2 * Math.PI) / (SEGMENT_COUNT * 2);

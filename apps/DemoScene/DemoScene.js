@@ -1,6 +1,6 @@
 import { Game, Colors, hsvToRgb, Command } from '../../core/system.js';
 import { Audio, Tracker } from '../../browser/audio.js';
-import { MODFormat } from '../../core/mod.js';
+import { MODFormat } from '../../core/audio.js';
 
 const Stage = Object.freeze({
 	FRACTAL_MOUNTAIN: 0,

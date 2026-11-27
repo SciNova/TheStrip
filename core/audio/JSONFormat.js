@@ -1,23 +1,8 @@
-import { SystemSound } from './audio.js';
-import { SoundEvent, Track } from './tracker.js';
+import { SystemSound } from './SystemSound.js';
+import { SoundEvent } from './SoundEvent.js';
+import { Track } from './Track.js';
 
 export class JSONFormat {
-	static async load(path) {
-		const text = await JSONFormat._readText(path);
-		return JSONFormat.parse(text);
-	}
-
-	static async _readText(path) {
-		const url = new URL(path, import.meta.url);
-		if (url.protocol === 'file:') {
-			const { readFile } = await import('fs/promises');
-			const { fileURLToPath } = await import('url');
-			return readFile(fileURLToPath(url), 'utf8');
-		}
-		const response = await fetch(url);
-		return response.text();
-	}
-
 	static parse(text) {
 		return JSONFormat.fromObject(JSON.parse(text));
 	}

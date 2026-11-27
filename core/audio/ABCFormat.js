@@ -1,5 +1,7 @@
-import { Note, SystemSound } from './audio.js';
-import { SoundEvent, Track } from './tracker.js';
+import { Note } from './Note.js';
+import { SystemSound } from './SystemSound.js';
+import { SoundEvent } from './SoundEvent.js';
+import { Track } from './Track.js';
 
 export class ABCFormat {
 	static DEFAULT_BEATS_PER_MEASURE = 4;

@@ -1,5 +1,7 @@
-import { Note, Sample } from './audio.js';
-import { SoundEvent, Track } from './tracker.js';
+import { Note } from './Note.js';
+import { Sample } from './Sample.js';
+import { SoundEvent } from './SoundEvent.js';
+import { Track } from './Track.js';
 
 export class MODFormat {
 	static PERIODS = new Float32Array([

@@ -1,0 +1,7 @@
+export const Waveform = Object.freeze({
+	SINUS: 'SINUS',
+	SQUARE: 'SQUARE',
+	SAWTOOTH: 'SAWTOOTH',
+	REVERSE_SAWTOOTH: 'REVERSE_SAWTOOTH',
+	NOISE: 'NOISE',
+});
