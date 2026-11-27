@@ -1,5 +1,5 @@
 import { Game, Colors, hsvToRgb, Command } from '../../core/system.js';
-import { Audio, Tracker } from '../../core/audio.js';
+import { Audio, Tracker } from '../../browser/audio.js';
 import { MODFormat } from '../../core/mod.js';
 
 const Stage = Object.freeze({
@@ -325,7 +325,8 @@ export class DemoScene extends Game {
 
 		this.tracker = new Tracker(this.audio, Audio.CHANNELS - this.freeChannels);
 		this.freeChannels -= 4;
-		MODFormat.load('../modplayer/mods/faggots_universe.mod').then((track) => {
+		this.system.load('/modplayer/mods/faggots_universe.mod').then((buffer) => {
+			const track = new MODFormat(buffer);
 			this.tracker.load(track);
 			this.tracker.play(0, TRACK_SEGMENT_COUNT, true);
 		});

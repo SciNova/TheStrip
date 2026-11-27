@@ -419,6 +419,8 @@ class StripView3D {
 class Console {
 	constructor(resolution) {
 		this.system = new System(resolution);
+		this.system.load = (path) => fetch(path).then((response) => response.arrayBuffer());
+		this.system.clock.now = () => performance.now() / 1000;
 		this.pads = [null, null];
 		this.stripContainer = null;
 		this.view = null;

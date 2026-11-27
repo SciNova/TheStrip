@@ -1,4 +1,4 @@
-import { SystemSound } from './audio-common.js';
+import { SystemSound } from './audio.js';
 import { SoundEvent, Track } from './tracker.js';
 
 export class JSONFormat {

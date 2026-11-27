@@ -1,5 +1,5 @@
 import { Game, GameState, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const CARD_COLORS = [Colors.RED, Colors.GREEN, Colors.BLUE, Colors.YELLOW, Colors.MAGENTA, Colors.CYAN, Colors.ORANGE, Colors.PURPLE];
 const BASE_PAIRS = 3;
@@ -89,7 +89,7 @@ export class MemoryMatch extends Game {
 
 		if (this.firstPick < 0) {
 			this.firstPick = slot;
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 			return;
 		}
 
@@ -98,7 +98,7 @@ export class MemoryMatch extends Game {
 			first.matched = true;
 			card.matched = true;
 			this.score += 1;
-			this.audio.synth.play(SystemSound.EXPLOSION);
+			this.audio.playSynth(SystemSound.EXPLOSION);
 			this.firstPick = -1;
 			if (this.cards.every((c) => c.matched)) {
 				if (this.pairCount >= MAX_PAIRS) {
@@ -112,7 +112,7 @@ export class MemoryMatch extends Game {
 				}
 			}
 		} else {
-			this.audio.synth.play(SystemSound.WARNING);
+			this.audio.playSynth(SystemSound.WARNING);
 			this.mismatchA = this.firstPick;
 			this.mismatchB = slot;
 			this.mismatchTimer = MemoryMatch.MISMATCH_SHOW_TIME;

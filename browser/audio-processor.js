@@ -1,5 +1,6 @@
-import { Note, Waveform, LFODestination } from './audio-common.js';
-import { SoundEvent, Track } from './tracker.js';
+import { Note, Waveform, LFODestination } from '../core/audio.js';
+import { SoundEvent, Track } from '../core/tracker.js';
+import { Clock } from '../core/system.js';
 
 function reconstructTrack(data) {
 	const track = new Track();
@@ -15,22 +16,6 @@ function reconstructTrack(data) {
 	return track;
 }
 
-class Clock {
-	constructor() {
-		this.time = 0.0;
-		this.timestamp = 0.0;
-		this.delta = 0.0;
-		this.update();
-	}
-
-	update() {
-		const now = currentTime;
-		this.delta = now - this.timestamp;
-		this.timestamp = now;
-		this.time = now;
-	}
-}
-
 class Game {
 	constructor() {
 		this.sounds = new Array(Audio.CHANNELS).fill(null);
@@ -42,6 +27,7 @@ class Game {
 class System {
 	constructor() {
 		this.clock = new Clock();
+		this.clock.now = () => currentTime;
 		this.audio = null;
 		this.sounds = new Array(Audio.CHANNELS).fill(null);
 		this.trackers = [];
@@ -510,7 +496,12 @@ class Audio extends AudioWorkletProcessor {
 		this._samples = new Float32Array(128);
 	}
 
-	playSynth(waveform = null, frequency, duration = null, attack = null, decay = null, sustain = null, release = null,
+	playSynth(patch, frequency = null) {
+		this.playSynthCustom(undefined, frequency ?? patch.frequency, undefined, undefined, undefined, undefined, undefined,
+			undefined, undefined, undefined, undefined, undefined, undefined, undefined, patch);
+	}
+
+	playSynthCustom(waveform = null, frequency, duration = null, attack = null, decay = null, sustain = null, release = null,
 		lfoWaveform = null, lfoFrequency = null, lfoDestination = null, lfoAmount = null, lfoSync = null,
 		cutoff = null, resonance = null, patch = null, offset = null) {
 		const sound = new Sound(this);
@@ -636,7 +627,9 @@ class Audio extends AudioWorkletProcessor {
 			} else if (message.action === 'loadGame') {
 				this.system.loadGame(message.id);
 			} else if (message.action === 'playSynth') {
-				this.playSynth(message.waveform, message.frequency, message.duration, message.attack, message.decay, message.sustain, message.release,
+				this.playSynth(message.patch, message.frequency);
+			} else if (message.action === 'playSynthCustom') {
+				this.playSynthCustom(message.waveform, message.frequency, message.duration, message.attack, message.decay, message.sustain, message.release,
 					message.lfoWaveform, message.lfoFrequency, message.lfoDestination, message.lfoAmount, message.lfoSync,
 					message.cutoff, message.resonance, message.instrument, message.offset);
 			} else if (message.action === 'playSample') {

@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 import { World2D } from '../../core/graphics.js';
 
 const AsteroidsStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
@@ -171,7 +171,7 @@ export class AsteroidsZ extends Game {
 			}
 			if (destroyed) {
 				this.score += tier.score;
-				this.audio.synth.play(SystemSound.EXPLOSION);
+				this.audio.playSynth(SystemSound.EXPLOSION);
 				if (tier.next) {
 					for (let s = 0; s < AsteroidsZ.SPLIT_COUNT; s++) {
 						this._addAsteroidInto(newAsteroids, asteroid.x, asteroid.z, tier.next);
@@ -197,7 +197,7 @@ export class AsteroidsZ extends Game {
 				const dz = this._wrapDelta(asteroid.z - this.shipZ, worldW);
 				if (Math.sqrt(dx * dx + dz * dz) < shipRadius + tier.radius * this.resolution) {
 					this.lives -= 1;
-					this.audio.synth.play(SystemSound.WARNING);
+					this.audio.playSynth(SystemSound.WARNING);
 					if (this.lives <= 0) {
 						this.stage = AsteroidsStage.GAMEOVER;
 						this.audio.play(SystemSound.BOOING);
@@ -244,7 +244,7 @@ export class AsteroidsZ extends Game {
 			vz: speed * Math.sin(angle),
 			life: AsteroidsZ.BULLET_LIFETIME,
 		});
-		this.audio.synth.play(SystemSound.SHOOT);
+		this.audio.playSynth(SystemSound.SHOOT);
 	}
 
 	handleInput(padId, event) {

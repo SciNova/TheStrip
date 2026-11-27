@@ -1,5 +1,5 @@
 import { Game, Colors, isGameCommand } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 import { Shape, Alignment, EdgeMode, Widget, WidgetState, ProgressBar } from '../../core/graphics.js';
 
 const RaceState = Object.freeze({ COUNTDOWN: 'COUNTDOWN', PLAYING: 'PLAYING', RESULT: 'RESULT' });
@@ -28,16 +28,16 @@ class Semaphore extends Widget {
 
 		if (this.phase === null && elapsed >= 1.0) {
 			this.phase = SemaphoreState.RED;
-			this.game.audio.synth.play2('SQUARE', 880, 0.15, 0.0, 0.0, 1.0, 0.05);
+			this.game.audio.playSynthCustom('SQUARE', 880, 0.15, 0.0, 0.0, 1.0, 0.05);
 		} else if (this.phase === SemaphoreState.RED && elapsed >= 2.0) {
 			this.phase = SemaphoreState.RED2;
-			this.game.audio.synth.play2('SQUARE', 880, 0.15, 0.0, 0.0, 1.0, 0.05);
+			this.game.audio.playSynthCustom('SQUARE', 880, 0.15, 0.0, 0.0, 1.0, 0.05);
 		} else if (this.phase === SemaphoreState.RED2 && elapsed >= 3.0) {
 			this.phase = SemaphoreState.YELLOW;
-			this.game.audio.synth.play2('SQUARE', 880, 0.15, 0.0, 0.0, 1.0, 0.05);
+			this.game.audio.playSynthCustom('SQUARE', 880, 0.15, 0.0, 0.0, 1.0, 0.05);
 		} else if (this.phase === SemaphoreState.YELLOW && elapsed >= 4.0) {
 			this.phase = SemaphoreState.GREEN;
-			this.game.audio.synth.play2('SQUARE', 880, 0.4, 0.0, 0.0, 1.0, 0.05);
+			this.game.audio.playSynthCustom('SQUARE', 880, 0.4, 0.0, 0.0, 1.0, 0.05);
 		} else if (this.phase === SemaphoreState.GREEN && elapsed >= 5.5) {
 			this.fadeOut();
 		}
@@ -169,13 +169,13 @@ class Player extends Shape {
 		this.travel += Math.abs(this.location - oldLocation);
 		if (this.travel >= this.lap * this.game.resolution * 2) {
 			this.lap += 1;
-			this.game.audio.synth.play(SystemSound.CHECKPOINT);
+			this.game.audio.playSynth(SystemSound.CHECKPOINT);
 		}
 
 		const prevTick = Math.floor(prevTravel / (this.game.resolution * Player.TICK));
 		const currTick = Math.floor(this.travel / (this.game.resolution * Player.TICK));
 		if (prevTick !== currTick) {
-			this.game.audio.synth.play(SystemSound.TICK);
+			this.game.audio.playSynth(SystemSound.TICK);
 		}
 
 		this.alignment = this.reverse ? Alignment.FORWARD : Alignment.BACKWARD;

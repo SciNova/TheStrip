@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const LanderStage = Object.freeze({ PLAYING: 'PLAYING', RESULT: 'RESULT' });
 

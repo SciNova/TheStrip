@@ -1,4 +1,4 @@
-import { Audio } from './audio.js';
+import { Audio } from '../browser/audio.js';
 
 export const Command = Object.freeze({
 	NONE: 0,
@@ -322,10 +322,11 @@ export class Clock {
 		this.time = 0.0;
 		this.timestamp = 0.0;
 		this.delta = 0.0;
+		this.now = null;
 	}
 
 	update() {
-		const now = performance.now() / 1000;
+		const now = this.now();
 		this.delta = this.timestamp === 0.0 ? 0.0 : now - this.timestamp;
 		this.timestamp = now;
 		this.time = now;
@@ -526,12 +527,12 @@ export class Menu {
 		if (event.command === Command.LEFT_PRESS || event.command === Command.A_PRESS || event.command === Command.UP_PRESS) {
 			if (this.selected > 0) {
 				this.selected -= 1;
-				this.system.audio.synth.play2('SINUS', 1000, 0.05, 0.0, 0.03, 0.0, 0.02);
+				this.system.audio.playSynthCustom('SINUS', 1000, 0.05, 0.0, 0.03, 0.0, 0.02);
 			}
 		} else if (event.command === Command.RIGHT_PRESS || event.command === Command.B_PRESS || event.command === Command.DOWN_PRESS) {
 			if (this.selected < this.games.length - 1) {
 				this.selected += 1;
-				this.system.audio.synth.play2('SINUS', 1000, 0.05, 0.0, 0.03, 0.0, 0.02);
+				this.system.audio.playSynthCustom('SINUS', 1000, 0.05, 0.0, 0.03, 0.0, 0.02);
 			}
 		}
 	}
@@ -551,6 +552,7 @@ export class System {
 		this.uptime = 0.0;
 		this.state = SystemState.OFF;
 		this.logLines = [];
+		this.load = null;
 	}
 
 	log(text) {

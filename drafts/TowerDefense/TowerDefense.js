@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 export class TowerDefense extends Game {
 	static SPAWN_Z = 9.0;
@@ -101,7 +101,7 @@ export class TowerDefense extends Game {
 
 		if (breached > 0) {
 			this.baseHealth -= breached;
-			this.audio.synth.play(SystemSound.WARNING);
+			this.audio.playSynth(SystemSound.WARNING);
 			if (this.baseHealth <= 0) {
 				this.stage = 'GAMEOVER';
 				this.audio.play(SystemSound.BOOING);
@@ -121,12 +121,12 @@ export class TowerDefense extends Game {
 			if (nearest) {
 				nearest.health -= this.damage;
 				this.fireCooldown = 1.0 / this.fireRate;
-				this.audio.synth.play(SystemSound.SHOOT);
+				this.audio.playSynth(SystemSound.SHOOT);
 				if (nearest.health <= 0) {
 					this.enemies.splice(this.enemies.indexOf(nearest), 1);
 					this.currency += TowerDefense.KILL_REWARD;
 					this.score += 1;
-					this.audio.synth.play(SystemSound.EXPLOSION);
+					this.audio.playSynth(SystemSound.EXPLOSION);
 				}
 			}
 		}
@@ -139,7 +139,7 @@ export class TowerDefense extends Game {
 			this.currency -= this.rangeCost;
 			this.range += TowerDefense.RANGE_STEP;
 			this.rangeCost = Math.round(this.rangeCost * TowerDefense.COST_GROWTH);
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 		}
 	}
 
@@ -148,7 +148,7 @@ export class TowerDefense extends Game {
 			this.currency -= this.fireRateCost;
 			this.fireRate += TowerDefense.FIRE_RATE_STEP;
 			this.fireRateCost = Math.round(this.fireRateCost * TowerDefense.COST_GROWTH);
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 		}
 	}
 
@@ -157,7 +157,7 @@ export class TowerDefense extends Game {
 			this.currency -= this.damageCost;
 			this.damage += TowerDefense.DAMAGE_STEP;
 			this.damageCost = Math.round(this.damageCost * TowerDefense.COST_GROWTH);
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 		}
 	}
 

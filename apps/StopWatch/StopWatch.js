@@ -1,5 +1,5 @@
 import { Game, Colors } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 import { Square, EdgeMode } from '../../core/graphics.js';
 
 function digitPattern(zeroIndices) {
@@ -61,7 +61,7 @@ export class StopWatch extends Game {
 			this.lastSecond = currentSecond;
 			this.showColon = !this.showColon;
 			this.updateDisplay();
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 		}
 
 		for (let i = 0; i < this.resolution; i++) {

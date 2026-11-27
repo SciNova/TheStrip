@@ -1,5 +1,5 @@
 import { Game, Command, Colors, hsvToRgb } from '../../core/system.js';
-import { Audio, Tracker } from '../../core/audio.js';
+import { Audio, Tracker } from '../../browser/audio.js';
 import { MODFormat } from '../../core/mod.js';
 
 const SEGMENT_COUNT = 4;
@@ -18,11 +18,11 @@ export class Test extends Game {
 		this.freeChannels -= 4;
 		this.thumbknackPlaying = false;
 
-		MODFormat.load('../modplayer/mods/faggots_universe.mod').then((track) => {
-			this.faggotsTracker.load(track);
+		this.system.load('/modplayer/mods/faggots_universe.mod').then((buffer) => {
+			this.faggotsTracker.load(new MODFormat(buffer));
 		});
-		MODFormat.load('../modplayer/mods/thumbknack.mod').then((track) => {
-			this.thumbknackTracker.load(track);
+		this.system.load('/modplayer/mods/thumbknack.mod').then((buffer) => {
+			this.thumbknackTracker.load(new MODFormat(buffer));
 		});
 
 		this.radius = this.resolution / 4;

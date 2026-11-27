@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 export class Blackjack extends Game {
 	static INITIAL_CARDS = 2;
@@ -38,7 +38,7 @@ export class Blackjack extends Game {
 				if (this.dealerTotal < Blackjack.DEALER_STAND) {
 					this.dealerTotal += this._drawCard();
 					this.dealerTimer = Blackjack.DEALER_DRAW_DELAY;
-					this.audio.synth.play(SystemSound.TICK);
+					this.audio.playSynth(SystemSound.TICK);
 				} else {
 					this._resolveHand();
 				}
@@ -71,7 +71,7 @@ export class Blackjack extends Game {
 			this.losses += 1;
 			this.audio.play(SystemSound.BOOING);
 		} else {
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 		}
 		this.stage = 'RESULT';
 		this.delay(Blackjack.RESULT_FLASH);
@@ -83,7 +83,7 @@ export class Blackjack extends Game {
 		}
 		if (event.command === Command.A_PRESS) {
 			this.playerTotal += this._drawCard();
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 			if (this.playerTotal > 21) {
 				this.outcome = 'lose';
 				this.losses += 1;

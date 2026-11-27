@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const InvadersStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
 
@@ -157,7 +157,7 @@ export class SpaceInvaders2D extends Game {
 					if (Math.abs(bullet.x - currentX) < hitTolerance) {
 						enemy.alive = false;
 						this.score += 1;
-						this.audio.synth.play(SystemSound.EXPLOSION);
+						this.audio.playSynth(SystemSound.EXPLOSION);
 						consumed = true;
 						break;
 					}
@@ -187,7 +187,7 @@ export class SpaceInvaders2D extends Game {
 
 		if (playerHit) {
 			this.lives -= 1;
-			this.audio.synth.play(SystemSound.WARNING);
+			this.audio.playSynth(SystemSound.WARNING);
 			if (this.lives <= 0) {
 				this.stage = InvadersStage.GAMEOVER;
 				this.audio.play(SystemSound.BOOING);
@@ -217,7 +217,7 @@ export class SpaceInvaders2D extends Game {
 		}
 		this.fireCooldown = SpaceInvaders2D.FIRE_COOLDOWN;
 		this.playerBullets.push({ x: this.turretX, z: this.resolution * 0.05 });
-		this.audio.synth.play(SystemSound.SHOOT);
+		this.audio.playSynth(SystemSound.SHOOT);
 	}
 
 	_render() {

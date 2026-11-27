@@ -1,4 +1,4 @@
-import { Note, SystemSound } from './audio-common.js';
+import { Note, SystemSound } from './audio.js';
 import { SoundEvent, Track } from './tracker.js';
 
 export class ABCFormat {
@@ -6,26 +6,9 @@ export class ABCFormat {
 	static DEFAULT_BEAT_UNIT = 1 / 4;
 	static DEFAULT_TEMPO = 120;
 	static CHANNEL_COUNT = 10;
-	static CHROMATIC_NAMES = ['C', 'C_', 'D', 'D_', 'E', 'F', 'F_', 'G', 'G_', 'A', 'A_', 'B'];
 	static NATURAL_SEMITONE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 	static PITCH_TOKEN = /(\^\^|\^|__|_|=)?([A-Ga-g])([,']*)/g;
 	static TOKEN = /\[([^\]]*)\]([\d/]*)|(\^\^|\^|__|_|=)?([A-Ga-gZz])([,']*)([\d/]*)/g;
-
-	static async load(path) {
-		const abc = await ABCFormat._readText(path);
-		return new ABCFormat(abc);
-	}
-
-	static async _readText(path) {
-		const url = new URL(path, import.meta.url);
-		if (url.protocol === 'file:') {
-			const { readFile } = await import('fs/promises');
-			const { fileURLToPath } = await import('url');
-			return readFile(fileURLToPath(url), 'utf8');
-		}
-		const response = await fetch(url);
-		return response.text();
-	}
 
 	constructor(abc) {
 		const track = new Track();
@@ -123,7 +106,7 @@ export class ABCFormat {
 		return text.split('|').map((bar) => bar.trim()).filter((bar) => bar.length > 0);
 	}
 
-	static _resolveNoteName(accidental, letter, octaveMarks) {
+	static _resolveNote(accidental, letter, octaveMarks) {
 		const shift = { '^^': 2, '^': 1, '': 0, '=': 0, '_': -1, '__': -2 }[accidental ?? ''];
 		const baseOctave = letter === letter.toLowerCase() ? 4 : 3;
 		const octaveShift = (octaveMarks.match(/'/g) || []).length - (octaveMarks.match(/,/g) || []).length;
@@ -132,7 +115,7 @@ export class ABCFormat {
 		const normalizedSemitone = ((semitone % 12) + 12) % 12;
 		const octaveCarry = Math.floor(semitone / 12);
 
-		return ABCFormat.CHROMATIC_NAMES[normalizedSemitone] + (baseOctave + octaveShift + octaveCarry);
+		return Note.value(normalizedSemitone, baseOctave + octaveShift + octaveCarry);
 	}
 
 	static _parseLengthMultiplier(suffix) {
@@ -157,7 +140,7 @@ export class ABCFormat {
 		ABCFormat.PITCH_TOKEN.lastIndex = 0;
 		while ((match = ABCFormat.PITCH_TOKEN.exec(content)) !== null) {
 			const [, accidental, letter, octaveMarks] = match;
-			pitches.push(ABCFormat._resolveNoteName(accidental, letter, octaveMarks));
+			pitches.push(ABCFormat._resolveNote(accidental, letter, octaveMarks));
 		}
 		return pitches;
 	}
@@ -196,7 +179,7 @@ export class ABCFormat {
 
 			const duration = ABCFormat._parseLengthMultiplier(lengthSuffix) * baseDurationInBeats;
 			if (letter !== 'z' && letter !== 'Z') {
-				const note = ABCFormat._resolveNoteName(accidental, letter, octaveMarks);
+				const note = ABCFormat._resolveNote(accidental, letter, octaveMarks);
 				channelEvents[0].push(new SoundEvent(sound, note, position, duration));
 			}
 			position += duration;
@@ -290,54 +273,4 @@ export class ABCFormat {
 		return SystemSound[name.toUpperCase()] ?? null;
 	}
 
-	static TUNES = {
-		'basic waltz phrase (I-IV-V-I)': 'tunes/waltz.abc',
-		'jingle bells (first segment)': 'tunes/jingle.abc',
-		'portnoy tribute (7/8)': 'tunes/portnoy.abc',
-		'looney tunes theme (melody only)': 'tunes/looney.abc',
-		'mario theme (melody only)': 'tunes/mario.abc',
-	};
-
-	static async test() {
-		for (const [label, path] of Object.entries(ABCFormat.TUNES)) {
-			const track = await ABCFormat.load(path);
-			console.log(label + ':', ABCFormat._summarize(track));
-			console.log(ABCFormat._noteIndices(track));
-		}
-	}
-
-	static _summarize(track) {
-		const channels = track.segments[0]?.[0]?.length ?? 0;
-		const segments = track.segments.length;
-		let notes = 0;
-		for (const bars of track.segments) {
-			for (const channelsInBar of bars) {
-				for (const noteEvents of channelsInBar) {
-					notes += noteEvents.length;
-				}
-			}
-		}
-		return { channels, segments, notes };
-	}
-
-	static _noteIndices(track) {
-		const values = [];
-		for (const bars of track.segments) {
-			for (const channelsInBar of bars) {
-				for (const noteEvents of channelsInBar) {
-					for (const noteEvent of noteEvents) {
-						values.push(Note[noteEvent.note]);
-					}
-				}
-			}
-		}
-		return values;
-	}
-}
-
-if (typeof process !== 'undefined' && process.argv[1]) {
-	const { fileURLToPath } = await import('url');
-	if (process.argv[1] === fileURLToPath(import.meta.url)) {
-		await ABCFormat.test();
-	}
 }

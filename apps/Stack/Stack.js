@@ -1,5 +1,5 @@
 import { Game, Colors, Command, GameState } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
 class Dot extends Shape {
@@ -195,7 +195,7 @@ export class Stack extends Game {
 			for (const dot of this.snake.dots) {
 				currentPos += 1 + dot.gap;
 				if (currentPos === this.resolution - 1) {
-					this.audio.synth.play(SystemSound.SPAWN);
+					this.audio.playSynth(SystemSound.SPAWN);
 					break;
 				}
 			}
@@ -233,13 +233,13 @@ export class Stack extends Game {
 					headDot.explode();
 					this.snake.position += 1 + headDot.gap;
 					this.bullets.shift();
-					this.audio.synth.play(SystemSound.EXPLOSION);
+					this.audio.playSynth(SystemSound.EXPLOSION);
 				} else {
 					this.bullets.shift();
 					const newDot = new Dot(this, bullet.color, 0);
 					this.snake.dots.unshift(newDot);
 					this.snake.position -= 1;
-					this.audio.synth.play(SystemSound.WARNING);
+					this.audio.playSynth(SystemSound.WARNING);
 				}
 			}
 		}
@@ -260,13 +260,13 @@ export class Stack extends Game {
 	handleInput(padId, event) {
 		if (event.command === Command.A) {
 			this.bullets.push(new Bullet(this, Colors.RED));
-			this.audio.synth.play(SystemSound.SHOOT);
+			this.audio.playSynth(SystemSound.SHOOT);
 		} else if (event.command === Command.B) {
 			this.bullets.push(new Bullet(this, Colors.GREEN));
-			this.audio.synth.play(SystemSound.SHOOT);
+			this.audio.playSynth(SystemSound.SHOOT);
 		} else if (event.command === Command.C) {
 			this.bullets.push(new Bullet(this, Colors.BLUE));
-			this.audio.synth.play(SystemSound.SHOOT);
+			this.audio.playSynth(SystemSound.SHOOT);
 		}
 	}
 }

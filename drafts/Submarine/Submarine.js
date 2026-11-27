@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const SubmarineStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
@@ -101,7 +101,7 @@ export class Submarine extends Game {
 				this.score += 1;
 				this.fuseTime = Math.max(Submarine.MIN_FUSE_TIME, this.fuseTime - Submarine.FUSE_TIME_STEP);
 				this.spawnInterval = Math.max(Submarine.MIN_SPAWN_INTERVAL, this.spawnInterval - Submarine.SPAWN_INTERVAL_STEP);
-				this.audio.synth.play(SystemSound.TICK);
+				this.audio.playSynth(SystemSound.TICK);
 			}
 		}
 		this.mines = survivors;
@@ -113,7 +113,7 @@ export class Submarine extends Game {
 
 		if (hit || drowned) {
 			this.lives -= 1;
-			this.audio.synth.play(hit ? SystemSound.EXPLOSION : SystemSound.WARNING);
+			this.audio.playSynth(hit ? SystemSound.EXPLOSION : SystemSound.WARNING);
 			if (this.lives <= 0) {
 				this.stage = SubmarineStage.GAMEOVER;
 				this.audio.play(SystemSound.BOOING);

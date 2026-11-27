@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 export class QuickDraw extends Game {
 	static MIN_WAIT = 1.0;
@@ -33,7 +33,7 @@ export class QuickDraw extends Game {
 			if (this.waitTime <= 0.0) {
 				this.stage = 'GO';
 				this.cueTime = this.time;
-				this.audio.synth.play(SystemSound.TICK);
+				this.audio.playSynth(SystemSound.TICK);
 			}
 		} else if (this.stage === 'GO') {
 			const elapsed = this.time - this.cueTime;

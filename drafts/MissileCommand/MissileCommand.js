@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const MissileStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 
@@ -103,7 +103,7 @@ export class MissileCommand extends Game {
 				const city = this.cities.find((c) => c.alive && Math.abs(c.x - missile.x) < 2);
 				if (city) {
 					city.alive = false;
-					this.audio.synth.play(SystemSound.WARNING);
+					this.audio.playSynth(SystemSound.WARNING);
 				}
 			}
 		}
@@ -132,7 +132,7 @@ export class MissileCommand extends Game {
 				for (const missile of this.missiles) {
 					if (Math.abs(missile.x - explosion.x) < radius && Math.abs(missile.z - interceptZ) < zWindow) {
 						this.score += 1;
-						this.audio.synth.play(SystemSound.EXPLOSION);
+						this.audio.playSynth(SystemSound.EXPLOSION);
 						this.missileSpeed += MissileCommand.SPEED_STEP * this.resolution;
 						this.spawnInterval = Math.max(
 							MissileCommand.MIN_SPAWN_INTERVAL,
@@ -162,7 +162,7 @@ export class MissileCommand extends Game {
 		}
 		this.fireCooldown = MissileCommand.FIRE_COOLDOWN;
 		this.interceptors.push({ x: this.aimPos, z: 0.0 });
-		this.audio.synth.play(SystemSound.SHOOT);
+		this.audio.playSynth(SystemSound.SHOOT);
 	}
 
 	handleInput(padId, event) {

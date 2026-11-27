@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const BreakoutStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
 
@@ -114,9 +114,9 @@ export class Breakout extends Game {
 					brick.alive = false;
 				}
 				this.score += 1;
-				this.audio.synth.play(SystemSound.EXPLOSION);
+				this.audio.playSynth(SystemSound.EXPLOSION);
 			} else {
-				this.audio.synth.play(SystemSound.TICK);
+				this.audio.playSynth(SystemSound.TICK);
 			}
 			ball.vx += (Math.random() * 2 - 1) * Breakout.BALL_PERTURB * this.resolution;
 
@@ -131,10 +131,10 @@ export class Breakout extends Game {
 				ball.direction = 1;
 				const offset = (ball.x - this.paddleCenter) / (Breakout.PADDLE_WIDTH / 2.0);
 				ball.vx = offset * Breakout.BALL_BOUNCE_VX * this.resolution;
-				this.audio.synth.play(SystemSound.TICK);
+				this.audio.playSynth(SystemSound.TICK);
 			} else {
 				this.lives -= 1;
-				this.audio.synth.play(SystemSound.WARNING);
+				this.audio.playSynth(SystemSound.WARNING);
 				if (this.lives <= 0) {
 					this.stage = BreakoutStage.GAMEOVER;
 					this.audio.play(SystemSound.BOOING);

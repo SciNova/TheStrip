@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const LANES = 4;
 const LANE_COLORS = [Colors.RED, Colors.YELLOW, Colors.CYAN, Colors.MAGENTA];
@@ -101,7 +101,7 @@ export class RhythmTap extends Game {
 			this.score += perfect ? 2 : 1;
 			this.combo += 1;
 			this.health = Math.min(1.0, this.health + RhythmTap.HIT_HEAL);
-			this.audio.synth.play(SystemSound.EXPLOSION);
+			this.audio.playSynth(SystemSound.EXPLOSION);
 			this.beatInterval = Math.max(RhythmTap.MIN_BEAT_INTERVAL, this.beatInterval - RhythmTap.BEAT_INTERVAL_STEP);
 		}
 	}

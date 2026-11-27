@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const ZONES = [
 	{ start: 0.85, end: 1.0, score: 10 },
@@ -82,7 +82,7 @@ export class Shuffleboard extends Game {
 		const power = this._currentPower();
 		this._launchPuck('player', power * Shuffleboard.MAX_SHOT_SPEED * this.resolution);
 		this.throwsTakenPlayer += 1;
-		this.audio.synth.play(SystemSound.SHOOT);
+		this.audio.playSynth(SystemSound.SHOOT);
 	}
 
 	_cpuThrow() {
@@ -90,7 +90,7 @@ export class Shuffleboard extends Game {
 		const speed = Math.sqrt(2 * Shuffleboard.FRICTION * target) * this.resolution * (0.9 + Math.random() * 0.2);
 		this._launchPuck('cpu', speed);
 		this.throwsTakenCpu += 1;
-		this.audio.synth.play(SystemSound.SHOOT);
+		this.audio.playSynth(SystemSound.SHOOT);
 	}
 
 	_launchPuck(owner, speed) {
@@ -165,7 +165,7 @@ export class Shuffleboard extends Game {
 			this.audio.play(SystemSound.BOOING);
 		} else {
 			this.won = null;
-			this.audio.synth.play(SystemSound.TICK);
+			this.audio.playSynth(SystemSound.TICK);
 		}
 		this.stage = 'RESULT';
 		this.delay(Shuffleboard.RESULT_FLASH);

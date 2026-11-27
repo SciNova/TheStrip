@@ -1,5 +1,5 @@
 import { Game, Colors, Command, isGameCommand } from '../../core/system.js';
-import { SystemSound, Note, Scale } from '../../core/audio-common.js';
+import { SystemSound, Note, Scale } from '../../core/audio.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
 const Fruit = Object.freeze({
@@ -59,7 +59,7 @@ class Wheel extends Shape {
 					const fruit = this.symbols[this.rotation % Wheel.NUM_SYMBOLS];
 					const scale = Scales[this.game.scaleIndex];
 					const note = scale[FRUIT_SCALE_POSITION[fruit]];
-					this.game.audio.synth.play2('SAWTOOTH', Note.frequency(note), 0.3, 0.0, 0.18, 0.0, 0.08);
+					this.game.audio.playSynthCustom('SAWTOOTH', Note.frequency(note), 0.3, 0.0, 0.18, 0.0, 0.08);
 				}
 			}
 
@@ -74,7 +74,7 @@ class Wheel extends Shape {
 
 		if (this.speed > 0) {
 			if (Math.floor(this.rotation) !== Math.floor(this._prevRotation)) {
-				this.game.audio.synth.play(SystemSound.TICK);
+				this.game.audio.playSynth(SystemSound.TICK);
 			}
 		}
 

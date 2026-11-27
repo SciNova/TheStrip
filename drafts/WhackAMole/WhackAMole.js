@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const WhackStage = Object.freeze({ PLAYING: 'PLAYING', ROUND_END: 'ROUND_END' });
 
@@ -104,11 +104,11 @@ export class WhackAMole extends Game {
 		if (bestIndex >= 0) {
 			this.moles.splice(bestIndex, 1);
 			this.score += 1;
-			this.audio.synth.play(SystemSound.EXPLOSION);
+			this.audio.playSynth(SystemSound.EXPLOSION);
 			this.litDuration = Math.max(WhackAMole.MIN_LIT_DURATION, this.litDuration - WhackAMole.LIT_DURATION_STEP);
 			this.spawnInterval = Math.max(WhackAMole.MIN_SPAWN_INTERVAL, this.spawnInterval - WhackAMole.SPAWN_INTERVAL_STEP);
 		} else {
-			this.audio.synth.play(SystemSound.SHOOT);
+			this.audio.playSynth(SystemSound.SHOOT);
 		}
 	}
 

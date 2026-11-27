@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 const FishingStage = Object.freeze({ IDLE: 'IDLE', WAITING: 'WAITING', BITE: 'BITE', REELING: 'REELING', RESULT: 'RESULT' });
 
@@ -56,7 +56,7 @@ export class Fishing extends Game {
 				this.stage = FishingStage.BITE;
 				this.biteTimer = Fishing.REACTION_WINDOW;
 				this.fish = this._pickFish();
-				this.audio.synth.play(SystemSound.SPAWN);
+				this.audio.playSynth(SystemSound.SPAWN);
 			}
 		} else if (this.stage === FishingStage.BITE) {
 			this.biteTimer -= dt;
@@ -115,7 +115,7 @@ export class Fishing extends Game {
 				this.tension = 0.3;
 				this.reelTimer = Fishing.REEL_TIME_LIMIT;
 				this.reeling = true;
-				this.audio.synth.play(SystemSound.EXPLOSION);
+				this.audio.playSynth(SystemSound.EXPLOSION);
 			}
 		} else if (event.command === Command.FIRE_RELEASE) {
 			if (this.stage === FishingStage.REELING) {

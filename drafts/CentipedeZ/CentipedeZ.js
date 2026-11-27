@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 export class CentipedeZ extends Game {
 	static SPAWN_Z = 9.0;
@@ -98,7 +98,7 @@ export class CentipedeZ extends Game {
 
 		if (playerHit) {
 			this.lives -= 1;
-			this.audio.synth.play(SystemSound.WARNING);
+			this.audio.playSynth(SystemSound.WARNING);
 			if (this.lives <= 0) {
 				this.stage = 'GAMEOVER';
 				this.audio.play(SystemSound.BOOING);
@@ -148,9 +148,9 @@ export class CentipedeZ extends Game {
 		if (best) {
 			this._destroySegment(best.ci, best.k);
 			this.score += 1;
-			this.audio.synth.play(SystemSound.EXPLOSION);
+			this.audio.playSynth(SystemSound.EXPLOSION);
 		} else {
-			this.audio.synth.play(SystemSound.SHOOT);
+			this.audio.playSynth(SystemSound.SHOOT);
 		}
 	}
 

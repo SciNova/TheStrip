@@ -1,5 +1,5 @@
 import { Game, Colors, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio-common.js';
+import { SystemSound } from '../../core/audio.js';
 
 export class TreasureHunt extends Game {
 	static CURSOR_SPEED = 0.8;
@@ -59,7 +59,7 @@ export class TreasureHunt extends Game {
 			this.tolerance = Math.max(TreasureHunt.MIN_TOLERANCE, this.tolerance - TreasureHunt.TOLERANCE_STEP);
 			this._spawnTarget();
 		} else {
-			this.audio.synth.play(SystemSound.WARNING);
+			this.audio.playSynth(SystemSound.WARNING);
 		}
 		this.digFlash = 0.25;
 	}
