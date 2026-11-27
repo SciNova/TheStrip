@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class TugOfWar extends Game {
@@ -83,14 +83,14 @@ export class TugOfWar extends Game {
 		if (this.stage === 'PLAYING') {
 			const markerPos = Math.round(this.ropePos * (this.resolution - 1));
 			for (let i = 0; i < this.resolution; i++) {
-				this.pixels[i] = i < markerPos ? Colors.DARK_RED : Colors.DARK_BLUE;
+				this.pixels[i] = i < markerPos ? Color.DARK_RED : Color.DARK_BLUE;
 			}
 			if (markerPos >= 0 && markerPos < this.resolution) {
-				this.pixels[markerPos] = Colors.WHITE;
+				this.pixels[markerPos] = Color.WHITE;
 			}
 		} else if (this.stage === 'RESULT') {
 			const flashOn = Math.floor(this.time * 6) % 2 === 0;
-			const color = this.won ? (flashOn ? Colors.GREEN : Colors.DARK_GREEN) : (flashOn ? Colors.RED : Colors.DARK_RED);
+			const color = this.won ? (flashOn ? Color.GREEN : Color.DARK_GREEN) : (flashOn ? Color.RED : Color.DARK_RED);
 			for (let i = 0; i < this.resolution; i++) {
 				this.pixels[i] = color;
 			}

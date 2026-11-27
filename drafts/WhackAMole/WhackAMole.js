@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const WhackStage = Object.freeze({ PLAYING: 'PLAYING', ROUND_END: 'ROUND_END' });
@@ -138,7 +138,7 @@ export class WhackAMole extends Game {
 
 		const barLen = Math.round((this.roundTime / WhackAMole.ROUND_DURATION) * this.resolution);
 		for (let i = 0; i < barLen; i++) {
-			this.pixels[i] = Colors.DARK_GRAY;
+			this.pixels[i] = Color.DARK_GRAY;
 		}
 
 		for (const mole of this.moles) {
@@ -162,7 +162,7 @@ export class WhackAMole extends Game {
 		const blink = Math.floor(this.time * 8) % 2 === 0;
 		const cursorPos = Math.round(this.cursorPos);
 		if (blink && cursorPos >= 0 && cursorPos < this.resolution) {
-			this.pixels[cursorPos] = Colors.WHITE;
+			this.pixels[cursorPos] = Color.WHITE;
 		}
 	}
 
@@ -170,13 +170,13 @@ export class WhackAMole extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_YELLOW;
+			this.pixels[i] = Color.DARK_YELLOW;
 		}
 		const flashOn = Math.floor(this.time * 5) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.YELLOW;
+					this.pixels[i] = Color.YELLOW;
 				}
 			}
 		}

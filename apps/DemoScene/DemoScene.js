@@ -1,4 +1,4 @@
-import { Game, Colors, hsvToRgb, Command } from '../../core/system.js';
+import { Game, Color, System, Command } from '../../core/system.js';
 import { Audio, Tracker } from '../../browser/audio.js';
 import { MODFormat } from '../../core/audio.js';
 
@@ -171,7 +171,7 @@ class Firework {
 		for (let i = 0; i < numParticles; i++) {
 			const angle = Math.random() * 2 * Math.PI;
 			const velocity = Math.cos(angle) * this.burstRadius * 1.2;
-			const color = hsvToRgb(this.hue, Math.random() * 0.3 + 0.7, 1);
+			const color = System.hsvToRgb(this.hue, Math.random() * 0.3 + 0.7, 1);
 			const life = this.burstLife * (0.5 + Math.random() * 0.5);
 			this.particles.push(new Particle(this.peakPosition, velocity, color, life, this.gravity));
 		}
@@ -469,7 +469,7 @@ export class DemoScene extends Game {
 
 			const brightness = Math.min(1.0, (STAR_Z_NEAR * STAR_Z_NEAR) / (star.z * star.z));
 			const sat = Math.max(0.15, 0.9 - warp * 0.75);
-			const color = hsvToRgb(star.hue, sat, brightness);
+			const color = System.hsvToRgb(star.hue, sat, brightness);
 
 			const dposdt = Math.abs(star.x) * halfWidth * speed / (star.z * star.z);
 			const streak = Math.min(10, dposdt * dt * 4);
@@ -510,7 +510,7 @@ export class DemoScene extends Game {
 			if (!fw.bursted) {
 				const frac = fw.riseElapsed / fw.riseTime;
 				const pos = Math.floor(frac * fw.peakPosition);
-				this._blendMax(pos, Colors.WHITE);
+				this._blendMax(pos, Color.WHITE);
 				this._blendMax(pos - 1, 0x552200);
 			} else {
 				for (const p of fw.particles) {
@@ -535,7 +535,7 @@ export class DemoScene extends Game {
 			const norm = Math.max(-1, Math.min(1, sum / 2.5));
 			const intensity = Math.pow((norm + 1) / 2, 1.6);
 			const hue = 0.55 + 0.15 * Math.sin(t * 0.05 + seed) + norm * 0.05;
-			this.pixels[i] = hsvToRgb(hue, 0.85, intensity);
+			this.pixels[i] = System.hsvToRgb(hue, 0.85, intensity);
 		}
 	}
 
@@ -560,7 +560,7 @@ export class DemoScene extends Game {
 				const flicker = 0.85 + 0.15 * Math.sin(now * 2.0 + i * 0.3 + bandSeed * 2.0);
 				const value = Math.max(0, Math.min(1, shaped * 1.3 * flicker));
 				const hueDrift = 0.02 * Math.sin(x * 3.0 + t * 0.3 + bandSeed);
-				const color = hsvToRgb(band.hue + hueDrift, 0.85, value);
+				const color = System.hsvToRgb(band.hue + hueDrift, 0.85, value);
 				this._blendMax(i, color);
 			}
 		}
@@ -579,7 +579,7 @@ export class DemoScene extends Game {
 					continue;
 				}
 				const fade = Math.pow(1 - k / drop.length, 1.6);
-				const color = k === 0 ? hsvToRgb(drop.hue, 0.25, 1.0) : hsvToRgb(drop.hue, 0.9, fade);
+				const color = k === 0 ? System.hsvToRgb(drop.hue, 0.25, 1.0) : System.hsvToRgb(drop.hue, 0.9, fade);
 				this._blendMax(pos, color);
 			}
 		}
@@ -596,7 +596,7 @@ export class DemoScene extends Game {
 
 		for (let bIdx = 0; bIdx < numBars; bIdx++) {
 			const hue = (this.copperHueOffset + bIdx / numBars) % 1.0;
-			const color = hsvToRgb(hue, 1.0, 1.0);
+			const color = System.hsvToRgb(hue, 1.0, 1.0);
 			const r = (color >> 16) & 0xFF, g = (color >> 8) & 0xFF, b = color & 0xFF;
 			const freq = 0.55 + bIdx * 0.11;
 			const phase = seed + bIdx * 1.7;
@@ -637,7 +637,7 @@ export class DemoScene extends Game {
 			const movingRight = cyclePos < 1.0;
 			const pos = tri * (this.resolution - 1);
 			const hue = (bar.hue + now * 0.03) % 1.0;
-			const color = hsvToRgb(hue, 1.0, 1.0);
+			const color = System.hsvToRgb(hue, 1.0, 1.0);
 			const r = (color >> 16) & 0xFF, g = (color >> 8) & 0xFF, b = color & 0xFF;
 			const aheadWidth = Math.max(0.8, this.resolution * 0.018 * bar.widthMul);
 			const behindWidth = Math.max(2.0, this.resolution * 0.09 * bar.widthMul);
@@ -701,7 +701,7 @@ export class DemoScene extends Game {
 
 		for (const dot of this.reactionParticles) {
 			const pos = Math.floor(dot.position);
-			const color = hsvToRgb(dot.hue, dot.sat, dot.alpha);
+			const color = System.hsvToRgb(dot.hue, dot.sat, dot.alpha);
 			this._blendMax(pos, color);
 		}
 	}
@@ -727,7 +727,7 @@ export class DemoScene extends Game {
 				if (shade < 0.01) {
 					continue;
 				}
-				const color = hsvToRgb(ball.hue, 0.9, shade);
+				const color = System.hsvToRgb(ball.hue, 0.9, shade);
 				this._blendMax(i, color);
 			}
 		}

@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
@@ -105,7 +105,7 @@ export class Maze2D extends Game {
 	}
 
 	_addWall(cx, cz, dir, cell) {
-		const wall = new Wall(this, Colors.GRAY);
+		const wall = new Wall(this, Color.GRAY);
 		wall.x = cx * cell + (DIR_DX[dir] * cell) / 2.0;
 		wall.z = cz * cell + (DIR_DZ[dir] * cell) / 2.0;
 		this.walls.push(wall);
@@ -223,7 +223,7 @@ export class Maze2D extends Game {
 	_renderWin() {
 		this.clear();
 		const flashOn = Math.floor(this.time * 6) % 2 === 0;
-		const color = flashOn ? Colors.GREEN : Colors.DARK_GREEN;
+		const color = flashOn ? Color.GREEN : Color.DARK_GREEN;
 		for (let i = 0; i < this.resolution; i++) {
 			this.pixels[i] = color;
 		}

@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const FishingStage = Object.freeze({ IDLE: 'IDLE', WAITING: 'WAITING', BITE: 'BITE', REELING: 'REELING', RESULT: 'RESULT' });
@@ -131,11 +131,11 @@ export class Fishing extends Game {
 
 		if (this.stage === FishingStage.IDLE) {
 			for (let i = 0; i < this.resolution; i++) {
-				this.pixels[i] = Colors.DARK_BLUE;
+				this.pixels[i] = Color.DARK_BLUE;
 			}
 		} else if (this.stage === FishingStage.WAITING) {
 			for (let i = 0; i < this.resolution; i++) {
-				this.pixels[i] = Colors.DARK_BLUE;
+				this.pixels[i] = Color.DARK_BLUE;
 			}
 			const pulse = 0.5 + 0.5 * Math.sin(this.time * 2.0);
 			const v = Math.floor(0x55 + 0x55 * pulse);
@@ -144,37 +144,37 @@ export class Fishing extends Game {
 			}
 		} else if (this.stage === FishingStage.BITE) {
 			for (let i = 0; i < this.resolution; i++) {
-				this.pixels[i] = Colors.DARK_BLUE;
+				this.pixels[i] = Color.DARK_BLUE;
 			}
 			const blink = Math.floor(this.time * 14) % 2 === 0;
 			if (blink && castPos >= 0 && castPos < this.resolution) {
-				this.pixels[castPos] = Colors.YELLOW;
+				this.pixels[castPos] = Color.YELLOW;
 			}
 		} else if (this.stage === FishingStage.REELING) {
 			let tensionColor;
 			if (this.tension < 0.5) {
-				tensionColor = Colors.DARK_GREEN;
+				tensionColor = Color.DARK_GREEN;
 			} else if (this.tension < 0.8) {
-				tensionColor = Colors.DARK_YELLOW;
+				tensionColor = Color.DARK_YELLOW;
 			} else {
-				tensionColor = Colors.DARK_RED;
+				tensionColor = Color.DARK_RED;
 			}
 			for (let i = 0; i < this.resolution; i++) {
 				this.pixels[i] = tensionColor;
 			}
 			const barLen = Math.round(this.progress * this.resolution);
 			for (let i = 0; i < barLen; i++) {
-				this.pixels[i] = Colors.CYAN;
+				this.pixels[i] = Color.CYAN;
 			}
 		} else if (this.stage === FishingStage.RESULT) {
 			const flashOn = Math.floor(this.time * 6) % 2 === 0;
 			if (this.success) {
-				const color = flashOn ? Colors.GREEN : Colors.DARK_GREEN;
+				const color = flashOn ? Color.GREEN : Color.DARK_GREEN;
 				for (let i = 0; i < this.resolution; i++) {
 					this.pixels[i] = color;
 				}
 			} else {
-				const color = flashOn ? Colors.ORANGE : Colors.DARK_ORANGE;
+				const color = flashOn ? Color.ORANGE : Color.DARK_ORANGE;
 				for (let i = 0; i < this.resolution; i++) {
 					this.pixels[i] = color;
 				}

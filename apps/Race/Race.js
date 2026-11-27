@@ -1,4 +1,4 @@
-import { Game, Colors, isGameCommand } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 import { Shape, Alignment, EdgeMode, Widget, WidgetState, ProgressBar } from '../../core/graphics.js';
 
@@ -46,25 +46,25 @@ class Semaphore extends Widget {
 	}
 
 	renderPixel(i) {
-		let cRed = Colors.DARK_RED;
-		let cRed2 = Colors.DARK_RED;
-		let cYellow = Colors.DARK_YELLOW;
-		let cGreen = Colors.DARK_GREEN;
+		let cRed = Color.DARK_RED;
+		let cRed2 = Color.DARK_RED;
+		let cYellow = Color.DARK_YELLOW;
+		let cGreen = Color.DARK_GREEN;
 
 		if (this.phase === SemaphoreState.RED) {
-			cRed = Colors.RED;
+			cRed = Color.RED;
 		} else if (this.phase === SemaphoreState.RED2) {
-			cRed = Colors.RED;
-			cRed2 = Colors.RED;
+			cRed = Color.RED;
+			cRed2 = Color.RED;
 		} else if (this.phase === SemaphoreState.YELLOW) {
-			cRed = Colors.RED;
-			cRed2 = Colors.RED;
-			cYellow = Colors.YELLOW;
+			cRed = Color.RED;
+			cRed2 = Color.RED;
+			cYellow = Color.YELLOW;
 		} else if (this.phase === SemaphoreState.GREEN) {
-			cRed = Colors.RED;
-			cRed2 = Colors.RED;
-			cYellow = Colors.YELLOW;
-			cGreen = Colors.GREEN;
+			cRed = Color.RED;
+			cRed2 = Color.RED;
+			cYellow = Color.YELLOW;
+			cGreen = Color.GREEN;
 		}
 
 		const colors = [cGreen, cYellow, cRed2, cRed];
@@ -119,9 +119,9 @@ class Result extends Widget {
 		const targetTravel = Race.TOTAL_LAPS * 2 * this.game.resolution;
 		const half = start + Math.floor(thirdSize / 2);
 		if (i < half) {
-			return this.hostTravel >= targetTravel ? (bright ? Colors.MAGENTA : Colors.DARK_MAGENTA) : Colors.DARK_MAGENTA;
+			return this.hostTravel >= targetTravel ? (bright ? Color.MAGENTA : Color.DARK_MAGENTA) : Color.DARK_MAGENTA;
 		} else {
-			return this.guestTravel >= targetTravel ? (bright ? Colors.ROYAL_BLUE : Colors.DARK_BLUE) : Colors.DARK_BLUE;
+			return this.guestTravel >= targetTravel ? (bright ? Color.ROYAL_BLUE : Color.DARK_BLUE) : Color.DARK_BLUE;
 		}
 	}
 }
@@ -239,10 +239,10 @@ export class Race extends Game {
 
 		const center = this.resolution / 2.0;
 
-		this.playerA = new Player(this, Colors.MAGENTA);
+		this.playerA = new Player(this, Color.MAGENTA);
 		this.playerA.location = clusterCenter + offset;
 		this.playerA.travel = -Math.abs(this.playerA.location - center);
-		this.playerB = new Player(this, Colors.ROYAL_BLUE);
+		this.playerB = new Player(this, Color.ROYAL_BLUE);
 		this.playerB.location = clusterCenter - offset;
 		this.playerB.travel = -Math.abs(this.playerB.location - center);
 
@@ -326,7 +326,7 @@ export class Race extends Game {
 		if (this.raceState !== RaceState.PLAYING) {
 			return;
 		}
-		if (!isGameCommand(event.command)) {
+		if (!Command.isGameCommand(event.command)) {
 			return;
 		}
 		if (padId === 0) {

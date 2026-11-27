@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const MissileStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
@@ -193,7 +193,7 @@ export class MissileCommand extends Game {
 			if (city.alive) {
 				const pos = Math.round(city.x);
 				if (pos >= 0 && pos < this.resolution) {
-					this.pixels[pos] = Colors.GREEN;
+					this.pixels[pos] = Color.GREEN;
 				}
 			}
 		}
@@ -217,7 +217,7 @@ export class MissileCommand extends Game {
 		for (const interceptor of this.interceptors) {
 			const pos = Math.round(interceptor.x);
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.CYAN;
+				this.pixels[pos] = Color.CYAN;
 			}
 		}
 
@@ -239,7 +239,7 @@ export class MissileCommand extends Game {
 		const blink = Math.floor(this.time * 8) % 2 === 0;
 		const aimCenter = Math.round(this.aimPos);
 		if (blink && aimCenter >= 0 && aimCenter < this.resolution) {
-			this.pixels[aimCenter] = Colors.WHITE;
+			this.pixels[aimCenter] = Color.WHITE;
 		}
 	}
 
@@ -247,13 +247,13 @@ export class MissileCommand extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

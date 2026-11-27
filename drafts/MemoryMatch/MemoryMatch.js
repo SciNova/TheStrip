@@ -1,7 +1,7 @@
-import { Game, GameState, Colors, Command } from '../../core/system.js';
+import { Game, GameState, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
-const CARD_COLORS = [Colors.RED, Colors.GREEN, Colors.BLUE, Colors.YELLOW, Colors.MAGENTA, Colors.CYAN, Colors.ORANGE, Colors.PURPLE];
+const CARD_COLORS = [Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA, Color.CYAN, Color.ORANGE, Color.PURPLE];
 const BASE_PAIRS = 3;
 const MAX_PAIRS = 8;
 
@@ -128,7 +128,7 @@ export class MemoryMatch extends Game {
 			const card = this.cards[slot];
 			const start = this._slotStart(slot);
 			const end = start + this.cardWidth;
-			let color = Colors.GRAY;
+			let color = Color.GRAY;
 			if (card.matched || card.revealed) {
 				color = card.color;
 			}
@@ -144,7 +144,7 @@ export class MemoryMatch extends Game {
 		const cursorStart = Math.floor(center - cursorWidth / 2);
 		const cursorEnd = cursorStart + cursorWidth;
 		for (let i = Math.max(0, cursorStart); i < cursorEnd && i < this.resolution; i++) {
-			this.pixels[i] = Colors.WHITE;
+			this.pixels[i] = Color.WHITE;
 		}
 	}
 

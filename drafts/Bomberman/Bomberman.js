@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 function lerp(min, max, t) {
@@ -100,7 +100,7 @@ class Player {
 	render() {
 		const pos = Math.round(this.location);
 		if (pos >= 0 && pos < this.game.resolution) {
-			this.game.pixels[pos] = Colors.CYAN;
+			this.game.pixels[pos] = Color.CYAN;
 		}
 	}
 
@@ -149,7 +149,7 @@ class Enemy {
 	render() {
 		const pos = Math.round(this.location);
 		if (pos >= 0 && pos < this.game.resolution) {
-			this.game.pixels[pos] = Colors.RED;
+			this.game.pixels[pos] = Color.RED;
 		}
 	}
 
@@ -265,13 +265,13 @@ export class Bomberman extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

@@ -1,5 +1,5 @@
-import { Game, Colors } from '../../core/system.js';
-import { isGameCommand } from '../../core/system.js';
+import { Game, Color } from '../../core/system.js';
+import { Command } from '../../core/system.js';
 
 class Bird {
 	constructor(position) {
@@ -95,22 +95,22 @@ export class FlappyBird extends Game {
 
 		const topHeight = Math.floor(this.topTerrain.height + 0.5);
 		for (let i = 0; i < topHeight; i++) {
-			this.pixels[this.resolution - 1 - i] = Colors.RED;
+			this.pixels[this.resolution - 1 - i] = Color.RED;
 		}
 
 		const bottomHeight = Math.floor(this.bottomTerrain.height + 0.5);
 		for (let i = 0; i < bottomHeight; i++) {
-			this.pixels[i] = Colors.RED;
+			this.pixels[i] = Color.RED;
 		}
 
 		const birdIdx = Math.floor(this.bird.position + 0.5);
 		if (birdIdx >= 0 && birdIdx < this.resolution) {
-			this.pixels[birdIdx] = Colors.YELLOW;
+			this.pixels[birdIdx] = Color.YELLOW;
 		}
 	}
 
 	handleInput(padId, event) {
-		if (isGameCommand(event.command)) {
+		if (Command.isGameCommand(event.command)) {
 			FlappyBird._birdBoost(this.bird);
 		}
 	}

@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class CentipedeZ extends Game {
@@ -241,7 +241,7 @@ export class CentipedeZ extends Game {
 		const blink = Math.floor(this.time * 8) % 2 === 0;
 		const aimCenter = Math.round(this.aimPos);
 		if (blink && aimCenter >= 0 && aimCenter < this.resolution) {
-			this.pixels[aimCenter] = Colors.WHITE;
+			this.pixels[aimCenter] = Color.WHITE;
 		}
 	}
 
@@ -249,13 +249,13 @@ export class CentipedeZ extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-import { Game, Command, Colors } from '../../core/system.js';
+import { Game, Command, Color } from '../../core/system.js';
 
 const PlayerState = Object.freeze({ IDLE: 'IDLE', AIM_LEFT: 'AIM_LEFT', AIM_RIGHT: 'AIM_RIGHT' });
 const ShotState = Object.freeze({ SHOT: 'SHOT', HIT: 'HIT', DONE: 'DONE' });
@@ -55,7 +55,7 @@ class Shot {
 	static SHOT_DURATION = 0.3;
 	static SPARK_DURATION = 0.8;
 	static SPARK_COUNT = 10;
-	static COLOR = Colors.RED;
+	static COLOR = Color.RED;
 
 	constructor(game, location) {
 		this.game = game;
@@ -175,7 +175,7 @@ class Duck extends Target {
 
 	constructor(game, location, direction = 1) {
 		const size = game.resolution * 0.08;
-		super(game, location, Colors.GOLD, size);
+		super(game, location, Color.GOLD, size);
 		this.speed = direction * randomRange(Duck.SPEED_MIN, Duck.SPEED_MAX) * game.resolution;
 	}
 
@@ -189,8 +189,8 @@ class Duck extends Target {
 		const width = end - start;
 		const beakStart = start + Math.floor(width / 3);
 		const beakEnd = start + Math.floor(2 * width / 3);
-		const body = scaleColor(Colors.GOLD, this.visibility);
-		const beak = scaleColor(Colors.CHOCOLATE, this.visibility);
+		const body = scaleColor(Color.GOLD, this.visibility);
+		const beak = scaleColor(Color.CHOCOLATE, this.visibility);
 		for (let i = start; i < end; i++) {
 			this._put(i, (i >= beakStart && i < beakEnd) ? beak : body);
 		}
@@ -198,7 +198,7 @@ class Duck extends Target {
 }
 
 class Crow extends Target {
-	static COLOR = Colors.DARK_SLATE_GRAY;
+	static COLOR = Color.DARK_SLATE_GRAY;
 	static REST_MIN = 0.4;
 	static REST_MAX = 1.5;
 	static DISTANCE_MIN = 0.1;
@@ -245,7 +245,7 @@ class Crow extends Target {
 	render() {
 		const [start, end] = this._span();
 		const body = scaleColor(Crow.COLOR, this.visibility);
-		const eye = scaleColor(Colors.WHITE, this.visibility);
+		const eye = scaleColor(Color.WHITE, this.visibility);
 
 		if (this.actionState === CrowState.FLYING) {
 			const direction = Math.sign(this.moveEnd - this.moveStart) || 1;
@@ -271,8 +271,8 @@ class Crow extends Target {
 }
 
 class Cat extends Target {
-	static ORANGE = Colors.CHOCOLATE;
-	static BROWN = Colors.PERU;
+	static ORANGE = Color.CHOCOLATE;
+	static BROWN = Color.PERU;
 	static REST_MIN = 0.5;
 	static REST_MAX = 2.5;
 	static DISTANCE_MIN = 0.05;
@@ -337,7 +337,7 @@ class Rat extends Target {
 
 	constructor(game, location) {
 		const size = game.resolution * 0.05;
-		super(game, location, Colors.GRAY, size);
+		super(game, location, Color.GRAY, size);
 		this.actionState = RatState.RESTING;
 		this.timestamp = game.time;
 		this.patience = randomRange(Rat.REST_MIN, Rat.REST_MAX);
@@ -372,8 +372,8 @@ class Rat extends Target {
 
 	render() {
 		const [start, end] = this._span();
-		const body = scaleColor(Colors.GRAY, this.visibility);
-		const eye = scaleColor(Colors.WHITE, this.visibility);
+		const body = scaleColor(Color.GRAY, this.visibility);
+		const eye = scaleColor(Color.WHITE, this.visibility);
 		const eyeA = Math.floor(this.location);
 		const eyeB = eyeA + 1;
 		for (let i = start; i < end; i++) {
@@ -383,7 +383,7 @@ class Rat extends Target {
 }
 
 class Pot extends Target {
-	static COLOR = Colors.DARK_GRAY;
+	static COLOR = Color.DARK_GRAY;
 	static SPEED_MIN = 0.1;
 	static SPEED_MAX = 0.25;
 
@@ -413,7 +413,7 @@ class Fly extends Target {
 
 	constructor(game, location) {
 		const size = game.resolution * 0.03;
-		super(game, location, Colors.YELLOW, size);
+		super(game, location, Color.YELLOW, size);
 		this.speed = 0.0;
 	}
 
@@ -438,13 +438,13 @@ class Fly extends Target {
 	}
 
 	render() {
-		this._put(Math.round(this.location), scaleColor(Colors.YELLOW, this.visibility));
+		this._put(Math.round(this.location), scaleColor(Color.YELLOW, this.visibility));
 	}
 }
 
 class Monkey extends Target {
-	static BODY_COLOR = Colors.SADDLE_BROWN;
-	static FACE_COLOR = Colors.TAN;
+	static BODY_COLOR = Color.SADDLE_BROWN;
+	static FACE_COLOR = Color.TAN;
 	static REST_MIN = 0.1;
 	static REST_MAX = 0.5;
 	static DISTANCE_MIN = 0.1;
@@ -510,7 +510,7 @@ class Monkey extends Target {
 }
 
 class Frog extends Target {
-	static EYE_COLOR = Colors.YELLOW_GREEN;
+	static EYE_COLOR = Color.YELLOW_GREEN;
 	static REST_MIN = 0.5;
 	static REST_MAX = 2.0;
 	static JUMP_DISTANCE_MIN = 0.1;
@@ -519,7 +519,7 @@ class Frog extends Target {
 
 	constructor(game, location) {
 		const size = game.resolution * 0.06;
-		super(game, location, Colors.GREEN, size);
+		super(game, location, Color.GREEN, size);
 		this.actionState = FrogState.RESTING;
 		this.timestamp = game.time;
 		this.patience = randomRange(Frog.REST_MIN, Frog.REST_MAX);
@@ -552,7 +552,7 @@ class Frog extends Target {
 
 	render() {
 		const [start, end] = this._span();
-		const body = scaleColor(Colors.GREEN, this.visibility);
+		const body = scaleColor(Color.GREEN, this.visibility);
 		const eye = scaleColor(Frog.EYE_COLOR, this.visibility);
 		const eyeA = Math.floor(this.location);
 		const eyeB = eyeA + 1;
@@ -563,7 +563,7 @@ class Frog extends Target {
 }
 
 class Balloon extends Target {
-	static COLOR = Colors.ROYAL_BLUE;
+	static COLOR = Color.ROYAL_BLUE;
 	static ACCEL = 0.3;
 	static MAX_SPEED = 0.15;
 
@@ -650,7 +650,7 @@ class Player {
 	}
 
 	render() {
-		this.game.pixels[Math.round(this.location)] = Colors.WHITE;
+		this.game.pixels[Math.round(this.location)] = Color.WHITE;
 	}
 }
 

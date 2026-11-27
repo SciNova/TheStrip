@@ -1,4 +1,4 @@
-import { Game, Command, hsvToRgb } from '../../core/system.js';
+import { Game, Command, System } from '../../core/system.js';
 
 const FADE_DURATION = 1.0;
 const RAMP_SPEED = 0.5;
@@ -108,7 +108,7 @@ export class ColorLight extends Game {
 			const b8 = Math.floor(b * 255);
 			color = (r8 << 16) | (g8 << 8) | b8;
 		} else {
-			color = hsvToRgb(this.hue, 1, this.level);
+			color = System.hsvToRgb(this.hue, 1, this.level);
 		}
 		for (let i = 0; i < this.resolution; i++) {
 			this.pixels[i] = color;

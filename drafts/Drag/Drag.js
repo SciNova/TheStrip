@@ -1,4 +1,4 @@
-import { Game, Command, Colors } from '../../core/system.js';
+import { Game, Command, Color } from '../../core/system.js';
 
 const PointerState = Object.freeze({ IDLE: 'IDLE', AIM_LEFT: 'AIM_LEFT', AIM_RIGHT: 'AIM_RIGHT' });
 
@@ -79,7 +79,7 @@ class Pointer {
 	}
 
 	render() {
-		this.game.pixels[Math.round(this.location)] = Colors.WHITE;
+		this.game.pixels[Math.round(this.location)] = Color.WHITE;
 	}
 }
 
@@ -87,7 +87,7 @@ export class Drag extends Game {
 	constructor(system) {
 		super('Drag', system);
 
-		const colors = [Colors.CADET_BLUE, Colors.DARK_SEA_GREEN, Colors.INDIAN_RED, Colors.MEDIUM_PURPLE];
+		const colors = [Color.CADET_BLUE, Color.DARK_SEA_GREEN, Color.INDIAN_RED, Color.MEDIUM_PURPLE];
 		const BLOCK_COUNT = 4;
 		const cellSize = Math.floor(this.resolution / (2 * BLOCK_COUNT + 1));
 

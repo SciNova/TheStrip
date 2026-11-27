@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 
 const Phase = Object.freeze({ IDLE: 'IDLE', PLAY: 'PLAY', COMPLETE: 'COMPLETE' });
 
@@ -6,7 +6,7 @@ class Target {
 	static SIZE = 0.5;
 	static RADII = [0.1, 0.3, 0.6, 1.0];
 	static SCORES = [50, 25, 10, 5];
-	static COLORS = [Colors.RED, Colors.DARK_YELLOW, Colors.DARK_GREEN, Colors.BLUE];
+	static COLORS = [Color.RED, Color.DARK_YELLOW, Color.DARK_GREEN, Color.BLUE];
 	static START_SCALE = 1.0;
 	static END_SCALE = 0.4;
 	static EASE_POWER = 2.5;
@@ -95,7 +95,7 @@ class Score {
 
 class Progress {
 	static SIZE = 0.2;
-	static COLOR = Colors.YELLOW;
+	static COLOR = Color.YELLOW;
 
 	constructor(game, maxValue) {
 		this.game = game;
@@ -167,7 +167,7 @@ class Needle {
 	render() {
 		const pixel = Math.round(this.position);
 		if (pixel >= 0 && pixel < this.game.resolution) {
-			this.game.pixels[pixel] = Colors.WHITE;
+			this.game.pixels[pixel] = Color.WHITE;
 		}
 	}
 }

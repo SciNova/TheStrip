@@ -1,4 +1,4 @@
-import { Game, Colors, Command, isGameCommand } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound, Note, Scale } from '../../core/audio.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
@@ -10,15 +10,15 @@ const Fruit = Object.freeze({
 const FRUIT_SIZE = [0.3, 0.7, 0.6, 0.6, 0.4, 0.5, 0.8, 0.2, 0.45];
 
 const FRUIT_COLOR = {
-	[Fruit.APPLE]: Colors.GREEN,
-	[Fruit.BANANA]: Colors.BANANA,
-	[Fruit.GRAPE]: Colors.PURPLE,
-	[Fruit.ORANGE]: Colors.ORANGE,
-	[Fruit.CHERRY]: Colors.RED,
-	[Fruit.LEMON]: Colors.LEMON,
-	[Fruit.WATERMELON]: Colors.WATERMELON,
-	[Fruit.BLACKBERRY]: Colors.BLACKBERRY,
-	[Fruit.STRAWBERRY]: Colors.STRAWBERRY,
+	[Fruit.APPLE]: Color.GREEN,
+	[Fruit.BANANA]: Color.BANANA,
+	[Fruit.GRAPE]: Color.PURPLE,
+	[Fruit.ORANGE]: Color.ORANGE,
+	[Fruit.CHERRY]: Color.RED,
+	[Fruit.LEMON]: Color.LEMON,
+	[Fruit.WATERMELON]: Color.WATERMELON,
+	[Fruit.BLACKBERRY]: Color.BLACKBERRY,
+	[Fruit.STRAWBERRY]: Color.STRAWBERRY,
 };
 
 const FRUIT_SCALE_POSITION = {
@@ -102,7 +102,7 @@ class Wheel extends Shape {
 			if (localAngle >= fruitStart && localAngle <= fruitEnd) {
 				pixelColor = FRUIT_COLOR[fruit];
 			} else {
-				pixelColor = Colors.SILVER;
+				pixelColor = Color.SILVER;
 			}
 
 			const brightness = 1 - ((t - 0.5) * 2) ** 2;
@@ -216,7 +216,7 @@ export class Slots extends Game {
 			return;
 		}
 
-		if (this.stage === Slots.STAGE_IDLE && isGameCommand(event.command)) {
+		if (this.stage === Slots.STAGE_IDLE && Command.isGameCommand(event.command)) {
 			this.spin();
 		}
 	}

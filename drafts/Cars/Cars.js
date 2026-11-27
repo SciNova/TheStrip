@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { Square2D, EdgeMode, Camera, BasePlayer2D, World2D } from '../../core/graphics.js';
 
 class Player extends BasePlayer2D {
@@ -12,7 +12,7 @@ class Car extends Square2D {
 	static SIZE = 1 / 3;
 	static LIGHT_SIZE = 1 / 7;
 	static LIGHT_INSET = 1 / 4;
-	static BODY_COLORS = [Colors.GREEN, Colors.BLUE];
+	static BODY_COLORS = [Color.GREEN, Color.BLUE];
 
 	constructor(game) {
 		let length = Math.floor(game.resolution * Car.SIZE);
@@ -22,9 +22,9 @@ class Car extends Square2D {
 		const body = Car.BODY_COLORS[Math.floor(Math.random() * Car.BODY_COLORS.length)];
 		const dark = Car._darken(body);
 		const faces = [
-			Car._buildFace(length, body, Colors.WHITE),
+			Car._buildFace(length, body, Color.WHITE),
 			Car._solidFace(length, dark),
-			Car._buildFace(length, body, Colors.RED),
+			Car._buildFace(length, body, Color.RED),
 			Car._solidFace(length, dark),
 		];
 		super(game, faces, true);
@@ -130,7 +130,7 @@ export class Cars extends Game {
 		super.loop();
 		this.clear();
 		for (let i = 0; i < this.resolution; i++) {
-			this.pixels[i] = Colors.LIGHT_GRAY;
+			this.pixels[i] = Color.LIGHT_GRAY;
 		}
 		const dt = this.system.clock.delta;
 

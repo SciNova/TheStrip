@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 
 class Actor {
 	constructor() {
@@ -80,7 +80,7 @@ class Ghost extends Actor {
 }
 
 class Blinky extends Ghost {
-	static COLOR = Colors.RED;
+	static COLOR = Color.RED;
 	static ELROY_START_THRESHOLD = 8;
 	static ELROY_END_THRESHOLD = 3;
 	static ELROY_MULTIPLIER = 1.5;
@@ -113,7 +113,7 @@ class Blinky extends Ghost {
 }
 
 class Pinky extends Ghost {
-	static COLOR = Colors.PINK;
+	static COLOR = Color.PINK;
 
 	update(dt) {
 		this.updateFrightenedTarget();
@@ -130,7 +130,7 @@ class Pinky extends Ghost {
 }
 
 class Inky extends Ghost {
-	static COLOR = Colors.CYAN;
+	static COLOR = Color.CYAN;
 
 	update(dt) {
 		this.updateFrightenedTarget();
@@ -148,7 +148,7 @@ class Inky extends Ghost {
 }
 
 class Clyde extends Ghost {
-	static COLOR = Colors.ORANGE;
+	static COLOR = Color.ORANGE;
 	static HOME = 0;
 
 	update(dt) {
@@ -307,19 +307,19 @@ export class Pacman extends Game {
 		for (let i = 0; i < this.resolution; i++) {
 			const pellet = this.maze[i];
 			if (pellet !== null) {
-				this.pixels[i] = pellet.isMagic ? Colors.GREEN : Colors.DARK_GREEN;
+				this.pixels[i] = pellet.isMagic ? Color.GREEN : Color.DARK_GREEN;
 			} else {
-				this.pixels[i] = Colors.OFF;
+				this.pixels[i] = Color.OFF;
 			}
 		}
 		const pos = this.player.position;
 		if (pos >= 0 && pos < this.resolution) {
-			this.pixels[pos] = this.player.isPoweredUp ? Colors.MAGENTA : Colors.YELLOW;
+			this.pixels[pos] = this.player.isPoweredUp ? Color.MAGENTA : Color.YELLOW;
 		}
 
 		this.ghosts.forEach((ghost) => {
 			if (ghost.position >= 0 && ghost.position < this.resolution) {
-				this.pixels[ghost.position] = this.player.isPoweredUp ? Colors.BLUE : ghost.constructor.COLOR;
+				this.pixels[ghost.position] = this.player.isPoweredUp ? Color.BLUE : ghost.constructor.COLOR;
 			}
 		});
 	}

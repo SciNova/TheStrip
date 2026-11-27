@@ -1,9 +1,9 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const BreakoutStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
 
-const HEALTH_COLORS = [null, Colors.YELLOW, Colors.ORANGE, Colors.RED];
+const HEALTH_COLORS = [null, Color.YELLOW, Color.ORANGE, Color.RED];
 
 export class Breakout extends Game {
 	static MIN_BRICKS = 6;
@@ -63,7 +63,7 @@ export class Breakout extends Game {
 				this.level += 1;
 				this._buildLevel();
 			} else {
-				this._renderFlash(Colors.GREEN, Colors.DARK_GREEN);
+				this._renderFlash(Color.GREEN, Color.DARK_GREEN);
 			}
 		} else {
 			if (this.delayTime <= 0.0) {
@@ -184,7 +184,7 @@ export class Breakout extends Game {
 		for (let i = -paddleHalf; i <= paddleHalf; i++) {
 			const pos = paddleCenterI + i;
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.CYAN;
+				this.pixels[pos] = Color.CYAN;
 			}
 		}
 
@@ -217,13 +217,13 @@ export class Breakout extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

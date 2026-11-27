@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class Sprint extends Game {
@@ -142,7 +142,7 @@ export class Sprint extends Game {
 
 		const runnerPos = Math.round((this.gap / maxGap) * (this.resolution - 1));
 		if (runnerPos >= 0 && runnerPos < this.resolution) {
-			this.pixels[runnerPos] = Colors.WHITE;
+			this.pixels[runnerPos] = Color.WHITE;
 		}
 	}
 
@@ -150,13 +150,13 @@ export class Sprint extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

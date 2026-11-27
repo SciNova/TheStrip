@@ -1,4 +1,4 @@
-import { balanceColors } from '../system.js';
+import { System } from '../system.js';
 import { Alignment } from './Alignment.js';
 import { EdgeMode } from './EdgeMode.js';
 
@@ -30,7 +30,7 @@ export class Shape {
 			const offset = i - (scaledLen - 1) / 2.0;
 			const srcIndex = Math.round((srcLen - 1) / 2.0 + offset / scale);
 			if (srcIndex >= 0 && srcIndex < srcLen && this.pixels[srcIndex] !== null) {
-				temp[i] = balanceColors(this.pixels[srcIndex]);
+				temp[i] = System.balanceColors(this.pixels[srcIndex]);
 			}
 		}
 

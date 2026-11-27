@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 import { BasePlayer2D, World2D } from '../../core/graphics.js';
 
@@ -158,7 +158,7 @@ export class Snake2D extends Game {
 			const forward = dx * cosT + dz * sinT;
 			const lateral = -dx * sinT + dz * cosT;
 			if (forward > 0.01 && forward < maxDist) {
-				items.push({ forward, lateral, color: Colors.GREEN });
+				items.push({ forward, lateral, color: Color.GREEN });
 			}
 		}
 
@@ -167,7 +167,7 @@ export class Snake2D extends Game {
 		const foodForward = fdx * cosT + fdz * sinT;
 		const foodLateral = -fdx * sinT + fdz * cosT;
 		if (foodForward > 0.01 && foodForward < maxDist) {
-			items.push({ forward: foodForward, lateral: foodLateral, color: Colors.YELLOW, isFood: true });
+			items.push({ forward: foodForward, lateral: foodLateral, color: Color.YELLOW, isFood: true });
 		}
 
 		items.sort((a, b) => b.forward - a.forward);
@@ -202,13 +202,13 @@ export class Snake2D extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

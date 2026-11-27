@@ -1,4 +1,4 @@
-import { Game, Command, Colors, hsvToRgb } from '../../core/system.js';
+import { Game, Command, Color, System } from '../../core/system.js';
 import { Audio, Tracker } from '../../browser/audio.js';
 import { MODFormat } from '../../core/audio.js';
 
@@ -41,7 +41,7 @@ export class Test extends Game {
 		const quarter = tracker ? Math.floor(tracker.beat / 4) % 4 : -1;
 		const segmentSize = this.resolution / 4;
 		for (let i = 0; i < this.resolution; i++) {
-			this.pixels[i] = Math.floor(i / segmentSize) === quarter ? Colors.GREEN : 0;
+			this.pixels[i] = Math.floor(i / segmentSize) === quarter ? Color.GREEN : 0;
 		}
 
 		this._renderCircle();
@@ -89,7 +89,7 @@ export class Test extends Game {
 
 			const z = r * Math.cos(angle);
 			const brightness = MIN_BRIGHTNESS + (1 - MIN_BRIGHTNESS) * (z + r) / (2 * r);
-			this.pixels[x] = hsvToRgb(k / SEGMENT_COUNT, 1.0, brightness);
+			this.pixels[x] = System.hsvToRgb(k / SEGMENT_COUNT, 1.0, brightness);
 		}
 	}
 

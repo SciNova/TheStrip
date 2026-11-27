@@ -1,4 +1,4 @@
-import { Game, Command, Colors } from '../../core/system.js';
+import { Game, Command, Color } from '../../core/system.js';
 import { Note, SystemSound } from '../../core/audio.js';
 
 const TOTAL_LEVELS = 10;
@@ -29,10 +29,10 @@ const NoteSets = [
 ];
 
 function noteIndexForColor(color) {
-	if (color === Colors.RED) return 0;
-	if (color === Colors.GREEN) return 1;
-	if (color === Colors.BLUE) return 2;
-	if (color === Colors.YELLOW) return 3;
+	if (color === Color.RED) return 0;
+	if (color === Color.GREEN) return 1;
+	if (color === Color.BLUE) return 2;
+	if (color === Color.YELLOW) return 3;
 	return -1;
 }
 
@@ -63,13 +63,13 @@ export class SimonSays extends Game {
 		for (let i = 0; i < TOTAL_LEVELS; i++) {
 			const r = Math.floor(Math.random() * 4);
 			if (r === 0) {
-				this.sequence[i] = Colors.RED;
+				this.sequence[i] = Color.RED;
 			} else if (r === 1) {
-				this.sequence[i] = Colors.GREEN;
+				this.sequence[i] = Color.GREEN;
 			} else if (r === 2) {
-				this.sequence[i] = Colors.BLUE;
+				this.sequence[i] = Color.BLUE;
 			} else {
-				this.sequence[i] = Colors.YELLOW;
+				this.sequence[i] = Color.YELLOW;
 			}
 		}
 	}
@@ -77,10 +77,10 @@ export class SimonSays extends Game {
 	_display(color) {
 		const section = Math.floor(this.resolution / 4);
 		for (let i = 0; i < section; i++) {
-			this.pixels[i] = Colors.DARK_RED;
-			this.pixels[i + section] = Colors.DARK_GREEN;
-			this.pixels[i + 2 * section] = Colors.DARK_BLUE;
-			this.pixels[i + 3 * section] = Colors.DARK_YELLOW;
+			this.pixels[i] = Color.DARK_RED;
+			this.pixels[i + section] = Color.DARK_GREEN;
+			this.pixels[i + 2 * section] = Color.DARK_BLUE;
+			this.pixels[i + 3 * section] = Color.DARK_YELLOW;
 		}
 
 		if (color === 0) {
@@ -88,13 +88,13 @@ export class SimonSays extends Game {
 		}
 
 		let start;
-		if (color === Colors.RED) {
+		if (color === Color.RED) {
 			start = 0;
-		} else if (color === Colors.GREEN) {
+		} else if (color === Color.GREEN) {
 			start = section;
-		} else if (color === Colors.BLUE) {
+		} else if (color === Color.BLUE) {
 			start = 2 * section;
-		} else if (color === Colors.YELLOW) {
+		} else if (color === Color.YELLOW) {
 			start = 3 * section;
 		} else {
 			return;
@@ -180,14 +180,14 @@ export class SimonSays extends Game {
 		let color;
 		let pressed;
 		switch (event.command) {
-			case Command.A_PRESS: color = Colors.RED; pressed = true; break;
-			case Command.A_RELEASE: color = Colors.RED; pressed = false; break;
-			case Command.B_PRESS: color = Colors.GREEN; pressed = true; break;
-			case Command.B_RELEASE: color = Colors.GREEN; pressed = false; break;
-			case Command.C_PRESS: color = Colors.BLUE; pressed = true; break;
-			case Command.C_RELEASE: color = Colors.BLUE; pressed = false; break;
-			case Command.D_PRESS: color = Colors.YELLOW; pressed = true; break;
-			case Command.D_RELEASE: color = Colors.YELLOW; pressed = false; break;
+			case Command.A_PRESS: color = Color.RED; pressed = true; break;
+			case Command.A_RELEASE: color = Color.RED; pressed = false; break;
+			case Command.B_PRESS: color = Color.GREEN; pressed = true; break;
+			case Command.B_RELEASE: color = Color.GREEN; pressed = false; break;
+			case Command.C_PRESS: color = Color.BLUE; pressed = true; break;
+			case Command.C_RELEASE: color = Color.BLUE; pressed = false; break;
+			case Command.D_PRESS: color = Color.YELLOW; pressed = true; break;
+			case Command.D_RELEASE: color = Color.YELLOW; pressed = false; break;
 			default: return;
 		}
 

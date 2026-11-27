@@ -1,4 +1,4 @@
-import { Game, Colors, Command, GameState } from '../../core/system.js';
+import { Game, Color, Command, GameState } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
 
@@ -110,11 +110,11 @@ class Snake {
 			while (color === null || color === prevColor) {
 				const r = Math.floor(Math.random() * 3);
 				if (r === 0) {
-					color = Colors.RED;
+					color = Color.RED;
 				} else if (r === 1) {
-					color = Colors.GREEN;
+					color = Color.GREEN;
 				} else {
-					color = Colors.BLUE;
+					color = Color.BLUE;
 				}
 			}
 			const gap = Math.random() < (gapFloat - lowGap) ? highGap : lowGap;
@@ -259,13 +259,13 @@ export class Stack extends Game {
 
 	handleInput(padId, event) {
 		if (event.command === Command.A) {
-			this.bullets.push(new Bullet(this, Colors.RED));
+			this.bullets.push(new Bullet(this, Color.RED));
 			this.audio.playSynth(SystemSound.SHOOT);
 		} else if (event.command === Command.B) {
-			this.bullets.push(new Bullet(this, Colors.GREEN));
+			this.bullets.push(new Bullet(this, Color.GREEN));
 			this.audio.playSynth(SystemSound.SHOOT);
 		} else if (event.command === Command.C) {
-			this.bullets.push(new Bullet(this, Colors.BLUE));
+			this.bullets.push(new Bullet(this, Color.BLUE));
 			this.audio.playSynth(SystemSound.SHOOT);
 		}
 	}

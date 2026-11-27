@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class Blackjack extends Game {
@@ -103,22 +103,22 @@ export class Blackjack extends Game {
 		const half = Math.floor(this.resolution / 2);
 		const playerLen = Math.min(half, this.playerTotal);
 		for (let i = 0; i < playerLen; i++) {
-			this.pixels[i] = Colors.CYAN;
+			this.pixels[i] = Color.CYAN;
 		}
 		const dealerLen = Math.min(half, this.dealerTotal);
 		for (let i = 0; i < dealerLen; i++) {
-			this.pixels[this.resolution - 1 - i] = Colors.ORANGE;
+			this.pixels[this.resolution - 1 - i] = Color.ORANGE;
 		}
 
 		if (this.stage === 'PLAYER_TURN') {
 			const blink = Math.floor(this.time * 3) % 2 === 0;
 			if (blink && playerLen < this.resolution) {
-				this.pixels[playerLen] = Colors.WHITE;
+				this.pixels[playerLen] = Color.WHITE;
 			}
 		} else if (this.stage === 'RESULT') {
 			const flashOn = Math.floor(this.time * 6) % 2 === 0;
 			if (flashOn) {
-				const color = this.outcome === 'win' ? Colors.GREEN : this.outcome === 'lose' ? Colors.RED : Colors.YELLOW;
+				const color = this.outcome === 'win' ? Color.GREEN : this.outcome === 'lose' ? Color.RED : Color.YELLOW;
 				for (let i = 0; i < this.resolution; i++) {
 					this.pixels[i] = color;
 				}

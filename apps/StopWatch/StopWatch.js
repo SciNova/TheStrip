@@ -1,9 +1,9 @@
-import { Game, Colors } from '../../core/system.js';
+import { Game, Color } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 import { Square, EdgeMode } from '../../core/graphics.js';
 
 function digitPattern(zeroIndices) {
-	const pattern = new Array(21).fill(Colors.WHITE);
+	const pattern = new Array(21).fill(Color.WHITE);
 	for (const i of zeroIndices) {
 		pattern[i] = 0;
 	}
@@ -65,7 +65,7 @@ export class StopWatch extends Game {
 		}
 
 		for (let i = 0; i < this.resolution; i++) {
-			this.pixels[i] = Colors.DARK_BLUE;
+			this.pixels[i] = Color.DARK_BLUE;
 		}
 
 		const faceSize = StopWatch.DIGIT_FACE_SIZE;
@@ -87,10 +87,10 @@ export class StopWatch extends Game {
 			const gapEnd = positions[2] - halfFace - 1;
 			const colonX = gapStart + Math.floor((gapEnd - gapStart - 1) / 2);
 			if (colonX >= 0 && colonX < this.resolution) {
-				this.pixels[colonX] = Colors.WHITE;
+				this.pixels[colonX] = Color.WHITE;
 			}
 			if (colonX + 1 < this.resolution) {
-				this.pixels[colonX + 1] = Colors.WHITE;
+				this.pixels[colonX + 1] = Color.WHITE;
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const LanderStage = Object.freeze({ PLAYING: 'PLAYING', RESULT: 'RESULT' });
@@ -109,15 +109,15 @@ export class LunarLander extends Game {
 		}
 
 		for (let i = 0; i < LunarLander.GROUND_BAND && i < this.resolution; i++) {
-			this.pixels[i] = Colors.GREEN;
+			this.pixels[i] = Color.GREEN;
 		}
 
 		const pos = Math.round(this.altitude);
 		if (pos >= 0 && pos < this.resolution) {
-			this.pixels[pos] = Colors.WHITE;
+			this.pixels[pos] = Color.WHITE;
 		}
 		if (this.thrusting && this.fuel > 0.0 && pos + 1 < this.resolution) {
-			this.pixels[pos + 1] = Colors.ORANGE;
+			this.pixels[pos + 1] = Color.ORANGE;
 		}
 	}
 
@@ -125,19 +125,19 @@ export class LunarLander extends Game {
 		this.clear();
 		const flashOn = Math.floor(this.time * 6) % 2 === 0;
 		if (this.landed) {
-			const color = flashOn ? Colors.GREEN : Colors.DARK_GREEN;
+			const color = flashOn ? Color.GREEN : Color.DARK_GREEN;
 			for (let i = 0; i < this.resolution; i++) {
 				this.pixels[i] = color;
 			}
 		} else {
 			const lit = Math.min(this.score, this.resolution);
 			for (let i = 0; i < lit; i++) {
-				this.pixels[i] = Colors.DARK_RED;
+				this.pixels[i] = Color.DARK_RED;
 			}
 			if (flashOn) {
 				for (let i = 0; i < this.resolution; i++) {
 					if (this.pixels[i] === 0) {
-						this.pixels[i] = Colors.RED;
+						this.pixels[i] = Color.RED;
 					}
 				}
 			}

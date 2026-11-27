@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const InvadersStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
@@ -234,7 +234,7 @@ export class SpaceInvaders2D extends Game {
 				const size = Math.max(1, Math.round(3 * scale));
 				const half = Math.floor(size / 2);
 				const center = Math.round(stripPos);
-				const color = i % 2 === 0 ? Colors.GREEN : Colors.CYAN;
+				const color = i % 2 === 0 ? Color.GREEN : Color.CYAN;
 				for (let p = -half; p <= half; p++) {
 					const pos = center + p;
 					if (pos >= 0 && pos < this.resolution) {
@@ -251,7 +251,7 @@ export class SpaceInvaders2D extends Game {
 			const { stripPos } = this._project(bullet.x, bullet.z);
 			const pos = Math.round(stripPos);
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.WHITE;
+				this.pixels[pos] = Color.WHITE;
 			}
 		}
 
@@ -262,7 +262,7 @@ export class SpaceInvaders2D extends Game {
 			const { stripPos } = this._project(bullet.x, bullet.z);
 			const pos = Math.round(stripPos);
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.ORANGE;
+				this.pixels[pos] = Color.ORANGE;
 			}
 		}
 
@@ -271,7 +271,7 @@ export class SpaceInvaders2D extends Game {
 		for (let i = -1; i <= 1; i++) {
 			const pos = turretCenter + i;
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.SILVER;
+				this.pixels[pos] = Color.SILVER;
 			}
 		}
 	}
@@ -279,7 +279,7 @@ export class SpaceInvaders2D extends Game {
 	_renderLevelComplete() {
 		this.clear();
 		const flashOn = Math.floor(this.time * 6) % 2 === 0;
-		const color = flashOn ? Colors.GREEN : Colors.DARK_GREEN;
+		const color = flashOn ? Color.GREEN : Color.DARK_GREEN;
 		for (let i = 0; i < this.resolution; i++) {
 			this.pixels[i] = color;
 		}
@@ -289,13 +289,13 @@ export class SpaceInvaders2D extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

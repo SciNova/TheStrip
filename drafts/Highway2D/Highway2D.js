@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 import { Square2D, EdgeMode } from '../../core/graphics.js';
 
@@ -8,7 +8,7 @@ class OncomingCar extends Square2D {
 	static SIZE = 1 / 3;
 	static LIGHT_SIZE = 1 / 7;
 	static LIGHT_INSET = 1 / 4;
-	static BODY_COLORS = [Colors.RED, Colors.YELLOW, Colors.BLUE, Colors.ORANGE];
+	static BODY_COLORS = [Color.RED, Color.YELLOW, Color.BLUE, Color.ORANGE];
 
 	constructor(game) {
 		let length = Math.floor(game.resolution * OncomingCar.SIZE);
@@ -18,7 +18,7 @@ class OncomingCar extends Square2D {
 		const body = OncomingCar.BODY_COLORS[Math.floor(Math.random() * OncomingCar.BODY_COLORS.length)];
 		const dark = OncomingCar._darken(body);
 		const faces = [
-			OncomingCar._buildFace(length, body, Colors.WHITE),
+			OncomingCar._buildFace(length, body, Color.WHITE),
 			OncomingCar._solidFace(length, dark),
 			OncomingCar._solidFace(length, dark),
 			OncomingCar._solidFace(length, dark),
@@ -179,7 +179,7 @@ export class Highway2D extends Game {
 	_render() {
 		this.clear();
 		for (let i = 0; i < this.resolution; i++) {
-			this.pixels[i] = Colors.DARK_GRAY;
+			this.pixels[i] = Color.DARK_GRAY;
 		}
 
 		const focalLength = this.resolution * Highway2D.FOCAL_LENGTH_FACTOR;
@@ -203,13 +203,13 @@ export class Highway2D extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

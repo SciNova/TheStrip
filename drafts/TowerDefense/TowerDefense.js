@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class TowerDefense extends Game {
@@ -180,7 +180,7 @@ export class TowerDefense extends Game {
 		const healthFraction = Math.max(0.0, this.baseHealth / TowerDefense.BASE_HEALTH);
 		const barLen = Math.round(healthFraction * this.resolution);
 		for (let i = 0; i < barLen; i++) {
-			this.pixels[i] = Colors.DARK_GREEN;
+			this.pixels[i] = Color.DARK_GREEN;
 		}
 
 		const ordered = [...this.enemies].sort((a, b) => b.z - a.z);
@@ -203,20 +203,20 @@ export class TowerDefense extends Game {
 		}
 
 		const towerPos = Math.floor(this.resolution / 2);
-		this.pixels[towerPos] = Colors.CYAN;
+		this.pixels[towerPos] = Color.CYAN;
 	}
 
 	_renderGameOver() {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

@@ -1,7 +1,7 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 
 class Hole {
-	static BACKGROUND_COLOR = Colors.DARK_GREEN;
+	static BACKGROUND_COLOR = Color.DARK_GREEN;
 	static RIM_COLOR = 0x003300;
 
 	constructor(game, location, radius) {
@@ -23,7 +23,7 @@ class Hole {
 			if (pixel < 0 || pixel >= this.game.resolution) {
 				continue;
 			}
-			this.game.pixels[pixel] = offset === 0 ? Colors.OFF : Hole.RIM_COLOR;
+			this.game.pixels[pixel] = offset === 0 ? Color.OFF : Hole.RIM_COLOR;
 		}
 	}
 }
@@ -54,7 +54,7 @@ class Obstacle {
 }
 
 class Lake extends Obstacle {
-	static COLOR = Colors.CYAN;
+	static COLOR = Color.CYAN;
 	static SPEED_FACTOR = 0.25;
 }
 
@@ -64,7 +64,7 @@ class Sand extends Obstacle {
 }
 
 class Concrete extends Obstacle {
-	static COLOR = Colors.GRAY;
+	static COLOR = Color.GRAY;
 }
 
 class Ball {
@@ -148,7 +148,7 @@ class Ball {
 		}
 
 		if (pixel >= 0 && pixel < this.game.resolution) {
-			this.game.pixels[pixel] = Colors.WHITE;
+			this.game.pixels[pixel] = Color.WHITE;
 		}
 	}
 }
@@ -158,8 +158,8 @@ const PlayerState = Object.freeze({ AIMING: 'AIMING', WALKING: 'WALKING', ADVANC
 class Player {
 	static POWER_FREQUENCY = 0.6;
 	static BAR_LENGTH = 10;
-	static BAR_FILL = Colors.LIGHT_GRAY;
-	static COLOR = Colors.BLUE;
+	static BAR_FILL = Color.LIGHT_GRAY;
+	static COLOR = Color.BLUE;
 	static WALK_SECONDS_PER_SCREEN = 4.0;
 	static TEE_OFFSET_FRACTION = 1 / 6;
 

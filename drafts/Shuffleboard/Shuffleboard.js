@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const ZONES = [
@@ -199,7 +199,7 @@ export class Shuffleboard extends Game {
 		for (const puck of this.pucks) {
 			const pos = Math.round(puck.pos);
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = puck.owner === 'player' ? Colors.CYAN : Colors.ORANGE;
+				this.pixels[pos] = puck.owner === 'player' ? Color.CYAN : Color.ORANGE;
 			}
 		}
 
@@ -212,7 +212,7 @@ export class Shuffleboard extends Game {
 		if (this.stage === 'RESULT') {
 			const flashOn = Math.floor(this.time * 6) % 2 === 0;
 			if (flashOn) {
-				const color = this.won === true ? Colors.GREEN : this.won === false ? Colors.RED : Colors.YELLOW;
+				const color = this.won === true ? Color.GREEN : this.won === false ? Color.RED : Color.YELLOW;
 				for (let i = 0; i < this.resolution; i++) {
 					this.pixels[i] = color;
 				}

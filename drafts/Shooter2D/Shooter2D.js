@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const ShooterStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
@@ -19,7 +19,7 @@ export class Shooter2D extends Game {
 	static FIRE_COOLDOWN = 0.18;
 	static MIN_TARGET_SIZE = 1;
 	static MAX_TARGET_SIZE = 5;
-	static TARGET_COLORS = [Colors.ORANGE, Colors.MAGENTA, Colors.YELLOW, Colors.CYAN];
+	static TARGET_COLORS = [Color.ORANGE, Color.MAGENTA, Color.YELLOW, Color.CYAN];
 
 	constructor(system) {
 		super('Shooter2D', system);
@@ -186,7 +186,7 @@ export class Shooter2D extends Game {
 		const aimCenter = Math.round(this.aimPos);
 		const blink = Math.floor(this.time * 6) % 2 === 0;
 		if (blink && aimCenter >= 0 && aimCenter < this.resolution) {
-			this.pixels[aimCenter] = Colors.WHITE;
+			this.pixels[aimCenter] = Color.WHITE;
 		}
 	}
 
@@ -194,13 +194,13 @@ export class Shooter2D extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

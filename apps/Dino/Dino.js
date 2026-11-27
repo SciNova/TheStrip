@@ -1,4 +1,4 @@
-import { Game, isGameCommand } from '../../core/system.js';
+import { Game, Command } from '../../core/system.js';
 
 class Player {
 	static LOW_SIZE = 3;
@@ -160,7 +160,7 @@ export class Dino extends Game {
 	}
 
 	handleInput(padId, event) {
-		if (isGameCommand(event.command)) {
+		if (Command.isGameCommand(event.command)) {
 			this.player.jump();
 		}
 	}

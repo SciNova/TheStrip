@@ -1,33 +1,33 @@
-import { Game, Colors, isGameCommand } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 import { Square, EdgeMode } from '../../core/graphics.js';
 
 const Stage = Object.freeze({ IDLE: 'IDLE', ROLLING: 'ROLLING' });
 
 const FACES = [
-	[Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE,
-	 Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE,
-	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE],
+	[Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+	 Color.WHITE, Color.WHITE, 0, Color.WHITE, Color.WHITE,
+	 Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE],
 
-	[Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE,
-	 0, Colors.WHITE, Colors.WHITE, Colors.WHITE, 0,
-	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE],
+	[Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+	 0, Color.WHITE, Color.WHITE, Color.WHITE, 0,
+	 Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE],
 
-	[Colors.WHITE, Colors.WHITE, Colors.WHITE, 0, Colors.WHITE,
-	 Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE,
-	 Colors.WHITE, 0, Colors.WHITE, Colors.WHITE, Colors.WHITE],
+	[Color.WHITE, Color.WHITE, Color.WHITE, 0, Color.WHITE,
+	 Color.WHITE, Color.WHITE, 0, Color.WHITE, Color.WHITE,
+	 Color.WHITE, 0, Color.WHITE, Color.WHITE, Color.WHITE],
 
-	[Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, 0,
-	 Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE, Colors.WHITE,
-	 0, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE],
+	[Color.WHITE, Color.WHITE, 0, Color.WHITE, 0,
+	 Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE,
+	 0, Color.WHITE, 0, Color.WHITE, Color.WHITE],
 
-	[Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, 0,
-	 Colors.WHITE, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE,
-	 0, Colors.WHITE, 0, Colors.WHITE, Colors.WHITE],
+	[Color.WHITE, Color.WHITE, 0, Color.WHITE, 0,
+	 Color.WHITE, Color.WHITE, 0, Color.WHITE, Color.WHITE,
+	 0, Color.WHITE, 0, Color.WHITE, Color.WHITE],
 
-	[Colors.WHITE, 0, Colors.WHITE, 0, Colors.WHITE,
-	 0, Colors.WHITE, Colors.WHITE, Colors.WHITE, 0,
-	 Colors.WHITE, 0, Colors.WHITE, 0, Colors.WHITE],
+	[Color.WHITE, 0, Color.WHITE, 0, Color.WHITE,
+	 0, Color.WHITE, Color.WHITE, Color.WHITE, 0,
+	 Color.WHITE, 0, Color.WHITE, 0, Color.WHITE],
 ];
 
 class Dice extends Square {
@@ -106,7 +106,7 @@ export class Dices extends Game {
 		}
 
 		for (let i = 0; i < this.resolution; i++) {
-			this.pixels[i] = Colors.DARK_GREEN;
+			this.pixels[i] = Color.DARK_GREEN;
 		}
 
 		this.dice1.update();
@@ -129,7 +129,7 @@ export class Dices extends Game {
 	}
 
 	handleInput(padId, event) {
-		if (this.stage === Stage.IDLE && isGameCommand(event.command)) {
+		if (this.stage === Stage.IDLE && Command.isGameCommand(event.command)) {
 			this.speed1 = Dices.MIN_SPEED + Math.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
 			this.speed2 = Dices.MIN_SPEED + Math.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
 			this.remaining1 = Dices.MIN_DURATION + Math.random() * (Dices.MAX_DURATION - Dices.MIN_DURATION);

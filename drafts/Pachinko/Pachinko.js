@@ -1,12 +1,12 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const SLOTS = [
-	{ fraction: 0.5, width: 0.08, score: 50, color: Colors.YELLOW },
-	{ fraction: 0.3, width: 0.1, score: 20, color: Colors.CYAN },
-	{ fraction: 0.7, width: 0.1, score: 20, color: Colors.CYAN },
-	{ fraction: 0.1, width: 0.1, score: 5, color: Colors.BLUE },
-	{ fraction: 0.9, width: 0.1, score: 5, color: Colors.BLUE },
+	{ fraction: 0.5, width: 0.08, score: 50, color: Color.YELLOW },
+	{ fraction: 0.3, width: 0.1, score: 20, color: Color.CYAN },
+	{ fraction: 0.7, width: 0.1, score: 20, color: Color.CYAN },
+	{ fraction: 0.1, width: 0.1, score: 5, color: Color.BLUE },
+	{ fraction: 0.9, width: 0.1, score: 5, color: Color.BLUE },
 ];
 
 export class Pachinko extends Game {
@@ -118,7 +118,7 @@ export class Pachinko extends Game {
 		if (this.stage === 'AIMING') {
 			const needle = Math.round(this._needlePos());
 			if (needle >= 0 && needle < this.resolution) {
-				this.pixels[needle] = Colors.WHITE;
+				this.pixels[needle] = Color.WHITE;
 			}
 		} else if (this.stage === 'DROPPING') {
 			const approach = 1.0 - this.ballZ;

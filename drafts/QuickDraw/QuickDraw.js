@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class QuickDraw extends Game {
@@ -96,16 +96,16 @@ export class QuickDraw extends Game {
 
 		if (this.stage === 'WAITING') {
 			for (let i = 0; i < this.resolution; i++) {
-				this.pixels[i] = Colors.DARK_RED;
+				this.pixels[i] = Color.DARK_RED;
 			}
 		} else if (this.stage === 'GO') {
 			for (let i = 0; i < this.resolution; i++) {
-				this.pixels[i] = Colors.WHITE;
+				this.pixels[i] = Color.WHITE;
 			}
 		} else if (this.stage === 'RESULT') {
 			const won = this.lastResult && this.lastResult !== 'CPU wins' && this.lastResult !== 'Too slow' && this.lastResult !== 'False start';
 			const flashOn = Math.floor(this.time * 6) % 2 === 0;
-			const color = won ? (flashOn ? Colors.GREEN : Colors.DARK_GREEN) : (flashOn ? Colors.RED : Colors.DARK_RED);
+			const color = won ? (flashOn ? Color.GREEN : Color.DARK_GREEN) : (flashOn ? Color.RED : Color.DARK_RED);
 			for (let i = 0; i < this.resolution; i++) {
 				this.pixels[i] = color;
 			}

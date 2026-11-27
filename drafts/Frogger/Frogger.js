@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const FroggerStage = Object.freeze({ PLAYING: 'PLAYING', LEVEL_COMPLETE: 'LEVEL_COMPLETE', GAMEOVER: 'GAMEOVER' });
@@ -61,7 +61,7 @@ export class Frogger extends Game {
 				this.level += 1;
 				this._buildLevel();
 			} else {
-				this._renderFlash(Colors.GREEN, Colors.DARK_GREEN);
+				this._renderFlash(Color.GREEN, Color.DARK_GREEN);
 			}
 		} else {
 			if (this.delayTime <= 0.0) {
@@ -180,7 +180,7 @@ export class Frogger extends Game {
 
 		if (this.lane > 0 && this.lane < this.lanes - 1) {
 			const info = this._laneInfo(this.lane);
-			const color = info.isRiver ? Colors.DARK_ORANGE : Colors.ORANGE;
+			const color = info.isRiver ? Color.DARK_ORANGE : Color.ORANGE;
 			for (let i = 0; i < info.hazardCount; i++) {
 				let pos = (i * info.spacing + info.phase) % this.resolution;
 				if (pos < 0) {
@@ -197,7 +197,7 @@ export class Frogger extends Game {
 
 		const cursor = Math.round(this.lateral);
 		if (cursor >= 0 && cursor < this.resolution) {
-			this.pixels[cursor] = Colors.WHITE;
+			this.pixels[cursor] = Color.WHITE;
 		}
 	}
 
@@ -214,13 +214,13 @@ export class Frogger extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class Pinball extends Game {
@@ -172,7 +172,7 @@ export class Pinball extends Game {
 		for (let i = -flipperHalf; i <= flipperHalf; i++) {
 			const pos = flipperCenter + i;
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.CYAN;
+				this.pixels[pos] = Color.CYAN;
 			}
 		}
 
@@ -195,13 +195,13 @@ export class Pinball extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

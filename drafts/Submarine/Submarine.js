@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 const SubmarineStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
@@ -158,7 +158,7 @@ export class Submarine extends Game {
 
 		const surfacePixels = Math.round(Submarine.SURFACE_ZONE * this.resolution);
 		for (let i = 0; i < surfacePixels && i < this.resolution; i++) {
-			this.pixels[i] = Colors.CYAN;
+			this.pixels[i] = Color.CYAN;
 		}
 
 		for (const mine of this.mines) {
@@ -182,7 +182,7 @@ export class Submarine extends Game {
 		for (let i = -1; i <= 1; i++) {
 			const pos = subCenter + i;
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.WHITE;
+				this.pixels[pos] = Color.WHITE;
 			}
 		}
 	}
@@ -191,13 +191,13 @@ export class Submarine extends Game {
 		this.clear();
 		const lit = Math.min(this.score, this.resolution);
 		for (let i = 0; i < lit; i++) {
-			this.pixels[i] = Colors.DARK_RED;
+			this.pixels[i] = Color.DARK_RED;
 		}
 		const flashOn = Math.floor(this.time * 4) % 2 === 0;
 		if (flashOn) {
 			for (let i = 0; i < this.resolution; i++) {
 				if (this.pixels[i] === 0) {
-					this.pixels[i] = Colors.RED;
+					this.pixels[i] = Color.RED;
 				}
 			}
 		}

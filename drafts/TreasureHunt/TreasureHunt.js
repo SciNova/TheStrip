@@ -1,4 +1,4 @@
-import { Game, Colors, Command } from '../../core/system.js';
+import { Game, Color, Command } from '../../core/system.js';
 import { SystemSound } from '../../core/audio.js';
 
 export class TreasureHunt extends Game {
@@ -97,14 +97,14 @@ export class TreasureHunt extends Game {
 
 		if (this.digFlash > 0.0) {
 			const pos = Math.round(this.cursorPos);
-			const color = heat > 0.85 ? Colors.GREEN : Colors.ORANGE;
+			const color = heat > 0.85 ? Color.GREEN : Color.ORANGE;
 			if (pos >= 0 && pos < this.resolution) {
 				this.pixels[pos] = color;
 			}
 		} else {
 			const pos = Math.round(this.cursorPos);
 			if (pos >= 0 && pos < this.resolution) {
-				this.pixels[pos] = Colors.WHITE;
+				this.pixels[pos] = Color.WHITE;
 			}
 		}
 	}
