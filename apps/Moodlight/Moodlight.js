@@ -1,4 +1,5 @@
-import { Game, Command } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Command } from '../../core/Command.js';
 
 const PLASMA_SPEED = 1.8;
 const PLASMA_WARP = 0.35;

@@ -1,4 +1,6 @@
-import { Game, Color, Command } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
 
 class Hole {
 	static BACKGROUND_COLOR = Color.DARK_GREEN;

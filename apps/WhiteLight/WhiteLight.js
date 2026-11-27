@@ -1,4 +1,5 @@
-import { Game, Command } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Command } from '../../core/Command.js';
 
 const FADE_DURATION = 1.0;
 const RAMP_SPEED = 0.5;

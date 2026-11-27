@@ -1,4 +1,5 @@
-import { LFODestination, Sample } from '../core/audio.js';
+import { LFODestination } from '../core/audio/LFODestination.js';
+import { Sample } from '../core/audio/Sample.js';
 
 const SYSTEM_SAMPLE_FILES = ['CROWD_BOOING.wav', 'CROWD_CHEERING.wav'];
 

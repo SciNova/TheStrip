@@ -1,6 +1,13 @@
-import { Game, Color, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio.js';
-import { Shape, Alignment, EdgeMode, Widget, WidgetState, ProgressBar } from '../../core/graphics.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
+import { Shape } from '../../core/graphics/Shape.js';
+import { Alignment } from '../../core/graphics/Alignment.js';
+import { EdgeMode } from '../../core/graphics/EdgeMode.js';
+import { Widget } from '../../core/graphics/Widget.js';
+import { WidgetState } from '../../core/graphics/WidgetState.js';
+import { ProgressBar } from '../../core/graphics/ProgressBar.js';
 
 const RaceState = Object.freeze({ COUNTDOWN: 'COUNTDOWN', PLAYING: 'PLAYING', RESULT: 'RESULT' });
 

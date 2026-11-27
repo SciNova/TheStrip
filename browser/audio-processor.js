@@ -1,6 +1,9 @@
-import { Note, Waveform, LFODestination } from '../core/audio.js';
-import { SoundEvent, Track } from '../core/audio.js';
-import { Clock } from '../core/system.js';
+import { Note } from '../core/audio/Note.js';
+import { Waveform } from '../core/audio/Waveform.js';
+import { LFODestination } from '../core/audio/LFODestination.js';
+import { SoundEvent } from '../core/audio/SoundEvent.js';
+import { Track } from '../core/audio/Track.js';
+import { Clock } from '../core/Clock.js';
 
 function reconstructTrack(data) {
 	const track = new Track();

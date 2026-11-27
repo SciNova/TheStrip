@@ -1,5 +1,6 @@
-import { Game, Color } from '../../core/system.js';
-import { Command } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
 
 class Bird {
 	constructor(position) {

@@ -1,8 +1,8 @@
 import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { System } from '../core/system.js';
-import { Sample } from '../core/audio.js';
+import { System } from '../core/System.js';
+import { Sample } from '../core/audio/Sample.js';
 
 const ROOT_DIR = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 

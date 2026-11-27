@@ -1,4 +1,4 @@
-import { SystemState } from '../core/system.js';
+import { SystemState } from '../core/System.js';
 
 export class StripView3D {
 	static LOGO_FONT_FAMILY = 'Nasalization';

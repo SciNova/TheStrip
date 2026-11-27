@@ -1,6 +1,9 @@
-import { Game, Color, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio.js';
-import { Square, EdgeMode } from '../../core/graphics.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
+import { Square } from '../../core/graphics/Square.js';
+import { EdgeMode } from '../../core/graphics/EdgeMode.js';
 
 const Stage = Object.freeze({ IDLE: 'IDLE', ROLLING: 'ROLLING' });
 

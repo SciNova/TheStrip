@@ -1,4 +1,5 @@
-import { Game, Command } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Command } from '../../core/Command.js';
 
 class Player {
 	static LOW_SIZE = 3;

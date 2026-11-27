@@ -1,5 +1,7 @@
-import { Game, Color, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
 
 export class Pinball extends Game {
 	static GRAVITY = 0.9;

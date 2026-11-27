@@ -1,6 +1,9 @@
-import { Game, Color, System, Command } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { System } from '../../core/System.js';
+import { Command } from '../../core/Command.js';
 import { Audio, Tracker } from '../../browser/audio.js';
-import { MODFormat } from '../../core/audio.js';
+import { MODFormat } from '../../core/audio/ModFormat.js';
 
 const Stage = Object.freeze({
 	FRACTAL_MOUNTAIN: 0,

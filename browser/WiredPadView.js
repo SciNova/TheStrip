@@ -1,4 +1,7 @@
-import { Command, WiredPad, InputEvent, ButtonEvent } from '../core/system.js';
+import { Command } from '../core/Command.js';
+import { WiredPad } from '../core/WiredPad.js';
+import { InputEvent } from '../core/InputEvent.js';
+import { ButtonEvent } from '../core/Button.js';
 
 export class WiredPadView {
 	static COMMANDS = {

@@ -1,5 +1,8 @@
-import { Game, GameState, Color, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio.js';
+import { Game } from '../../core/Game.js';
+import { GameState } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
 
 const CARD_COLORS = [Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA, Color.CYAN, Color.ORANGE, Color.PURPLE];
 const BASE_PAIRS = 3;

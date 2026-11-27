@@ -1,5 +1,8 @@
-import { Game, Command, Color } from '../../core/system.js';
-import { Note, SystemSound } from '../../core/audio.js';
+import { Game } from '../../core/Game.js';
+import { Command } from '../../core/Command.js';
+import { Color } from '../../core/Color.js';
+import { Note } from '../../core/audio/Note.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
 
 const TOTAL_LEVELS = 10;
 const TONE_DURATION = 0.3;

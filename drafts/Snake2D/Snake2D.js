@@ -1,6 +1,9 @@
-import { Game, Color, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio.js';
-import { BasePlayer2D, World2D } from '../../core/graphics.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
+import { BasePlayer2D } from '../../core/graphics/BasePlayer2D.js';
+import { World2D } from '../../core/graphics/World2D.js';
 
 const SnakeStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 

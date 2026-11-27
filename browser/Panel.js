@@ -1,4 +1,4 @@
-import { Command } from '../core/system.js';
+import { Command } from '../core/Command.js';
 
 export const PcbPanelModel = Object.freeze({
 	NONE: 'NONE',

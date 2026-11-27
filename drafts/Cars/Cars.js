@@ -1,5 +1,11 @@
-import { Game, Color, Command } from '../../core/system.js';
-import { Square2D, EdgeMode, Camera, BasePlayer2D, World2D } from '../../core/graphics.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { Square2D } from '../../core/graphics/Square2D.js';
+import { EdgeMode } from '../../core/graphics/EdgeMode.js';
+import { Camera } from '../../core/graphics/Camera.js';
+import { BasePlayer2D } from '../../core/graphics/BasePlayer2D.js';
+import { World2D } from '../../core/graphics/World2D.js';
 
 class Player extends BasePlayer2D {
 	constructor(game) {

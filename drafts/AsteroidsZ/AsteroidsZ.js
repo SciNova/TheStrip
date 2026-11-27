@@ -1,6 +1,8 @@
-import { Game, Color, Command } from '../../core/system.js';
-import { SystemSound } from '../../core/audio.js';
-import { World2D } from '../../core/graphics.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
+import { World2D } from '../../core/graphics/World2D.js';
 
 const AsteroidsStage = Object.freeze({ PLAYING: 'PLAYING', GAMEOVER: 'GAMEOVER' });
 

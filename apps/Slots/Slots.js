@@ -1,13 +1,36 @@
-import { Game, Color, Command } from '../../core/system.js';
-import { SystemSound, Note, Scale } from '../../core/audio.js';
-import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
+import { Note } from '../../core/audio/Note.js';
+import { Scale } from '../../core/audio/Note.js';
+import { Shape } from '../../core/graphics/Shape.js';
+import { Alignment } from '../../core/graphics/Alignment.js';
+import { EdgeMode } from '../../core/graphics/EdgeMode.js';
 
 const Fruit = Object.freeze({
-	APPLE: 0, BANANA: 1, GRAPE: 2, ORANGE: 3, CHERRY: 4,
-	LEMON: 5, WATERMELON: 6, BLACKBERRY: 7, STRAWBERRY: 8,
+	APPLE: 0,
+	BANANA: 1,
+	GRAPE: 2,
+	ORANGE: 3,
+	CHERRY: 4,
+	LEMON: 5,
+	WATERMELON: 6,
+	BLACKBERRY: 7,
+	STRAWBERRY: 8,
 });
 
-const FRUIT_SIZE = [0.3, 0.7, 0.6, 0.6, 0.4, 0.5, 0.8, 0.2, 0.45];
+const FRUIT_SIZE = [
+	0.3,
+	0.7,
+	0.6,
+	0.6,
+	0.4,
+	0.5,
+	0.8,
+	0.2,
+	0.45,
+];
 
 const FRUIT_COLOR = {
 	[Fruit.APPLE]: Color.GREEN,
@@ -33,7 +56,13 @@ const FRUIT_SCALE_POSITION = {
 	[Fruit.STRAWBERRY]: 8,
 };
 
-const Scales = [Scale.MAJOR, Scale.MINOR, Scale.ARABIC, Scale.CHINESE, Scale.SCARY];
+const Scales = [
+	Scale.MAJOR,
+	Scale.MINOR,
+	Scale.ARABIC,
+	Scale.CHINESE,
+	Scale.SCARY,
+];
 
 class Wheel extends Shape {
 	static NUM_SYMBOLS = 8;

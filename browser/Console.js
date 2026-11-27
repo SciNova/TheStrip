@@ -1,4 +1,4 @@
-import { System } from '../core/system.js';
+import { System } from '../core/System.js';
 import { PcbPanelModel, PANEL_CLASSES } from './Panel.js';
 import { StripView } from './StripView.js';
 import { StripView3D } from './StripView3D.js';

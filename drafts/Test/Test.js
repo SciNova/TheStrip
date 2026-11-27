@@ -1,6 +1,9 @@
-import { Game, Command, Color, System } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Command } from '../../core/Command.js';
+import { Color } from '../../core/Color.js';
+import { System } from '../../core/System.js';
 import { Audio, Tracker } from '../../browser/audio.js';
-import { MODFormat } from '../../core/audio.js';
+import { MODFormat } from '../../core/audio/ModFormat.js';
 
 const SEGMENT_COUNT = 4;
 const SEGMENT_SPAN = (2 * Math.PI) / (SEGMENT_COUNT * 2);

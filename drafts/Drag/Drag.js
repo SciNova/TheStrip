@@ -1,4 +1,6 @@
-import { Game, Command, Color } from '../../core/system.js';
+import { Game } from '../../core/Game.js';
+import { Command } from '../../core/Command.js';
+import { Color } from '../../core/Color.js';
 
 const PointerState = Object.freeze({ IDLE: 'IDLE', AIM_LEFT: 'AIM_LEFT', AIM_RIGHT: 'AIM_RIGHT' });
 

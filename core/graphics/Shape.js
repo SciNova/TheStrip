@@ -1,4 +1,4 @@
-import { System } from '../system.js';
+import { System } from '../System.js';
 import { Alignment } from './Alignment.js';
 import { EdgeMode } from './EdgeMode.js';
 

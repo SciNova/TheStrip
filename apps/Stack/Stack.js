@@ -1,6 +1,11 @@
-import { Game, Color, Command, GameState } from '../../core/system.js';
-import { SystemSound } from '../../core/audio.js';
-import { Shape, Alignment, EdgeMode } from '../../core/graphics.js';
+import { Game } from '../../core/Game.js';
+import { Color } from '../../core/Color.js';
+import { Command } from '../../core/Command.js';
+import { GameState } from '../../core/Game.js';
+import { SystemSound } from '../../core/audio/SystemSound.js';
+import { Shape } from '../../core/graphics/Shape.js';
+import { Alignment } from '../../core/graphics/Alignment.js';
+import { EdgeMode } from '../../core/graphics/EdgeMode.js';
 
 class Dot extends Shape {
 	static EXPLOSION_DIAMETER = 21;
