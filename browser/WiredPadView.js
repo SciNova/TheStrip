@@ -1,90 +1,122 @@
 import { Command } from '../core/Command.js';
-import { WiredPad } from '../core/WiredPad.js';
-import { InputEvent } from '../core/InputEvent.js';
-import { ButtonEvent } from '../core/Button.js';
+import { Button } from '../core/Button.js';
+import { PcbPanelModel, PANEL_CLASSES } from './Panel.js';
 
 export class WiredPadView {
-	static COMMANDS = {
-		UP: { press: Command.UP_PRESS, release: Command.UP_RELEASE },
-		DOWN: { press: Command.DOWN_PRESS, release: Command.DOWN_RELEASE },
-		LEFT: { press: Command.LEFT_PRESS, release: Command.LEFT_RELEASE },
-		RIGHT: { press: Command.RIGHT_PRESS, release: Command.RIGHT_RELEASE },
-		FIRE: { press: Command.FIRE_PRESS, release: Command.FIRE_RELEASE },
-		FIRE2: { press: Command.FIRE2_PRESS, release: Command.FIRE2_RELEASE },
-		A: { press: Command.A_PRESS, release: Command.A_RELEASE },
-		B: { press: Command.B_PRESS, release: Command.B_RELEASE },
-		C: { press: Command.C_PRESS, release: Command.C_RELEASE },
-		D: { press: Command.D_PRESS, release: Command.D_RELEASE },
-		POWER: { release: Command.POWER_SHORT_PRESS, hold: Command.POWER_LONG_PRESS },
-		MENU: { release: Command.MENU_SHORT_PRESS, hold: Command.MENU_LONG_PRESS },
-		PAUSE: { release: Command.PAUSE_SHORT_PRESS, hold: Command.PAUSE_LONG_PRESS },
-		BT: { release: Command.BT_SHORT_PRESS, hold: Command.BT_LONG_PRESS },
-	};
+	static _svgs = {};
 
-	static DIRECTION_NAMES = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'FIRE', 'FIRE2'];
-	static NAMED_NAMES = ['A', 'B', 'C', 'D'];
-	static SYSTEM_NAMES = ['POWER', 'MENU', 'PAUSE', 'BT'];
-
-	static PANEL_BUTTON_NAMES = {
-		[Command.A_PRESS]: 'A',
-		[Command.B_PRESS]: 'B',
-		[Command.C_PRESS]: 'C',
-		[Command.D_PRESS]: 'D',
-		[Command.FIRE_PRESS]: 'FIRE',
-		[Command.FIRE2_PRESS]: 'FIRE2',
-		[Command.UP_PRESS]: 'UP',
-		[Command.DOWN_PRESS]: 'DOWN',
-		[Command.LEFT_PRESS]: 'LEFT',
-		[Command.RIGHT_PRESS]: 'RIGHT',
-	};
-
-	constructor(system, id) {
-		this.system = system;
-		this.id = id;
+	constructor(container, pad) {
+		this.container = container;
+		this.pad = pad;
 		this.panel = null;
-		this.pad = new WiredPad(system, id);
-		this.pressed = {};
+		this.attachSystemHandlers();
 	}
 
 	update() {
 	}
 
-	setButtonPressed(index, pressed) {
-		if (!this.panel) {
-			return;
-		}
-		this.pressed[WiredPadView.PANEL_BUTTON_NAMES[this.panel.pressCommands[index]]] = pressed;
+	attachSystemHandlers() {
+		const elements = this.container.querySelectorAll('[data-sys]');
+
+		elements[0].addEventListener('mousedown', () => { this.pad.console.inputs[this.pad.id][Button.POWER] = true; });
+		elements[0].addEventListener('mouseup', () => { this.pad.console.inputs[this.pad.id][Button.POWER] = false; });
+		elements[0].addEventListener('touchstart', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.POWER] = true; });
+		elements[0].addEventListener('touchend', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.POWER] = false; });
+
+		elements[1].addEventListener('mousedown', () => { this.pad.console.inputs[this.pad.id][Button.MENU] = true; });
+		elements[1].addEventListener('mouseup', () => { this.pad.console.inputs[this.pad.id][Button.MENU] = false; });
+		elements[1].addEventListener('touchstart', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.MENU] = true; });
+		elements[1].addEventListener('touchend', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.MENU] = false; });
+
+		elements[2].addEventListener('mousedown', () => { this.pad.console.inputs[this.pad.id][Button.PAUSE] = true; });
+		elements[2].addEventListener('mouseup', () => { this.pad.console.inputs[this.pad.id][Button.PAUSE] = false; });
+		elements[2].addEventListener('touchstart', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.PAUSE] = true; });
+		elements[2].addEventListener('touchend', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.PAUSE] = false; });
+
+		elements[3].addEventListener('mousedown', () => { this.pad.console.inputs[this.pad.id][Button.BT] = true; });
+		elements[3].addEventListener('mouseup', () => { this.pad.console.inputs[this.pad.id][Button.BT] = false; });
+		elements[3].addEventListener('touchstart', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.BT] = true; });
+		elements[3].addEventListener('touchend', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][Button.BT] = false; });
 	}
 
-	setDirectionPressed(index, pressed) {
-		this.pressed[WiredPadView.DIRECTION_NAMES[index]] = pressed;
-	}
+	attachPanelHandlers(panelDiv) {
+		const elements = panelDiv.querySelectorAll('[data-code]');
+		for (let i = 0; i < elements.length; i++) {
+			const el = elements[i];
+			const command = this.panel.pressCommands[i];
 
-	setNamedButtonPressed(index, pressed) {
-		this.pressed[WiredPadView.NAMED_NAMES[index]] = pressed;
-	}
-
-	setSystemButtonPressed(index, pressed) {
-		this.pressed[WiredPadView.SYSTEM_NAMES[index]] = pressed;
-	}
-
-	loop() {
-		for (const name in this.pad.buttons) {
-			const commands = WiredPadView.COMMANDS[name];
-			const event = this.pad.buttons[name].process(this.pressed[name] ?? false);
-			if (!event) {
-				continue;
+			let buttonId;
+			if (command === Command.A_PRESS) {
+				buttonId = Button.A;
+			} else if (command === Command.B_PRESS) {
+				buttonId = Button.B;
+			} else if (command === Command.C_PRESS) {
+				buttonId = Button.C;
+			} else if (command === Command.D_PRESS) {
+				buttonId = Button.D;
+			} else if (command === Command.FIRE_PRESS) {
+				buttonId = Button.FIRE;
+			} else if (command === Command.FIRE2_PRESS) {
+				buttonId = Button.FIRE2;
+			} else if (command === Command.UP_PRESS) {
+				buttonId = Button.UP;
+			} else if (command === Command.DOWN_PRESS) {
+				buttonId = Button.DOWN;
+			} else if (command === Command.LEFT_PRESS) {
+				buttonId = Button.LEFT;
+			} else if (command === Command.RIGHT_PRESS) {
+				buttonId = Button.RIGHT;
 			}
-			this.system.log(`pad ${this.id}: ${name} ${event}`);
-			if (event === ButtonEvent.PRESS && commands.press) {
-				this.system.handleCommand(this.id, new InputEvent(commands.press));
-			} else if (event === ButtonEvent.RELEASE && commands.release) {
-				this.system.handleCommand(this.id, new InputEvent(commands.release));
-			} else if (event === ButtonEvent.HOLDRELEASE && commands.release && !commands.hold) {
-				this.system.handleCommand(this.id, new InputEvent(commands.release));
-			} else if (event === ButtonEvent.HOLD && commands.hold) {
-				this.system.handleCommand(this.id, new InputEvent(commands.hold));
-			}
+
+			el.addEventListener('mousedown', () => { this.pad.console.inputs[this.pad.id][buttonId] = true; });
+			el.addEventListener('mouseup', () => { this.pad.console.inputs[this.pad.id][buttonId] = false; });
+			el.addEventListener('touchstart', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][buttonId] = true; });
+			el.addEventListener('touchend', (e) => { e.preventDefault(); this.pad.console.inputs[this.pad.id][buttonId] = false; });
 		}
+	}
+
+	async loadSVG(model) {
+		if (model === PcbPanelModel.NONE) {
+			return '';
+		}
+		if (!WiredPadView._svgs[model]) {
+			const res = await fetch(`/svg/panels/${model}.svg`);
+			WiredPadView._svgs[model] = await res.text();
+		}
+		return WiredPadView._svgs[model];
+	}
+
+	async render() {
+		const model = this.panel ? this.panel.model : PcbPanelModel.NONE;
+		const hasPanel = model !== PcbPanelModel.NONE;
+
+		const panelDiv = this.container.querySelector('div:not(.systemRow)');
+		panelDiv.innerHTML = await this.loadSVG(model);
+		panelDiv.style.display = hasPanel ? 'block' : 'none';
+
+		const systemRow = this.container.querySelector('.systemRow');
+		systemRow.style.display = hasPanel ? 'flex' : 'none';
+		const svg = panelDiv.querySelector('svg');
+		systemRow.style.width = svg ? `${svg.getBoundingClientRect().width}px` : '';
+
+		if (hasPanel) {
+			this.attachPanelHandlers(panelDiv);
+		}
+	}
+
+	swapPanel() {
+		const models = Object.values(PcbPanelModel);
+		const currentName = this.panel ? this.panel.model : PcbPanelModel.NONE;
+		const idx = models.indexOf(currentName);
+		const next = models[(idx + 1) % models.length];
+
+		if (next === PcbPanelModel.NONE) {
+			this.panel = null;
+		} else {
+			const PanelClass = PANEL_CLASSES[next];
+			this.panel = new PanelClass();
+		}
+		this.update();
+		this.render();
 	}
 }

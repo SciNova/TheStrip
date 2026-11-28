@@ -36,7 +36,7 @@ Moodlight: Shows continuous rainbow gradient; three buttons control speed (incre
 
 ## Log
 
-#### [27 Nov 2026 – Claude Sonnet 5 – Audio engine flattened into core/, js/ renamed to browser/, a Node runtime added, audio.js/graphics.js/system.js all split into per-class files, and the three barrels deleted](log/20261127.md)
+#### [27 Nov 2026 – Claude Sonnet 5 – Audio engine flattened into core/, js/ renamed to browser/, a Node runtime added, audio.js/graphics.js/system.js all split into per-class files, system/audio/graphics barrels deleted, and a portability experiment translating core/ classes into C++ and Python](log/20261127.md)
 
 #### [26 Nov 2026 – Claude Sonnet 5 – Presence planning, a from-scratch synth scale system, the menu's exact-fill layout, a Semaphore built three times over, and Race's travel/lap model corrected](log/20261126.md)
 

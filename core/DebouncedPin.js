@@ -1,6 +1,6 @@
-const DEBOUNCE_DURATION = 0.0;
-
 export class DebouncedPin {
+	static DEBOUNCE_DURATION = 0.0;
+
 	constructor() {
 		this.state = false;
 		this.timestamp = 0.0;
@@ -10,7 +10,7 @@ export class DebouncedPin {
 		if (value !== this.state) {
 			this.timestamp = now;
 		}
-		if ((now - this.timestamp) >= DEBOUNCE_DURATION && value !== this.state) {
+		if ((now - this.timestamp) >= DebouncedPin.DEBOUNCE_DURATION && value !== this.state) {
 			this.state = value;
 		}
 		return this.state;

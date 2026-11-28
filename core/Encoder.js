@@ -1,9 +1,15 @@
-const DEBOUNCE_DURATION = 0.0;
-
-export const EncoderState = Object.freeze({ IDLE: 'IDLE', DEBOUNCING: 'DEBOUNCING' });
-export const EncoderEvent = Object.freeze({ LEFT: 'LEFT', RIGHT: 'RIGHT' });
+export const EncoderState = Object.freeze({
+	IDLE: 'IDLE',
+	DEBOUNCING: 'DEBOUNCING',
+});
+export const EncoderEvent = Object.freeze({
+	LEFT: 'LEFT',
+	RIGHT: 'RIGHT',
+});
 
 export class Encoder {
+	static DEBOUNCE_DURATION = 0.0;
+
 	constructor() {
 		this.state = EncoderState.IDLE;
 		this.rawQuadState = 0;
@@ -20,7 +26,7 @@ export class Encoder {
 		}
 
 		let debounced = this.previousQuadState;
-		if ((now - this.inputChangeTimestamp) >= DEBOUNCE_DURATION) {
+		if ((now - this.inputChangeTimestamp) >= Encoder.DEBOUNCE_DURATION) {
 			debounced = this.rawQuadState;
 		}
 
@@ -41,7 +47,7 @@ export class Encoder {
 		}
 
 		this.previousQuadState = debounced;
-		if (this.state === EncoderState.DEBOUNCING && (now - this.clkTimestamp) >= DEBOUNCE_DURATION) {
+		if (this.state === EncoderState.DEBOUNCING && (now - this.clkTimestamp) >= Encoder.DEBOUNCE_DURATION) {
 			this.state = EncoderState.IDLE;
 		}
 

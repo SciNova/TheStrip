@@ -1,6 +1,4 @@
 export class Command {
-	static NONE = 0;
-
 	static A_PRESS = 0x01;
 	static A_RELEASE = 0x02;
 	static A = 0x01;
@@ -74,24 +72,20 @@ export class Command {
 	static BT_SHORT_PRESS = 0xF8;
 	static BT_LONG_PRESS = 0xF9;
 
-	static GAME_COMMANDS = [
-		Command.A_PRESS,
-		Command.B_PRESS,
-		Command.C_PRESS,
-		Command.D_PRESS,
-		Command.X_PRESS,
-		Command.Y_PRESS,
-		Command.Z_PRESS,
-		Command.W_PRESS,
-		Command.FIRE_PRESS,
-		Command.FIRE2_PRESS,
-		Command.UP_PRESS,
-		Command.DOWN_PRESS,
-		Command.LEFT_PRESS,
-		Command.RIGHT_PRESS,
-	];
-
 	static isGameCommand(command) {
-		return Command.GAME_COMMANDS.includes(command);
+		return command === Command.A_PRESS
+			|| command === Command.B_PRESS
+			|| command === Command.C_PRESS
+			|| command === Command.D_PRESS
+			|| command === Command.X_PRESS
+			|| command === Command.Y_PRESS
+			|| command === Command.Z_PRESS
+			|| command === Command.W_PRESS
+			|| command === Command.FIRE_PRESS
+			|| command === Command.FIRE2_PRESS
+			|| command === Command.UP_PRESS
+			|| command === Command.DOWN_PRESS
+			|| command === Command.LEFT_PRESS
+			|| command === Command.RIGHT_PRESS;
 	}
 }

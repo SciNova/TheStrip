@@ -1,0 +1,4 @@
+class Alignment:
+	CENTER = 'CENTER'
+	FORWARD = 'FORWARD'
+	BACKWARD = 'BACKWARD'

@@ -20,7 +20,7 @@ export class System {
 		this.strip = new Strip(resolution);
 		this.game = null;
 		this.GAMES = null;
-		this.sounds = [];
+		this.sounds = new Array(Audio.CHANNELS).fill(null);
 		this.trackers = [];
 		this.freeChannels = Audio.CHANNELS;
 		this.menu = new Menu(this);

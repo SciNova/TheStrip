@@ -68,7 +68,7 @@ export class Game {
 		this.level = 0;
 		this.state = GameState.PLAY;
 		this.delayTime = 0.0;
-		this.sounds = [];
+		this.sounds = new Array(Audio.CHANNELS).fill(null);
 		this.trackers = [];
 		this.freeChannels = Audio.CHANNELS;
 	}
@@ -133,12 +133,12 @@ export class Game {
 		this.level += 1;
 	}
 
+	buildStage() {
+	}
+
 	playLevel() {
-		if (this.buildStage) {
-			this.buildStage();
-		}
+		this.buildStage();
 		this.levelTime = 0.0;
 		this.play();
 	}
-
 }
