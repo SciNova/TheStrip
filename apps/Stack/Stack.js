@@ -113,7 +113,7 @@ class Snake {
 		for (let n = 0; n < numDots; n++) {
 			let color = null;
 			while (color === null || color === prevColor) {
-				const r = Math.floor(Math.random() * 3);
+				const r = Math.floor(this.game.system.random() * 3);
 				if (r === 0) {
 					color = Color.RED;
 				} else if (r === 1) {
@@ -122,7 +122,7 @@ class Snake {
 					color = Color.BLUE;
 				}
 			}
-			const gap = Math.random() < (gapFloat - lowGap) ? highGap : lowGap;
+			const gap = this.game.system.random() < (gapFloat - lowGap) ? highGap : lowGap;
 			this.dots.push(new Dot(this.game, color, gap));
 			prevColor = color;
 		}

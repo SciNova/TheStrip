@@ -57,8 +57,8 @@ export class AsteroidsZ extends Game {
 		for (let i = 0; i < count; i++) {
 			let x, z;
 			do {
-				x = Math.random() * 2 * half - half;
-				z = Math.random() * 2 * half - half;
+				x = this.system.random() * 2 * half - half;
+				z = this.system.random() * 2 * half - half;
 			} while (Math.sqrt(x * x + z * z) < half * 0.3);
 			this._addAsteroid(x, z, 'LARGE');
 		}
@@ -68,8 +68,8 @@ export class AsteroidsZ extends Game {
 
 	_addAsteroid(x, z, tierName) {
 		const tier = TIER[tierName];
-		const speed = (tier.speedMin + Math.random() * (tier.speedMax - tier.speedMin)) * this.resolution;
-		const angle = Math.random() * 2 * Math.PI;
+		const speed = (tier.speedMin + this.system.random() * (tier.speedMax - tier.speedMin)) * this.resolution;
+		const angle = this.system.random() * 2 * Math.PI;
 		this.asteroids.push({
 			x,
 			z,
@@ -221,8 +221,8 @@ export class AsteroidsZ extends Game {
 
 	_addAsteroidInto(list, x, z, tierName) {
 		const tier = TIER[tierName];
-		const speed = (tier.speedMin + Math.random() * (tier.speedMax - tier.speedMin)) * this.resolution;
-		const angle = Math.random() * 2 * Math.PI;
+		const speed = (tier.speedMin + this.system.random() * (tier.speedMax - tier.speedMin)) * this.resolution;
+		const angle = this.system.random() * 2 * Math.PI;
 		list.push({
 			x,
 			z,

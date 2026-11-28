@@ -64,7 +64,7 @@ export class SimonSays extends Game {
 			return;
 		}
 		for (let i = 0; i < TOTAL_LEVELS; i++) {
-			const r = Math.floor(Math.random() * 4);
+			const r = Math.floor(this.system.random() * 4);
 			if (r === 0) {
 				this.sequence[i] = Color.RED;
 			} else if (r === 1) {

@@ -43,11 +43,11 @@ export class Shooter2D extends Game {
 
 	_spawnTarget() {
 		const laneHalf = Shooter2D.LANE_HALF_WIDTH * this.resolution;
-		const color = Shooter2D.TARGET_COLORS[Math.floor(Math.random() * Shooter2D.TARGET_COLORS.length)];
+		const color = Shooter2D.TARGET_COLORS[Math.floor(this.system.random() * Shooter2D.TARGET_COLORS.length)];
 		this.targets.push({
-			x: (Math.random() * 2 - 1) * laneHalf * 0.85,
+			x: (this.system.random() * 2 - 1) * laneHalf * 0.85,
 			z: Shooter2D.SPAWN_Z * this.resolution,
-			speed: this.targetSpeed * (0.9 + Math.random() * 0.3),
+			speed: this.targetSpeed * (0.9 + this.system.random() * 0.3),
 			color,
 		});
 	}

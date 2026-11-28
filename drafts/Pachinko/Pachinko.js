@@ -61,7 +61,7 @@ export class Pachinko extends Game {
 		this.ballZ -= Pachinko.DROP_SPEED * dt;
 
 		if (this.ballZ <= this.nextPegZ) {
-			this.ballX += (Math.random() * 2 - 1) * Pachinko.PEG_KICK;
+			this.ballX += (this.system.random() * 2 - 1) * Pachinko.PEG_KICK;
 			if (this.ballX < 0) {
 				this.ballX = -this.ballX;
 			} else if (this.ballX > this.resolution - 1) {

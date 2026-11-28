@@ -32,8 +32,8 @@ export class Pinball extends Game {
 		this.bumpers = [];
 		for (let i = 0; i < Pinball.BUMPER_COUNT; i++) {
 			this.bumpers.push({
-				x: 0.1 + 0.8 * ((i + Math.random() * 0.4) / Pinball.BUMPER_COUNT),
-				z: 0.25 + Math.random() * 0.6,
+				x: 0.1 + 0.8 * ((i + this.system.random() * 0.4) / Pinball.BUMPER_COUNT),
+				z: 0.25 + this.system.random() * 0.6,
 				cooldown: 0.0,
 			});
 		}
@@ -45,7 +45,7 @@ export class Pinball extends Game {
 		this.ball = {
 			x: this.resolution / 2.0,
 			z: 0.9,
-			vx: (Math.random() * 2 - 1) * Pinball.BALL_VX_RANGE * this.resolution,
+			vx: (this.system.random() * 2 - 1) * Pinball.BALL_VX_RANGE * this.resolution,
 			vz: 0.0,
 		};
 	}
@@ -106,7 +106,7 @@ export class Pinball extends Game {
 			const dz = Math.abs(ball.z - bumper.z);
 			if (dx < Pinball.BUMPER_RADIUS_X && dz < Pinball.BUMPER_RADIUS_Z) {
 				ball.vz += Pinball.BUMPER_KICK;
-				ball.vx += (Math.random() * 2 - 1) * 0.2 * this.resolution;
+				ball.vx += (this.system.random() * 2 - 1) * 0.2 * this.resolution;
 				bumper.cooldown = Pinball.BUMPER_COOLDOWN;
 				this.score += 1;
 				this.audio.playSynth(SystemSound.EXPLOSION);

@@ -47,8 +47,8 @@ export class Snake2D extends Game {
 
 	_spawnFood() {
 		const half = (Snake2D.WORLD_SIZE * this.resolution) / 2.0;
-		this.foodX = Math.random() * 2 * half - half;
-		this.foodZ = Math.random() * 2 * half - half;
+		this.foodX = this.system.random() * 2 * half - half;
+		this.foodZ = this.system.random() * 2 * half - half;
 	}
 
 	loop() {

@@ -26,7 +26,7 @@ export class MemoryMatch extends Game {
 			colors.push(CARD_COLORS[i % CARD_COLORS.length], CARD_COLORS[i % CARD_COLORS.length]);
 		}
 		for (let i = colors.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
+			const j = Math.floor(this.system.random() * (i + 1));
 			[colors[i], colors[j]] = [colors[j], colors[i]];
 		}
 		this.cards = colors.map((color) => ({ color, revealed: false, matched: false }));

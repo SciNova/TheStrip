@@ -168,9 +168,9 @@ class Clyde extends Ghost {
 	}
 }
 
-function shuffle(array) {
+function shuffle(system, array) {
 	for (let i = array.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
+		const j = Math.floor(system.random() * (i + 1));
 		[array[i], array[j]] = [array[j], array[i]];
 	}
 }
@@ -207,7 +207,7 @@ export class Pacman extends Game {
 		for (let p = 0; p < this.resolution; p += Pacman.GAP + 1) {
 			allPositions.push(p);
 		}
-		shuffle(allPositions);
+		shuffle(this.system, allPositions);
 
 		for (let i = 0; i < this.totalPellets; i++) {
 			const pos = allPositions[i];

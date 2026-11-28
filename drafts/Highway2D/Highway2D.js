@@ -18,7 +18,7 @@ class OncomingCar extends Square2D {
 		if (length % 2 === 0) {
 			length -= 1;
 		}
-		const body = OncomingCar.BODY_COLORS[Math.floor(Math.random() * OncomingCar.BODY_COLORS.length)];
+		const body = OncomingCar.BODY_COLORS[Math.floor(game.system.random() * OncomingCar.BODY_COLORS.length)];
 		const dark = OncomingCar._darken(body);
 		const faces = [
 			OncomingCar._buildFace(length, body, Color.WHITE),
@@ -101,9 +101,9 @@ export class Highway2D extends Game {
 	_spawnCar() {
 		const laneHalf = Highway2D.LANE_HALF_WIDTH * this.resolution;
 		const car = new OncomingCar(this);
-		car.x = (Math.random() * 2 - 1) * laneHalf * 0.85;
+		car.x = (this.system.random() * 2 - 1) * laneHalf * 0.85;
 		car.z = Highway2D.SPAWN_Z * this.resolution;
-		car.speed = this.carSpeed * (0.9 + Math.random() * 0.3);
+		car.speed = this.carSpeed * (0.9 + this.system.random() * 0.3);
 		this.cars.push(car);
 	}
 

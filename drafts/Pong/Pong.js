@@ -27,7 +27,7 @@ export class Pong extends Game {
 
 	_spawnBall() {
 		const half = Math.floor(Pong.PADDLE_WIDTH / 2);
-		this.ballLane = half + Math.floor(Math.random() * (this.resolution - 2 * half));
+		this.ballLane = half + Math.floor(this.system.random() * (this.resolution - 2 * half));
 		this.ballZ = 1.0;
 	}
 

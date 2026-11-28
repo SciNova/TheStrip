@@ -68,7 +68,7 @@ export class Maze2D extends Game {
 				stack.pop();
 				continue;
 			}
-			const dir = options[Math.floor(Math.random() * options.length)];
+			const dir = options[Math.floor(this.system.random() * options.length)];
 			const nx = cx + DIR_DX[dir];
 			const nz = cz + DIR_DZ[dir];
 			open[cz][cx][dir] = true;

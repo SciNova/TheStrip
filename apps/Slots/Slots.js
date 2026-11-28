@@ -174,7 +174,7 @@ export class Slots extends Game {
 		this.wheels = [];
 		for (let i = 0; i < Slots.NUM_WHEELS; i++) {
 			const wheel = new Wheel(this, this.segmentPixels, Slots.WHEELS[i]);
-			wheel.rotation = Math.floor(Math.random() * Slots.NUM_SYMBOLS);
+			wheel.rotation = Math.floor(this.system.random() * Slots.NUM_SYMBOLS);
 			this.wheels.push(wheel);
 		}
 
@@ -184,8 +184,8 @@ export class Slots extends Game {
 
 	spin() {
 		for (const wheel of this.wheels) {
-			wheel.speed = Slots.MIN_SPEED + Math.random() * (Slots.MAX_SPEED - Slots.MIN_SPEED);
-			wheel.spinEndTime = this.time + Slots.MIN_SPIN_DURATION + Math.random() * (Slots.MAX_SPIN_DURATION - Slots.MIN_SPIN_DURATION);
+			wheel.speed = Slots.MIN_SPEED + this.system.random() * (Slots.MAX_SPEED - Slots.MIN_SPEED);
+			wheel.spinEndTime = this.time + Slots.MIN_SPIN_DURATION + this.system.random() * (Slots.MAX_SPIN_DURATION - Slots.MIN_SPIN_DURATION);
 		}
 		this.stage = Slots.STAGE_SPINNING;
 	}

@@ -41,7 +41,7 @@ export class Submarine extends Game {
 
 	_spawnMine() {
 		const surfacePixels = Submarine.SURFACE_ZONE * this.resolution;
-		const pos = surfacePixels + Math.random() * (this.resolution - 1 - surfacePixels);
+		const pos = surfacePixels + this.system.random() * (this.resolution - 1 - surfacePixels);
 		this.mines.push({ pos, timer: this.fuseTime, fuse: this.fuseTime });
 	}
 

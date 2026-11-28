@@ -2,7 +2,7 @@ import { Game } from '../../core/Game.js';
 import { Command } from '../../core/Command.js';
 import { Color } from '../../core/Color.js';
 import { System } from '../../core/System.js';
-import { Audio, Tracker } from '../../browser/audio.js';
+import { Audio, Tracker } from '../../browser/Audio.js';
 import { MODFormat } from '../../core/audio/ModFormat.js';
 
 const SEGMENT_COUNT = 4;

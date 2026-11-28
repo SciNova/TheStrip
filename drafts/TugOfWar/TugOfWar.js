@@ -50,7 +50,7 @@ export class TugOfWar extends Game {
 
 	_loopPlaying(dt) {
 		this.playerBoost *= Math.max(0.0, 1.0 - TugOfWar.BOOST_DECAY * dt);
-		const cpuNoise = this.cpuRate * (0.85 + Math.random() * 0.3);
+		const cpuNoise = this.cpuRate * (0.85 + this.system.random() * 0.3);
 		this.ropePos += (this.playerBoost - cpuNoise) * TugOfWar.ROPE_SCALE * dt;
 
 		if (this.ropePos >= 1.0) {

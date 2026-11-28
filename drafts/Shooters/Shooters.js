@@ -11,8 +11,8 @@ const RatState = Object.freeze({ RESTING: 'RESTING', MOVING: 'MOVING' });
 const MonkeyState = Object.freeze({ RESTING: 'RESTING', MOVING: 'MOVING' });
 const CrowState = Object.freeze({ RESTING: 'RESTING', FLYING: 'FLYING' });
 
-function randomRange(min, max) {
-	return min + Math.random() * (max - min);
+function randomRange(game, min, max) {
+	return min + game.system.random() * (max - min);
 }
 
 function easeOut(t) {
@@ -71,8 +71,8 @@ class Shot {
 
 	_explode() {
 		for (let i = 0; i < Shot.SPARK_COUNT; i++) {
-			const direction = Math.random() < 0.5 ? -1 : 1;
-			const velocity = direction * this.RADIUS / Shot.SPARK_DURATION * (0.6 + Math.random() * 0.8);
+			const direction = this.game.system.random() < 0.5 ? -1 : 1;
+			const velocity = direction * this.RADIUS / Shot.SPARK_DURATION * (0.6 + this.game.system.random() * 0.8);
 			this.sparks.push(new Spark(this.location, velocity));
 		}
 	}
@@ -178,7 +178,7 @@ class Duck extends Target {
 	constructor(game, location, direction = 1) {
 		const size = game.resolution * 0.08;
 		super(game, location, Color.GOLD, size);
-		this.speed = direction * randomRange(Duck.SPEED_MIN, Duck.SPEED_MAX) * game.resolution;
+		this.speed = direction * randomRange(game, Duck.SPEED_MIN, Duck.SPEED_MAX) * game.resolution;
 	}
 
 	update() {
@@ -214,7 +214,7 @@ class Crow extends Target {
 		super(game, location, Crow.COLOR, size);
 		this.actionState = CrowState.RESTING;
 		this.timestamp = game.time;
-		this.patience = randomRange(Crow.REST_MIN, Crow.REST_MAX);
+		this.patience = randomRange(game, Crow.REST_MIN, Crow.REST_MAX);
 		this.moveStart = location;
 		this.moveEnd = location;
 		this.speed = 0.0;
@@ -227,9 +227,9 @@ class Crow extends Target {
 			this.actionState = CrowState.FLYING;
 			this.timestamp = this.game.time;
 			this.moveStart = this.location;
-			const distance = randomRange(Crow.DISTANCE_MIN, Crow.DISTANCE_MAX) * this.game.resolution;
-			this.moveEnd = this.location + (Math.random() < 0.5 ? -distance : distance);
-			this.speed = randomRange(Crow.SPEED_MIN, Crow.SPEED_MAX) * this.game.resolution;
+			const distance = randomRange(this.game, Crow.DISTANCE_MIN, Crow.DISTANCE_MAX) * this.game.resolution;
+			this.moveEnd = this.location + (this.game.system.random() < 0.5 ? -distance : distance);
+			this.speed = randomRange(this.game, Crow.SPEED_MIN, Crow.SPEED_MAX) * this.game.resolution;
 		} else if (this.actionState === CrowState.FLYING) {
 			const direction = Math.sign(this.moveEnd - this.moveStart);
 			this.location += direction * this.speed * this.game.system.clock.delta;
@@ -237,7 +237,7 @@ class Crow extends Target {
 				this.location = this.moveEnd;
 				this.actionState = CrowState.RESTING;
 				this.timestamp = this.game.time;
-				this.patience = randomRange(Crow.REST_MIN, Crow.REST_MAX);
+				this.patience = randomRange(this.game, Crow.REST_MIN, Crow.REST_MAX);
 			}
 		}
 
@@ -287,7 +287,7 @@ class Cat extends Target {
 		super(game, location, Cat.ORANGE, size);
 		this.actionState = CatState.RESTING;
 		this.timestamp = game.time;
-		this.patience = randomRange(Cat.REST_MIN, Cat.REST_MAX);
+		this.patience = randomRange(game, Cat.REST_MIN, Cat.REST_MAX);
 		this.moveStart = location;
 		this.moveEnd = location;
 		this.speed = 0.0;
@@ -300,9 +300,9 @@ class Cat extends Target {
 			this.actionState = CatState.MOVING;
 			this.timestamp = this.game.time;
 			this.moveStart = this.location;
-			const distance = randomRange(Cat.DISTANCE_MIN, Cat.DISTANCE_MAX) * this.game.resolution;
-			this.moveEnd = this.location + (Math.random() < 0.5 ? -distance : distance);
-			this.speed = randomRange(Cat.SPEED_MIN, Cat.SPEED_MAX) * this.game.resolution;
+			const distance = randomRange(this.game, Cat.DISTANCE_MIN, Cat.DISTANCE_MAX) * this.game.resolution;
+			this.moveEnd = this.location + (this.game.system.random() < 0.5 ? -distance : distance);
+			this.speed = randomRange(this.game, Cat.SPEED_MIN, Cat.SPEED_MAX) * this.game.resolution;
 		} else if (this.actionState === CatState.MOVING) {
 			const direction = Math.sign(this.moveEnd - this.moveStart);
 			this.location += direction * this.speed * this.game.system.clock.delta;
@@ -310,7 +310,7 @@ class Cat extends Target {
 				this.location = this.moveEnd;
 				this.actionState = CatState.RESTING;
 				this.timestamp = this.game.time;
-				this.patience = randomRange(Cat.REST_MIN, Cat.REST_MAX);
+				this.patience = randomRange(this.game, Cat.REST_MIN, Cat.REST_MAX);
 			}
 		}
 
@@ -342,7 +342,7 @@ class Rat extends Target {
 		super(game, location, Color.GRAY, size);
 		this.actionState = RatState.RESTING;
 		this.timestamp = game.time;
-		this.patience = randomRange(Rat.REST_MIN, Rat.REST_MAX);
+		this.patience = randomRange(game, Rat.REST_MIN, Rat.REST_MAX);
 		this.moveStart = location;
 		this.moveEnd = location;
 		this.speed = 0.0;
@@ -355,9 +355,9 @@ class Rat extends Target {
 			this.actionState = RatState.MOVING;
 			this.timestamp = this.game.time;
 			this.moveStart = this.location;
-			const distance = randomRange(Rat.DISTANCE_MIN, Rat.DISTANCE_MAX) * this.game.resolution;
-			this.moveEnd = this.location + (Math.random() < 0.5 ? -distance : distance);
-			this.speed = randomRange(Rat.SPEED_MIN, Rat.SPEED_MAX) * this.game.resolution;
+			const distance = randomRange(this.game, Rat.DISTANCE_MIN, Rat.DISTANCE_MAX) * this.game.resolution;
+			this.moveEnd = this.location + (this.game.system.random() < 0.5 ? -distance : distance);
+			this.speed = randomRange(this.game, Rat.SPEED_MIN, Rat.SPEED_MAX) * this.game.resolution;
 		} else if (this.actionState === RatState.MOVING) {
 			const direction = Math.sign(this.moveEnd - this.moveStart);
 			this.location += direction * this.speed * this.game.system.clock.delta;
@@ -365,7 +365,7 @@ class Rat extends Target {
 				this.location = this.moveEnd;
 				this.actionState = RatState.RESTING;
 				this.timestamp = this.game.time;
-				this.patience = randomRange(Rat.REST_MIN, Rat.REST_MAX);
+				this.patience = randomRange(this.game, Rat.REST_MIN, Rat.REST_MAX);
 			}
 		}
 
@@ -392,7 +392,7 @@ class Pot extends Target {
 	constructor(game, location, direction = 1) {
 		const size = game.resolution * 0.15;
 		super(game, location, Pot.COLOR, size);
-		this.speed = direction * randomRange(Pot.SPEED_MIN, Pot.SPEED_MAX) * game.resolution;
+		this.speed = direction * randomRange(game, Pot.SPEED_MIN, Pot.SPEED_MAX) * game.resolution;
 	}
 
 	update() {
@@ -424,7 +424,7 @@ class Fly extends Target {
 		const maxSpeed = Fly.MAX_SPEED * this.game.resolution;
 		const accel = Fly.ACCEL * this.game.resolution;
 
-		this.speed += randomRange(-accel, accel) * dt;
+		this.speed += randomRange(this.game, -accel, accel) * dt;
 		this.speed = Math.max(-maxSpeed, Math.min(maxSpeed, this.speed));
 		this.location += this.speed * dt;
 
@@ -459,7 +459,7 @@ class Monkey extends Target {
 		super(game, location, Monkey.BODY_COLOR, size);
 		this.actionState = MonkeyState.RESTING;
 		this.timestamp = game.time;
-		this.patience = randomRange(Monkey.REST_MIN, Monkey.REST_MAX);
+		this.patience = randomRange(game, Monkey.REST_MIN, Monkey.REST_MAX);
 		this.moveStart = location;
 		this.moveEnd = location;
 		this.speed = 0.0;
@@ -472,9 +472,9 @@ class Monkey extends Target {
 			this.actionState = MonkeyState.MOVING;
 			this.timestamp = this.game.time;
 			this.moveStart = this.location;
-			const distance = randomRange(Monkey.DISTANCE_MIN, Monkey.DISTANCE_MAX) * this.game.resolution;
-			this.moveEnd = this.location + (Math.random() < 0.5 ? -distance : distance);
-			this.speed = randomRange(Monkey.SPEED_MIN, Monkey.SPEED_MAX) * this.game.resolution;
+			const distance = randomRange(this.game, Monkey.DISTANCE_MIN, Monkey.DISTANCE_MAX) * this.game.resolution;
+			this.moveEnd = this.location + (this.game.system.random() < 0.5 ? -distance : distance);
+			this.speed = randomRange(this.game, Monkey.SPEED_MIN, Monkey.SPEED_MAX) * this.game.resolution;
 		} else if (this.actionState === MonkeyState.MOVING) {
 			const direction = Math.sign(this.moveEnd - this.moveStart);
 			this.location += direction * this.speed * this.game.system.clock.delta;
@@ -482,7 +482,7 @@ class Monkey extends Target {
 				this.location = this.moveEnd;
 				this.actionState = MonkeyState.RESTING;
 				this.timestamp = this.game.time;
-				this.patience = randomRange(Monkey.REST_MIN, Monkey.REST_MAX);
+				this.patience = randomRange(this.game, Monkey.REST_MIN, Monkey.REST_MAX);
 			}
 		}
 
@@ -524,7 +524,7 @@ class Frog extends Target {
 		super(game, location, Color.GREEN, size);
 		this.actionState = FrogState.RESTING;
 		this.timestamp = game.time;
-		this.patience = randomRange(Frog.REST_MIN, Frog.REST_MAX);
+		this.patience = randomRange(game, Frog.REST_MIN, Frog.REST_MAX);
 		this.jumpStart = location;
 		this.jumpEnd = location;
 	}
@@ -536,16 +536,16 @@ class Frog extends Target {
 			this.actionState = FrogState.JUMPING;
 			this.timestamp = this.game.time;
 			this.jumpStart = this.location;
-			this.jumpEnd = this.location + randomRange(Frog.JUMP_DISTANCE_MIN, Frog.JUMP_DISTANCE_MAX) * this.game.resolution;
+			this.jumpEnd = this.location + randomRange(this.game, Frog.JUMP_DISTANCE_MIN, Frog.JUMP_DISTANCE_MAX) * this.game.resolution;
 		} else if (this.actionState === FrogState.JUMPING) {
 			const t = Math.min(1, elapsed / Frog.JUMP_DURATION);
 			this.location = this.jumpStart + (this.jumpEnd - this.jumpStart) * easeOut(t);
 			if (t >= 1) {
 				this.actionState = FrogState.RESTING;
 				this.timestamp = this.game.time;
-				this.patience = randomRange(Frog.REST_MIN, Frog.REST_MAX);
+				this.patience = randomRange(this.game, Frog.REST_MIN, Frog.REST_MAX);
 				const croaks = [Shooters.sounds.CROAK, Shooters.sounds.CROAK2, Shooters.sounds.CROAK3];
-				this.game.audio.play(croaks[Math.floor(Math.random() * croaks.length)]);
+				this.game.audio.play(croaks[Math.floor(this.game.system.random() * croaks.length)]);
 			}
 		}
 
@@ -579,7 +579,7 @@ class Balloon extends Target {
 		const maxSpeed = Balloon.MAX_SPEED * this.game.resolution;
 		const accel = Balloon.ACCEL * this.game.resolution;
 
-		this.velocity += randomRange(-accel, accel) * dt;
+		this.velocity += randomRange(this.game, -accel, accel) * dt;
 		this.velocity = Math.max(-maxSpeed, Math.min(maxSpeed, this.velocity));
 		this.location += this.velocity * dt;
 

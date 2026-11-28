@@ -349,12 +349,12 @@ export class Golf extends Game {
 
 			const placed = [];
 			for (let j = 0; j < count; j++) {
-				const ObstacleType = types[Math.floor(Math.random() * types.length)];
+				const ObstacleType = types[Math.floor(this.system.random() * types.length)];
 				const sizeScale = 0.6 + t * 0.8;
-				const size = this.resolution * Golf.BASE_OBSTACLE_SIZE_FRACTION * sizeScale * (0.7 + Math.random() * 0.6);
+				const size = this.resolution * Golf.BASE_OBSTACLE_SIZE_FRACTION * sizeScale * (0.7 + this.system.random() * 0.6);
 
 				for (let attempt = 0; attempt < 20; attempt++) {
-					const location = from + Math.random() * Math.max(0, to - from - size);
+					const location = from + this.system.random() * Math.max(0, to - from - size);
 					if (fits(ObstacleType, location, location + size, placed)) {
 						placed.push(new ObstacleType(this, location, size));
 						break;

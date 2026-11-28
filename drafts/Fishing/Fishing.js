@@ -33,12 +33,12 @@ export class Fishing extends Game {
 
 	_cast() {
 		this.stage = FishingStage.WAITING;
-		this.waitTimer = Fishing.MIN_WAIT + Math.random() * (Fishing.MAX_WAIT - Fishing.MIN_WAIT);
+		this.waitTimer = Fishing.MIN_WAIT + this.system.random() * (Fishing.MAX_WAIT - Fishing.MIN_WAIT);
 	}
 
 	_pickFish() {
 		const totalWeight = FISH_TIERS.reduce((sum, t) => sum + t.weight, 0);
-		let r = Math.random() * totalWeight;
+		let r = this.system.random() * totalWeight;
 		for (const tier of FISH_TIERS) {
 			if (r < tier.weight) {
 				return tier;

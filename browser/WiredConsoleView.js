@@ -1,5 +1,6 @@
 import { WiredConsole } from '../core/WiredConsole.js';
 import { Button } from '../core/Button.js';
+import { Audio } from './Audio.js';
 import { StripView } from './StripView.js';
 import { StripView3D } from './StripView3D.js';
 import { WiredPadView } from './WiredPadView.js';
@@ -15,6 +16,7 @@ class WiredConsoleView {
 		this.console = new WiredConsole(resolution);
 		this.console.system.load = (path) => fetch(path).then((response) => response.arrayBuffer());
 		this.console.system.clock.now = () => performance.now() / 1000;
+		this.console.system.audio = new Audio(this.console.system);
 
 		const padColumns = document.querySelectorAll('.padColumn');
 		this.padViews = [

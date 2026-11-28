@@ -55,7 +55,7 @@ export class TowerDefense extends Game {
 		const health = TowerDefense.BASE_ENEMY_HEALTH + Math.floor(minutes * TowerDefense.HEALTH_PER_MINUTE);
 		this.enemies.push({
 			z: TowerDefense.SPAWN_Z * this.resolution,
-			speed: speed * (0.9 + Math.random() * 0.2),
+			speed: speed * (0.9 + this.system.random() * 0.2),
 			health,
 			maxHealth: health,
 		});

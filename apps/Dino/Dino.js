@@ -102,9 +102,9 @@ export class Dino extends Game {
 
 			this.gap -= 1;
 			if (this.gap <= 0) {
-				const h = Dino.MIN_HEIGHT + Math.random() * (Dino.MAX_HEIGHT - Dino.MIN_HEIGHT);
+				const h = Dino.MIN_HEIGHT + this.system.random() * (Dino.MAX_HEIGHT - Dino.MIN_HEIGHT);
 				this.obstacles.push(new Obstacle(h));
-				this.gap = Dino.MIN_GAP + Math.floor(Math.random() * (Dino.MAX_GAP - Dino.MIN_GAP + 1));
+				this.gap = Dino.MIN_GAP + Math.floor(this.system.random() * (Dino.MAX_GAP - Dino.MIN_GAP + 1));
 			} else {
 				this.obstacles.push(null);
 			}

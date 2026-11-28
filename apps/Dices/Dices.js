@@ -133,10 +133,10 @@ export class Dices extends Game {
 
 	handleInput(padId, event) {
 		if (this.stage === Stage.IDLE && Command.isGameCommand(event.command)) {
-			this.speed1 = Dices.MIN_SPEED + Math.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
-			this.speed2 = Dices.MIN_SPEED + Math.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
-			this.remaining1 = Dices.MIN_DURATION + Math.random() * (Dices.MAX_DURATION - Dices.MIN_DURATION);
-			this.remaining2 = Dices.MIN_DURATION + Math.random() * (Dices.MAX_DURATION - Dices.MIN_DURATION);
+			this.speed1 = Dices.MIN_SPEED + this.system.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
+			this.speed2 = Dices.MIN_SPEED + this.system.random() * (Dices.MAX_SPEED - Dices.MIN_SPEED);
+			this.remaining1 = Dices.MIN_DURATION + this.system.random() * (Dices.MAX_DURATION - Dices.MIN_DURATION);
+			this.remaining2 = Dices.MIN_DURATION + this.system.random() * (Dices.MAX_DURATION - Dices.MIN_DURATION);
 			this.stage = Stage.ROLLING;
 		}
 	}

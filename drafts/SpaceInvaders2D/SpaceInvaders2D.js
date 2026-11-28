@@ -48,7 +48,7 @@ export class SpaceInvaders2D extends Game {
 			this.enemies.push({
 				baseX: -spread + i * spacing,
 				alive: true,
-				fireCooldown: SpaceInvaders2D.ENEMY_FIRE_MIN + Math.random() * (SpaceInvaders2D.ENEMY_FIRE_MAX - SpaceInvaders2D.ENEMY_FIRE_MIN),
+				fireCooldown: SpaceInvaders2D.ENEMY_FIRE_MIN + this.system.random() * (SpaceInvaders2D.ENEMY_FIRE_MAX - SpaceInvaders2D.ENEMY_FIRE_MIN),
 			});
 		}
 
@@ -138,7 +138,7 @@ export class SpaceInvaders2D extends Game {
 			enemy.fireCooldown -= dt;
 			if (enemy.fireCooldown <= 0.0) {
 				this.enemyBullets.push({ x: enemy.baseX + this.formationOffsetX, z: this.formationZ });
-				enemy.fireCooldown = SpaceInvaders2D.ENEMY_FIRE_MIN + Math.random() * (SpaceInvaders2D.ENEMY_FIRE_MAX - SpaceInvaders2D.ENEMY_FIRE_MIN);
+				enemy.fireCooldown = SpaceInvaders2D.ENEMY_FIRE_MIN + this.system.random() * (SpaceInvaders2D.ENEMY_FIRE_MAX - SpaceInvaders2D.ENEMY_FIRE_MIN);
 			}
 		}
 

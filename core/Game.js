@@ -1,4 +1,4 @@
-import { Audio } from '../browser/audio.js';
+import { Audio } from './audio/Audio.js';
 
 export const GameId = Object.freeze({
 	WHITE_LIGHT: 1,

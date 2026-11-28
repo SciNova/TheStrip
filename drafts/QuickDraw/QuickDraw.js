@@ -21,8 +21,8 @@ export class QuickDraw extends Game {
 	}
 
 	_startRound() {
-		this.waitTime = QuickDraw.MIN_WAIT + Math.random() * (QuickDraw.MAX_WAIT - QuickDraw.MIN_WAIT);
-		this.cpuReaction = QuickDraw.CPU_REACTION_MIN + Math.random() * (QuickDraw.CPU_REACTION_MAX - QuickDraw.CPU_REACTION_MIN);
+		this.waitTime = QuickDraw.MIN_WAIT + this.system.random() * (QuickDraw.MAX_WAIT - QuickDraw.MIN_WAIT);
+		this.cpuReaction = QuickDraw.CPU_REACTION_MIN + this.system.random() * (QuickDraw.CPU_REACTION_MAX - QuickDraw.CPU_REACTION_MIN);
 		this.stage = 'WAITING';
 	}
 

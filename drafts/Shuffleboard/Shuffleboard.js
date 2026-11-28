@@ -88,8 +88,8 @@ export class Shuffleboard extends Game {
 	}
 
 	_cpuThrow() {
-		const target = 0.65 + Math.random() * 0.3;
-		const speed = Math.sqrt(2 * Shuffleboard.FRICTION * target) * this.resolution * (0.9 + Math.random() * 0.2);
+		const target = 0.65 + this.system.random() * 0.3;
+		const speed = Math.sqrt(2 * Shuffleboard.FRICTION * target) * this.resolution * (0.9 + this.system.random() * 0.2);
 		this._launchPuck('cpu', speed);
 		this.throwsTakenCpu += 1;
 		this.audio.playSynth(SystemSound.SHOOT);

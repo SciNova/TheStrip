@@ -48,9 +48,9 @@ export class FlappyBird extends Game {
 		}
 	}
 
-	static _terrainUpdate(terrain, dt, resolution) {
+	static _terrainUpdate(system, terrain, dt, resolution) {
 		const maxChange = terrain.speed * resolution * dt;
-		const step = (Math.random() * 2.0 - 1.0) * maxChange;
+		const step = (system.random() * 2.0 - 1.0) * maxChange;
 		terrain.height += step;
 
 		const minH = terrain.baseHeight - terrain.fluctuation * resolution;
@@ -86,8 +86,8 @@ export class FlappyBird extends Game {
 		this.topTerrain.baseHeight = this.resolution - (gapCenter + gapSize / 2.0);
 		this.bottomTerrain.baseHeight = gapCenter - gapSize / 2.0;
 
-		FlappyBird._terrainUpdate(this.topTerrain, dt, this.resolution);
-		FlappyBird._terrainUpdate(this.bottomTerrain, dt, this.resolution);
+		FlappyBird._terrainUpdate(this.system, this.topTerrain, dt, this.resolution);
+		FlappyBird._terrainUpdate(this.system, this.bottomTerrain, dt, this.resolution);
 		FlappyBird._birdUpdate(this.bird, dt, this.resolution - 1.0);
 
 		for (let i = 0; i < this.resolution; i++) {

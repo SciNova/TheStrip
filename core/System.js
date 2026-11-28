@@ -1,4 +1,3 @@
-import { Audio } from '../browser/audio.js';
 import { Command } from './Command.js';
 import { Clock } from './Clock.js';
 import { Strip } from './Strip.js';
@@ -14,20 +13,29 @@ export const SystemState = Object.freeze({
 });
 
 export class System {
-	constructor(resolution = 120) {
+	constructor(resolution = 120, seed = null) {
+		this.seed = seed;
 		this.clock = new Clock();
-		this.audio = new Audio(this);
+		this.audio = null;
 		this.strip = new Strip(resolution);
 		this.game = null;
 		this.GAMES = null;
-		this.sounds = new Array(Audio.CHANNELS).fill(null);
-		this.trackers = [];
-		this.freeChannels = Audio.CHANNELS;
 		this.menu = new Menu(this);
 		this.uptime = 0.0;
 		this.state = SystemState.OFF;
 		this.logLines = [];
 		this.load = null;
+	}
+
+	random() {
+		if (this.seed === null) {
+			return Math.random();
+		}
+		this.seed |= 0;
+		this.seed = (this.seed + 0x6D2B79F5) | 0;
+		let t = Math.imul(this.seed ^ (this.seed >>> 15), 1 | this.seed);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 	}
 
 	log(text) {
@@ -42,12 +50,10 @@ export class System {
 		this.game = new GameClass(this);
 		this.game.playLevel();
 		this.state = SystemState.GAME;
-		this.audio.postMessage({ action: 'loadGame', id: gameId });
 	}
 
 	unload() {
 		this.game = null;
-		this.audio.postMessage({ action: 'loadGame', id: null });
 	}
 
 	loop() {
@@ -56,7 +62,6 @@ export class System {
 			return;
 		}
 		this.uptime += this.clock.delta;
-		this.audio.loop();
 		if (this.state === SystemState.GAME) {
 			if (this.game && this.game.state === GameState.PLAY) {
 				this.game.loop();
@@ -76,10 +81,8 @@ export class System {
 		switch (event.command) {
 			case Command.POWER_SHORT_PRESS:
 				if (this.state === SystemState.OFF) {
-					this.audio.on();
 					this.state = this.game === null ? SystemState.MENU : SystemState.GAME;
 				} else if (this.state === SystemState.MENU || this.state === SystemState.GAME) {
-					this.audio.off();
 					this.state = SystemState.OFF;
 				}
 				break;
@@ -88,7 +91,6 @@ export class System {
 				if (padId === 0 && (this.state === SystemState.MENU || this.state === SystemState.GAME)) {
 					this.unload();
 					this.uptime = 0.0;
-					this.audio.off();
 					this.state = SystemState.OFF;
 				}
 				break;

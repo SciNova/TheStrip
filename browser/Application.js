@@ -1,6 +1,7 @@
 import { WiredConsoleView } from './WiredConsoleView.js';
 import { SystemState } from '../core/System.js';
 import { GameId } from '../core/Game.js';
+import { Sample } from '../core/audio/Sample.js';
 
 // Every game, already linked in - same as every game header being
 // #include-d into the MCU sketch. Nothing is ever loaded at runtime;
@@ -163,6 +164,44 @@ export class Application {
 		});
 	}
 
+	startLoop() {
+		const frame = () => {
+			this.loop();
+			this.animationFrame = requestAnimationFrame(frame);
+		};
+		this.animationFrame = requestAnimationFrame(frame);
+	}
+
+	stopLoop() {
+		cancelAnimationFrame(this.animationFrame);
+	}
+
+	async startAudioLoop() {
+		const audio = this.consoleView.console.system.audio;
+		if (!audio.context) {
+			audio.context = new AudioContext();
+			Sample.system = this.consoleView.console.system;
+			await audio.context.audioWorklet.addModule('/browser/AudioWorklet.js?v=' + Date.now());
+			audio.node = new AudioWorkletNode(audio.context, 'audio-processor', {
+				numberOfInputs: 0,
+				numberOfOutputs: 1,
+				outputChannelCount: [2],
+			});
+			audio.node.port.onmessage = audio.handleMessage.bind(audio);
+			audio.node.connect(audio.context.destination);
+			audio.postMessage({ action: 'start' });
+			audio.loadSamples();
+		}
+		await audio.context.resume();
+	}
+
+	async stopAudioLoop() {
+		const audio = this.consoleView.console.system.audio;
+		if (audio.context) {
+			await audio.context.suspend();
+		}
+	}
+
 	async loadGame(gameId) {
 		if (!this.consoleView) {
 			await this.setup(120);
@@ -205,5 +244,13 @@ export class Application {
 		this.consoleView.console.loop();
 		this.consoleView.updateView();
 		this.updateDebug();
+
+		const audio = this.consoleView.console.system.audio;
+		const isRunning = audio.context && audio.context.state === 'running';
+		if (this.consoleView.console.system.state === SystemState.OFF) {
+			if (isRunning) this.stopAudioLoop();
+		} else if (!isRunning) {
+			this.startAudioLoop();
+		}
 	}
 }

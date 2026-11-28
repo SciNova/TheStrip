@@ -37,7 +37,7 @@ export class WhackAMole extends Game {
 
 	_spawnMole() {
 		const margin = WhackAMole.MOLE_MARGIN;
-		const pos = margin + Math.random() * (this.resolution - 1 - 2 * margin);
+		const pos = margin + this.system.random() * (this.resolution - 1 - 2 * margin);
 		this.moles.push({ pos, timer: this.litDuration, fuse: this.litDuration });
 	}
 

@@ -2,7 +2,7 @@ import { Game } from '../../core/Game.js';
 import { Color } from '../../core/Color.js';
 import { System } from '../../core/System.js';
 import { Command } from '../../core/Command.js';
-import { Audio, Tracker } from '../../browser/audio.js';
+import { Audio, Tracker } from '../../browser/Audio.js';
 import { MODFormat } from '../../core/audio/ModFormat.js';
 
 const Stage = Object.freeze({
@@ -93,18 +93,19 @@ const STAR_Z_FAR = 60.0;
 const STAR_BASE_SPEED = 12.0;
 
 class Star {
-	constructor() {
+	constructor(game) {
+		this.game = game;
 		this.respawn(true);
 	}
 
 	respawn(spread = false) {
 		this.z = spread
-			? STAR_Z_NEAR + Math.random() * (STAR_Z_FAR - STAR_Z_NEAR)
-			: STAR_Z_FAR * (0.85 + Math.random() * 0.15);
-		this.x = Math.random() * 2 - 1;
-		this.speedVar = 0.7 + Math.random() * 0.8;
-		const warm = Math.random() < 0.15;
-		this.hue = warm ? 0.09 + Math.random() * 0.05 : 0.55 + Math.random() * 0.1;
+			? STAR_Z_NEAR + this.game.system.random() * (STAR_Z_FAR - STAR_Z_NEAR)
+			: STAR_Z_FAR * (0.85 + this.game.system.random() * 0.15);
+		this.x = this.game.system.random() * 2 - 1;
+		this.speedVar = 0.7 + this.game.system.random() * 0.8;
+		const warm = this.game.system.random() < 0.15;
+		this.hue = warm ? 0.09 + this.game.system.random() * 0.05 : 0.55 + this.game.system.random() * 0.1;
 	}
 }
 
@@ -138,13 +139,14 @@ class Particle {
 }
 
 class Firework {
-	constructor(resolution) {
-		this.peakPosition = 8 + Math.floor(Math.random() * (resolution - 16));
-		this.riseTime = 0.4 + Math.random() * 0.7;
-		this.burstRadius = resolution * (0.1 + Math.random() * 0.333);
-		this.burstLife = 0.8 + Math.random() * 1.0;
-		this.gravity = 16 + Math.random() * 10;
-		this.hue = Math.random();
+	constructor(game, resolution) {
+		this.game = game;
+		this.peakPosition = 8 + Math.floor(this.game.system.random() * (resolution - 16));
+		this.riseTime = 0.4 + this.game.system.random() * 0.7;
+		this.burstRadius = resolution * (0.1 + this.game.system.random() * 0.333);
+		this.burstLife = 0.8 + this.game.system.random() * 1.0;
+		this.gravity = 16 + this.game.system.random() * 10;
+		this.hue = this.game.system.random();
 		this.riseElapsed = 0.0;
 		this.burstElapsed = 0.0;
 		this.bursted = false;
@@ -170,12 +172,12 @@ class Firework {
 	}
 
 	_explode() {
-		const numParticles = 22 + Math.floor(Math.random() * 14);
+		const numParticles = 22 + Math.floor(this.game.system.random() * 14);
 		for (let i = 0; i < numParticles; i++) {
-			const angle = Math.random() * 2 * Math.PI;
+			const angle = this.game.system.random() * 2 * Math.PI;
 			const velocity = Math.cos(angle) * this.burstRadius * 1.2;
-			const color = System.hsvToRgb(this.hue, Math.random() * 0.3 + 0.7, 1);
-			const life = this.burstLife * (0.5 + Math.random() * 0.5);
+			const color = System.hsvToRgb(this.hue, this.game.system.random() * 0.3 + 0.7, 1);
+			const life = this.burstLife * (0.5 + this.game.system.random() * 0.5);
 			this.particles.push(new Particle(this.peakPosition, velocity, color, life, this.gravity));
 		}
 	}
@@ -191,16 +193,17 @@ const AURORA_BANDS = [
 
 
 class RainDrop {
-	constructor(resolution) {
+	constructor(game, resolution) {
+		this.game = game;
 		this.respawn(resolution, true);
 	}
 
 	respawn(resolution, initial = false) {
-		this.headPos = initial ? Math.random() * resolution : resolution + Math.random() * resolution * 0.4 + 2;
-		this.speed = resolution * (0.35 + Math.random() * 0.85);
-		this.length = 3 + Math.floor(Math.random() * (resolution * 0.14 + 5));
-		const cyan = Math.random() < 0.12;
-		this.hue = cyan ? 0.5 : 0.33 + (Math.random() * 0.06 - 0.03);
+		this.headPos = initial ? this.game.system.random() * resolution : resolution + this.game.system.random() * resolution * 0.4 + 2;
+		this.speed = resolution * (0.35 + this.game.system.random() * 0.85);
+		this.length = 3 + Math.floor(this.game.system.random() * (resolution * 0.14 + 5));
+		const cyan = this.game.system.random() < 0.12;
+		this.hue = cyan ? 0.5 : 0.33 + (this.game.system.random() * 0.06 - 0.03);
 	}
 
 	update(dt, resolution) {
@@ -213,18 +216,19 @@ class RainDrop {
 
 
 class ReactionDot {
-	constructor(position, velocity, hue, life, drag, canSpawnChild) {
+	constructor(game, position, velocity, hue, life, drag, canSpawnChild) {
+		this.game = game;
 		this.position = position;
 		this.velocity = velocity;
 		this.hue = hue;
-		this.sat = 0.65 + Math.random() * 0.35;
+		this.sat = 0.65 + this.game.system.random() * 0.35;
 		this.life = life;
 		this.age = 0.0;
 		this.drag = drag;
-		this.fadeExp = 1.1 + Math.random() * 2.2;
+		this.fadeExp = 1.1 + this.game.system.random() * 2.2;
 		this.childSpawned = false;
-		this.childTriggerAge = (canSpawnChild && Math.random() < 0.16)
-			? life * (0.3 + Math.random() * 0.4)
+		this.childTriggerAge = (canSpawnChild && this.game.system.random() < 0.16)
+			? life * (0.3 + this.game.system.random() * 0.4)
 			: null;
 	}
 
@@ -253,28 +257,29 @@ const BOUNCE_MIN_RADIUS_RATIO = 1.4 / 120;
 const BOUNCE_SETTLE_SPEED = 3.5;
 
 class BouncingBall {
-	constructor(resolution) {
+	constructor(game, resolution) {
+		this.game = game;
 		this.respawn(resolution, true);
 	}
 
 	respawn(resolution, initial) {
 		const maxRadius = BOUNCE_MAX_RADIUS_RATIO * resolution;
 		const minRadius = BOUNCE_MIN_RADIUS_RATIO * resolution;
-		this.radius = minRadius + Math.random() * (maxRadius - minRadius);
-		this.hue = Math.random();
+		this.radius = minRadius + this.game.system.random() * (maxRadius - minRadius);
+		this.hue = this.game.system.random();
 		const sizeT = this.radius / maxRadius;
 		this.gravity = BOUNCE_GRAVITY * (0.55 + sizeT * 0.9);
 		this.restitution = 0.88 - sizeT * 0.34;
 		this.omega = Math.max(4.0, 16.0 - this.radius * 2.0);
-		this.zeta = 0.18 + Math.random() * 0.18;
+		this.zeta = 0.18 + this.game.system.random() * 0.18;
 		this.squashDisp = 0.0;
 		this.squashVel = 0.0;
 		this.velocity = 0.0;
 		this.resting = false;
 		this.restTimer = 0.0;
 		this.position = initial
-			? this.radius + Math.random() * Math.max(1, resolution - this.radius * 2)
-			: resolution + this.radius + Math.random() * resolution * 0.6;
+			? this.radius + this.game.system.random() * Math.max(1, resolution - this.radius * 2)
+			: resolution + this.radius + this.game.system.random() * resolution * 0.6;
 	}
 
 	_updateSquash(dt) {
@@ -307,7 +312,7 @@ class BouncingBall {
 			if (impactSpeed < BOUNCE_SETTLE_SPEED && Math.abs(this.velocity) < BOUNCE_SETTLE_SPEED) {
 				this.velocity = 0.0;
 				this.resting = true;
-				this.restTimer = 0.5 + Math.random() * 1.2;
+				this.restTimer = 0.5 + this.game.system.random() * 1.2;
 			}
 		}
 
@@ -365,13 +370,13 @@ export class DemoScene extends Game {
 	_enterStage(stage) {
 		switch (stage) {
 			case Stage.FRACTAL_MOUNTAIN:
-				this.fractalSeed = Math.random() * 1000.0;
+				this.fractalSeed = this.system.random() * 1000.0;
 				break;
 			case Stage.STARFIELD_WARP: {
 				this.stars = [];
 				const count = Math.max(20, Math.floor(this.resolution * 0.6));
 				for (let i = 0; i < count; i++) {
-					this.stars.push(new Star());
+					this.stars.push(new Star(this));
 				}
 				break;
 			}
@@ -380,32 +385,32 @@ export class DemoScene extends Game {
 				this.nextFirework = this.time + 0.3;
 				break;
 			case Stage.INTERFERENCE:
-				this.waveSeed = Math.random() * 100.0;
+				this.waveSeed = this.system.random() * 100.0;
 				break;
 			case Stage.AURORA_BOREALIS:
-				this.auroraSeed = Math.random() * 100.0;
+				this.auroraSeed = this.system.random() * 100.0;
 				break;
 			case Stage.DIGITAL_RAIN: {
 				this.raindrops = [];
 				const count = Math.max(6, Math.floor(this.resolution * 0.3));
 				for (let i = 0; i < count; i++) {
-					this.raindrops.push(new RainDrop(this.resolution));
+					this.raindrops.push(new RainDrop(this, this.resolution));
 				}
 				break;
 			}
 			case Stage.COPPER_BARS:
-				this.copperSeed = Math.random() * 100.0;
-				this.copperHueOffset = Math.random();
+				this.copperSeed = this.system.random() * 100.0;
+				this.copperHueOffset = this.system.random();
 				break;
 			case Stage.SCANNER: {
 				this.scannerBars = [];
-				const barCount = 3 + Math.floor(Math.random() * 3);
+				const barCount = 3 + Math.floor(this.system.random() * 3);
 				for (let i = 0; i < barCount; i++) {
 					this.scannerBars.push({
-						period: 0.5 + Math.random() * 3.5,
-						phase: Math.random() * 20.0,
-						hue: Math.random(),
-						widthMul: 0.25 + Math.random() * 0.55,
+						period: 0.5 + this.system.random() * 3.5,
+						phase: this.system.random() * 20.0,
+						hue: this.system.random(),
+						widthMul: 0.25 + this.system.random() * 0.55,
 					});
 				}
 				break;
@@ -413,12 +418,12 @@ export class DemoScene extends Game {
 			case Stage.REACTIVE_BURST:
 				this.reactionParticles = [];
 				this.reactionAccum = 0.0;
-				this.reactionPhase = Math.random() * 100.0;
+				this.reactionPhase = this.system.random() * 100.0;
 				break;
 			default: {
 				this.balls = [];
 				for (let i = 0; i < BOUNCE_BALL_COUNT; i++) {
-					this.balls.push(new BouncingBall(this.resolution));
+					this.balls.push(new BouncingBall(this, this.resolution));
 				}
 			}
 		}
@@ -457,7 +462,7 @@ export class DemoScene extends Game {
 
 		const maxStars = Math.min(90, Math.floor(this.resolution * 0.6 + warp * this.resolution * 0.9));
 		while (this.stars.length < maxStars) {
-			this.stars.push(new Star());
+			this.stars.push(new Star(this));
 		}
 
 		for (const star of this.stars) {
@@ -499,11 +504,11 @@ export class DemoScene extends Game {
 
 		const remaining = duration - st;
 		if (t >= this.nextFirework && this.fireworks.length < 8) {
-			const count = Math.random() < 0.3 ? 2 : 1;
+			const count = this.system.random() < 0.3 ? 2 : 1;
 			for (let k = 0; k < count && this.fireworks.length < 8; k++) {
-				this.fireworks.push(new Firework(this.resolution));
+				this.fireworks.push(new Firework(this, this.resolution));
 			}
-			const interval = remaining < 3.0 ? (0.15 + Math.random() * 0.35) : (0.45 + Math.random() * 1.5);
+			const interval = remaining < 3.0 ? (0.15 + this.system.random() * 0.35) : (0.45 + this.system.random() * 1.5);
 			this.nextFirework = t + interval;
 		}
 
@@ -660,14 +665,14 @@ export class DemoScene extends Game {
 
 	_spawnReaction(originPos, count, baseHue, canSpawnChild) {
 		for (let i = 0; i < count; i++) {
-			const dir = Math.random() < 0.5 ? -1 : 1;
-			const speed = dir * this.resolution * (0.06 + Math.random() * 0.28);
+			const dir = this.system.random() < 0.5 ? -1 : 1;
+			const speed = dir * this.resolution * (0.06 + this.system.random() * 0.28);
 			const hue = baseHue === null
-				? Math.random()
-				: (baseHue + (Math.random() * 0.12 - 0.06) + 1) % 1;
-			const life = 0.45 + Math.random() * 1.0;
-			const drag = 3 + Math.random() * 9;
-			this.reactionParticles.push(new ReactionDot(originPos, speed, hue, life, drag, canSpawnChild));
+				? this.system.random()
+				: (baseHue + (this.system.random() * 0.12 - 0.06) + 1) % 1;
+			const life = 0.45 + this.system.random() * 1.0;
+			const drag = 3 + this.system.random() * 9;
+			this.reactionParticles.push(new ReactionDot(this, originPos, speed, hue, life, drag, canSpawnChild));
 		}
 	}
 
@@ -682,7 +687,7 @@ export class DemoScene extends Game {
 		this.reactionAccum += dt;
 		while (this.reactionAccum >= spawnInterval) {
 			this.reactionAccum -= spawnInterval;
-			const count = 1 + Math.round(Math.random() * 2 * intensity);
+			const count = 1 + Math.round(this.system.random() * 2 * intensity);
 			this._spawnReaction(center, count, null, true);
 		}
 
@@ -691,7 +696,7 @@ export class DemoScene extends Game {
 			const dead = dot.update(dt);
 			if (!dead && dot.childTriggerAge !== null && !dot.childSpawned && dot.age >= dot.childTriggerAge) {
 				dot.childSpawned = true;
-				this._spawnReaction(dot.position, 3 + Math.floor(Math.random() * 5), dot.hue, false);
+				this._spawnReaction(dot.position, 3 + Math.floor(this.system.random() * 5), dot.hue, false);
 			}
 			if (!dead) {
 				alive.push(dot);

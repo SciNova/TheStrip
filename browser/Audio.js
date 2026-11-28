@@ -1,3 +1,4 @@
+import { Audio as CoreAudio } from '../core/audio/Audio.js';
 import { LFODestination } from '../core/audio/LFODestination.js';
 import { Sample } from '../core/audio/Sample.js';
 
@@ -150,13 +151,11 @@ export class Tracker {
 	}
 }
 
-export class Audio {
-	static CHANNELS = 10;
-
+export class Audio extends CoreAudio {
 	constructor(system) {
+		super(system);
 		this.context = null;
 		this.node = null;
-		this.system = system;
 		this.samples = [];
 		this._nextCustomId = SYSTEM_SAMPLE_FILES.length;
 	}
@@ -206,39 +205,6 @@ export class Audio {
 			action: 'playSample', id, note, rate, loop, duration, volume,
 			lfoWaveform, lfoFrequency, lfoDestination, lfoAmount, lfoSync, cutoff, resonance, offset,
 		});
-	}
-
-	loop() {
-		const trackers = this.system.game ? this.system.game.trackers : this.system.trackers;
-		for (const tracker of trackers) {
-			if (tracker.playing) {
-				tracker.render();
-			}
-		}
-	}
-
-	async on() {
-		if (!this.context) {
-			this.context = new AudioContext();
-			Sample.system = this.system;
-			await this.context.audioWorklet.addModule('/browser/audio-processor.js?v=' + Date.now());
-			this.node = new AudioWorkletNode(this.context, 'audio-processor', {
-				numberOfInputs: 0,
-				numberOfOutputs: 1,
-				outputChannelCount: [2],
-			});
-			this.node.port.onmessage = this.handleMessage.bind(this);
-			this.node.connect(this.context.destination);
-			this.postMessage({ action: 'start' });
-			this.loadSamples();
-		}
-		await this.context.resume();
-	}
-
-	async off() {
-		if (this.context) {
-			await this.context.suspend();
-		}
 	}
 
 	handleMessage(event) {

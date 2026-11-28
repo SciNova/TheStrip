@@ -48,7 +48,7 @@ export class Breakout extends Game {
 	_respawnBall() {
 		this.ball = {
 			x: this.paddleCenter,
-			vx: (Math.random() < 0.5 ? -1 : 1) * Breakout.BALL_BASE_VX * this.resolution,
+			vx: (this.system.random() < 0.5 ? -1 : 1) * Breakout.BALL_BASE_VX * this.resolution,
 			z: 0.0,
 			direction: 1,
 		};
@@ -120,7 +120,7 @@ export class Breakout extends Game {
 			} else {
 				this.audio.playSynth(SystemSound.TICK);
 			}
-			ball.vx += (Math.random() * 2 - 1) * Breakout.BALL_PERTURB * this.resolution;
+			ball.vx += (this.system.random() * 2 - 1) * Breakout.BALL_PERTURB * this.resolution;
 
 			if (this.bricks.every((b) => !b.alive)) {
 				this.stage = BreakoutStage.LEVEL_COMPLETE;

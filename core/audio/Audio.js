@@ -1,5 +1,6 @@
 import { LFO } from './LFO.js';
 import { Sound } from './Sound.js';
+import { LFODestination } from './LFODestination.js';
 
 export class Audio {
 	static CHANNELS = 10;
@@ -11,6 +12,9 @@ export class Audio {
 		this.channels = new Float32Array(Audio.CHANNELS);
 		this.data = [];
 		this.lfo = new LFO(this);
+		this.system.sounds = new Array(Audio.CHANNELS).fill(null);
+		this.system.trackers = [];
+		this.system.freeChannels = Audio.CHANNELS;
 	}
 
 	playSynth(patch, frequency = null) {
@@ -45,6 +49,34 @@ export class Audio {
 			}
 		}
 		return index;
+	}
+
+	playSample(id, note = null, rate = null, loop = false, duration = null, volume = 1.0,
+		lfoWaveform = null, lfoFrequency = null, lfoDestination = LFODestination.NONE, lfoAmount = 1.0, lfoSync = false,
+		cutoff = null, resonance = null, offset = null) {
+		const sound = new Sound(this);
+		sound.playSample(id, note, rate, loop, duration, volume, lfoWaveform, lfoFrequency, lfoDestination, lfoAmount, lfoSync, cutoff, resonance, offset);
+		(this.system.game ?? this.system).sounds[this.freeChannel()] = sound;
+	}
+
+	render() {
+		const sounds = (this.system.game ?? this.system).sounds;
+		for (let i = 0; i < sounds.length; i++) {
+			this.channels[i] = sounds[i] ? sounds[i].render() : 0.0;
+		}
+		for (const tracker of (this.system.game ?? this.system).trackers) {
+			if (tracker.playing) {
+				tracker.render();
+			}
+		}
+
+		let sum = 0.0;
+		for (const value of this.channels) {
+			sum += value;
+		}
+
+		this.timestamp += 1 / this.sampleRate;
+		return sum;
 	}
 
 	noteOff() {

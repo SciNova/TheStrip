@@ -55,11 +55,11 @@ export class MissileCommand extends Game {
 		if (aliveCities.length === 0) {
 			return;
 		}
-		const target = aliveCities[Math.floor(Math.random() * aliveCities.length)];
+		const target = aliveCities[Math.floor(this.system.random() * aliveCities.length)];
 		this.missiles.push({
 			x: target.x,
 			z: MissileCommand.SPAWN_Z * this.resolution,
-			speed: this.missileSpeed * (0.9 + Math.random() * 0.3),
+			speed: this.missileSpeed * (0.9 + this.system.random() * 0.3),
 		});
 	}
 

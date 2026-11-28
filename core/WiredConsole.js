@@ -1,4 +1,5 @@
 import { System } from './System.js';
+import { Audio } from './audio/Audio.js';
 import { WiredPad } from './WiredPad.js';
 import { Button, ButtonEvent } from './Button.js';
 import { Command } from './Command.js';
@@ -7,6 +8,7 @@ import { InputEvent } from './InputEvent.js';
 export class WiredConsole {
 	constructor(resolution) {
 		this.system = new System(resolution);
+		this.system.audio = new Audio(this.system);
 		this.pads = [
 			new WiredPad(this, 0),
 			new WiredPad(this, 1),

@@ -24,7 +24,7 @@ export class TreasureHunt extends Game {
 	}
 
 	_spawnTarget() {
-		this.targetPos = Math.random() * (this.resolution - 1);
+		this.targetPos = this.system.random() * (this.resolution - 1);
 	}
 
 	loop() {

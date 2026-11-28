@@ -17,7 +17,7 @@ export class Blackjack extends Game {
 	}
 
 	_drawCard() {
-		return 1 + Math.floor(Math.random() * 10);
+		return 1 + Math.floor(this.system.random() * 10);
 	}
 
 	_newHand() {

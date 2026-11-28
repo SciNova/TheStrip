@@ -54,7 +54,7 @@ export class RhythmTap extends Game {
 
 		this.beatTimer -= dt;
 		if (this.beatTimer <= 0.0) {
-			const lane = Math.floor(Math.random() * LANES);
+			const lane = Math.floor(this.system.random() * LANES);
 			this.notes.push({ lane, z: RhythmTap.SPAWN_Z * this.resolution });
 			this.beatTimer = this.beatInterval;
 		}

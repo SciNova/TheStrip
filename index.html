@@ -105,12 +105,7 @@
 	window.init = (resolution) => app.setup(resolution);
 	window.loadGame = (gameId) => app.loadGame(gameId);
 
-	function loop() {
-		app.loop();
-		requestAnimationFrame(loop);
-	}
-
 	await app.setup(120);
-	requestAnimationFrame(loop);
+	app.startLoop();
 </script>
 {% endblock %}
